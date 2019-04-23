@@ -8,9 +8,12 @@ This project is for educational purposes and will probably not be in any useful 
 # Log
 1) First thing that we are doing is coming out of the boot environment provided by grub and settin things up for
 our actual kernel
+      
       A) We need to set up an actual environment that GRUB has temporarily provided us. We need to load descriptor tabels
       and set up paging. 
+      
       B) Move our kernel to higher-address spaces. 
+      
       C) Get better terminal support and logging. We will need to be debugging a lot. 
 
 # Info
