@@ -1,5 +1,5 @@
 # NowOS - The OS you want now, but probably will never get
-My take on an operating system targeted towards x86 compatible machines. 
+My take on an operating system written in C targeted towards x86 compatible machines. 
 
 My goal is to create a functioning kernel and eventually be able to support user-space. I am much more interested in the kernel-level side of things so I might never get around to implementing a full desktop environment but who knows! 
 
