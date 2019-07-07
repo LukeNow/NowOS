@@ -18,8 +18,11 @@ INCLUDEDIR:=include
 KERN_OBJS:= kernel/io.o  \
 	       kernel/tty.o \
 	       kernel/kernel.o \
+	       kernel/kprint.o 
 
-BOOT_OBJS:= boot/boot.o \
+BOOT_OBJS:= boot/gdt.o \
+		boot/boot.o \
+
 
 
 OBJS:= $(BOOT_OBJS) $(KERN_OBJS)
