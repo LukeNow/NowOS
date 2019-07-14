@@ -5,7 +5,6 @@
 #include "../include/tty.h"
 #include "../include/io.h"
 
-
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
 #define VGA_MEM 0xB8000
@@ -62,6 +61,7 @@ void term_putchar(char c) {
 				terminal_row++;
 				break;
 			}
+		
 		default: {
 				term_putentryat(c, terminal_color, terminal_column, terminal_row);
 				if (++terminal_column == VGA_WIDTH) {
@@ -69,10 +69,12 @@ void term_putchar(char c) {
 					if (++terminal_row == VGA_HEIGHT)
 						terminal_row = 0;
 				}
+				
 
 			 }
 
 	}
+	debug_print(c); //Write character to serial log
 
 }
  

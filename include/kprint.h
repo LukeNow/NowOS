@@ -3,6 +3,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
-void kprint(const char* string);
-void kerror(const char* string);
+enum LOG_LEVEL {
+	INFO = 0,
+	WARN = 1,
+	ERROR = 2
+	
+};
+
+void print(char *str);
+void kprint(enum LOG_LEVEL level, char* format, ...);
+//void kprint(enum LOG_LEVEL level, char* format, ...);
 #endif

@@ -2,3 +2,4 @@
 *.d
 *.o
 *.kernel
+serial.log

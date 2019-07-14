@@ -7,9 +7,6 @@ ASM:=nasm
 
 LIBS:=-nostdlib -lk -lgcc
 
-
-OBJS:=kernel.o boot.o tty.o io.o
-
 KERNDIR:=kernel
 BOOTDIR:=boot
 INCLUDEDIR:=include
@@ -20,12 +17,18 @@ KERN_OBJS:= kernel/io.o  \
 	       kernel/kernel.o \
 	       kernel/kprint.o 
 
-BOOT_OBJS:= boot/gdt.o \
-		boot/boot.o \
+BOOT_OBJS:= boot/boot.o \
+		
+ARCH_OBJS:= arch/gdt.o \
+		arch/idt.o \
+		arch/irq_handle.o \
+		arch/irq.o \
+		arch/pic.o \
+		arch/processor.o \
+		arch/machine.o
 
 
-
-OBJS:= $(BOOT_OBJS) $(KERN_OBJS)
+OBJS:= $(BOOT_OBJS) $(KERN_OBJS) $(ARCH_OBJS)
 	  
 
 
@@ -33,14 +36,14 @@ OBJS:= $(BOOT_OBJS) $(KERN_OBJS)
 .PHONY: all clean run
 .SUFFIXES: .o .c .s
 
-all: nowos.kernel
+all: clean nowos.kernel
 
 nowos.kernel: $(OBJS) boot/linker.ld
 	$(CC) -T boot/linker.ld -o $@ $(CFLAGS) $(OBJS)
 	grub-file --is-x86-multiboot nowos.kernel
 
-run: nowos.kernel
-	qemu-system-i386 -kernel nowos.kernel
+run: all
+	qemu-system-i386 -kernel nowos.kernel -serial file:serial.log
 
 clean:	
 	rm -f nowos.kernel
