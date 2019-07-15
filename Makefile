@@ -28,13 +28,9 @@ ARCH_OBJS:= arch/gdt.o \
 		arch/processor.o \
 		arch/machine.o
 
-
 OBJS:= $(BOOT_OBJS) $(KERN_OBJS) $(ARCH_OBJS)
 	  
-
-
-
-.PHONY: all clean run
+.PHONY: all clean run iso bochs-run qemu-run
 .SUFFIXES: .o .c .s
 
 all: clean nowos.kernel

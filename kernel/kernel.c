@@ -17,7 +17,6 @@ void kernel_main(void)
 	
 	register_dump();
 	
-	div_zero();
 	/* Hang, we dont return from this function */
 	for(;;) 
 	

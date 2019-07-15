@@ -7,5 +7,8 @@ log:             bochslog.txt
 clock:           sync=realtime, time0=local
 cpu:             count=1, ips=1000000
 
+com1: enabled=1, mode=file, dev=serial.log
+
 magic_break: enabled=1
 display_library: x, options="gui_debug"
+
