@@ -14,7 +14,9 @@ struct IDT_entry{
 
 struct IDT_entry IDT[256];
 
-extern void load_idt();
+
+
+extern void divide_by_zero_int();
 extern void irq0();
 extern void irq1();
 extern void irq2();
@@ -32,9 +34,12 @@ extern void irq13();
 extern void irq14();
 extern void irq15();
 
+extern void load_idt();
 
 void idt_init(void) {
 	
+	unsigned long divide_by_zero_address;
+
 	unsigned long irq0_address;
 	unsigned long irq1_address;
 	unsigned long irq2_address;
@@ -65,6 +70,15 @@ void idt_init(void) {
         outb(0xA1, 0x01);
         outb(0x21, 0x0);
         outb(0xA1, 0x0);
+	
+	divide_by_zero_address = (unsigned long)
+				 divide_by_zero_int;
+	IDT[0].offset_lowerbits = divide_by_zero_address & 0xffff;
+	IDT[0].selector = 0x08;
+	IDT[0].zero = 0;
+	IDT[0].type_attr = 0x08e;
+	IDT[0].offset_higherbits = (divide_by_zero_address & 0xffff0000) >> 16;
+
 
 	irq0_address = (unsigned long)irq0;
 	IDT[32].offset_lowerbits = irq0_address & 0xffff;

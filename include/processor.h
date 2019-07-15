@@ -1,8 +1,17 @@
 #ifndef _PROCESSOR_H
 #define _PROCESSOR_H
 
+void halt_system();
 void enable_int();
 void disable_int();
+
+void __int_load_regs();
+void __int_load_regs_error();
+unsigned int int_get_eip();
+unsigned int int_get_error();
+unsigned int int_get_eflags();
+unsigned int int_get_cs();
+
 unsigned int get_eax();
 unsigned int get_ebx();
 unsigned int get_ecx();

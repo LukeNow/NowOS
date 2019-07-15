@@ -4,9 +4,13 @@
 #include "../include/io.h"
 #include "../include/pic.h"
 #include "../include/kprint.h"
+#include "../include/machine.h"
+#include "../include/processor.h"
 
-void divice_by_zero_handler(void)
+void divide_by_zero_handler(void)
 {
+	interrupt_register_dump(0);
+	halt_system();
 }
 
 

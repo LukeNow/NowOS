@@ -32,8 +32,6 @@ void print(char* str)
 	term_writestring(str);
 }
 
-
-
 void kprint(enum LOG_LEVEL level, char* format, ...)
 {
 	char *charp;

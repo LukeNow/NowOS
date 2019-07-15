@@ -1,3 +1,14 @@
+global divide_by_zero_int
+extern divide_by_zero_handler
+extern __int_load_regs
+
+divide_by_zero_int:
+	pusha
+	call __int_load_regs
+	call divide_by_zero_handler
+	popa
+	iret
+
 global irq0
 extern irq0_handler
 irq0:
