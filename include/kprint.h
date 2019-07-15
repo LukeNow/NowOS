@@ -10,7 +10,6 @@ enum LOG_LEVEL {
 	
 };
 
-void print(char *str);
 void kprint(enum LOG_LEVEL level, char* format, ...);
 //void kprint(enum LOG_LEVEL level, char* format, ...);
 #endif

@@ -2,14 +2,14 @@
 #define _IRQ_HANDLE_H
 
 struct cpu_state {
-        unsigned int eax;
-        unsigned int ebx;
-        unsigned int ecx;
-        unsigned int edx;
-	unsigned int esi;
-	unsigned int edi;
-	unsigned int ebp;
         unsigned int esp;
+	unsigned int ebp;
+	unsigned int edi;
+	unsigned int esi;
+	unsigned int edx;
+	unsigned int ecx;
+	unsigned int ebx;
+	unsigned int eax;
 } __attribute__((packed));
 
 struct stack_state {

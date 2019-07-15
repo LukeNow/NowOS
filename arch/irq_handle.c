@@ -112,7 +112,7 @@ void irq0_handler(struct cpu_state cpu, struct stack_state stack)
 
 void irq1_handler(struct cpu_state cpu, struct stack_state stack)
 {
-	kprint(INFO, "IRQ 1 FIRED\n");
+	interrupt_register_dump(cpu, stack, 33);
 	pic_sendEOI(1);
 }
 

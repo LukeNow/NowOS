@@ -1,5 +1,21 @@
 #include "../include/kprint.h"
 #include "../include/processor.h"
+#include "../include/irq_handle.h"
+
+void halt_system()
+{
+	__halt_system();
+}
+
+void enable_int()
+{
+	__enable_int();
+}
+
+void disable_int()
+{
+	__disable_int();
+}
 
 void register_dump()
 {
@@ -20,42 +36,21 @@ void register_dump()
 	eip = get_eip();
 	eflags = get_eflags();
 	
+	kprint(WARN, "** REGISTER DUMP ***\n");
 	kprint(INFO, "EAX: %x EBX: %x ECX: %x EDX: %x EIP: %x\n",
 	       eax, ebx, ecx, edx, eip);
 	kprint(INFO, "ESI: %x EDI: %x EBP: %x ESP: %x EFLAGS: %x\n",
 	       esi, edi, ebp, esp, eflags);
 }
 
-void interrupt_register_dump(int int_num)
+void interrupt_register_dump(struct cpu_state cpu, struct stack_state stack,
+			     unsigned int interrupt)
 {
-	unsigned int eax, ebx, ecx, edx, esi, edi, 
-		     ebp, esp, eip, eflags = 0;
-
-	unsigned int int_eflags, int_cs, int_eip, 
-		     int_error = 0;
-	
-	int_eflags = int_get_eflags();
-	int_cs = int_get_cs();
-	int_eip = int_get_eip();
-	int_error = int_get_error();
-
-	eax = get_eax();
-	ebx = get_ebx();
-	ecx = get_ecx();
-	edx = get_edx();
-	esi = get_esi();
-	edi = get_edi();
-	ebp = get_ebp();
-	esp = get_esp();
-	eip = get_eip();
-	eflags = get_eflags();
-	
-	kprint(WARN, "INT NUMBER %d register dump\n", int_num);
-	kprint(INFO, "INT_EFLAGS: %x INT_CS: %x INT_EIP %x INT_ERROR %x\n",
-	       int_eflags, int_cs, int_eip, int_error);
-	kprint(INFO, "EAX: %x EBX: %x ECX: %x EDX: %x EIP: %x\n",
-	       eax, ebx, ecx, edx, eip);
-	kprint(INFO, "ESI: %x EDI: %x EBP: %x ESP: %x EFLAGS: %x\n",
-	       esi, edi, ebp, esp, eflags);
-
+	kprint(WARN, "*** Register dump for interrupt %d ****\n", interrupt);
+	kprint(INFO, "EAX: %x EBX: %x ECX: %x EDX: %x\n", cpu.eax, cpu.ebx,
+	       cpu.ecx, cpu.edx);
+	kprint(INFO, "ESI: %x EDI: %x EBP: %x ESP: %x\n", cpu.esi, cpu.edi, 
+	       cpu.ebp, cpu.esp);
+	kprint(INFO, "ERROR CODE: %x EIP: %x CS %x EFLAGS %x\n", stack.error_code,
+	       stack.eip, stack.cs, stack.eflags);
 }

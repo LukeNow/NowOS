@@ -5,7 +5,7 @@
 #include "../include/tty.h"
 #include "../include/ctype.h"
 #include "../include/kprint.h"
-
+#include "../include/irq_handle.h"
 
 int log_count = 0;
 
@@ -24,12 +24,6 @@ static char *convert(unsigned int num, int base)
 	} while(num != 0);
 
 	return ptr;
-}
-
-void print(char* str) 
-{
-	term_setcolor(VGA_COLOR_WHITE);
-	term_writestring(str);
 }
 
 void kprint(enum LOG_LEVEL level, char* format, ...)
@@ -93,36 +87,5 @@ void kprint(enum LOG_LEVEL level, char* format, ...)
 		}
 
 	}
-
-	/*
-	for (charp = format; *charp != '\0'; charp++) {
-		while (*charp != '%' && *charp != '\0') {
-			term_putchar(*charp);
-			charp++;
-		}
-
-		switch(*charp) {
-			case 'c': i = va_arg(arg, int);
-				term_putchar(toascii(i));
-				break;
-
-			case 'd': i = va_arg(arg,int);
-				if (i < 0) {
-					i = -1;
-					term_putchar('-');
-				}
-				term_writestring(convert(i, 10));
-				break;
-
-			case 's': s = va_arg(arg, char *);
-				term_writestring(s);
-				break;
-
-			case 'x': i = va_arg(arg, unsigned int);
-				term_writestring(convert(i, 16));
-				break;
-		}	
-	}
-	*/
 	va_end(arg);
 }
