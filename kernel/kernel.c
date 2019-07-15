@@ -6,6 +6,7 @@
 #include "../include/machine.h"
 #include "../include/processor.h"
 #include "../include/io.h"
+
 void kernel_main(void)
 {
 	//term_init();
@@ -17,7 +18,6 @@ void kernel_main(void)
 	
 	register_dump();
 	
-	div_zero();
 	/* Hang, we dont return from this function */
 	for(;;) 
 	

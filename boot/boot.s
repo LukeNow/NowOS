@@ -26,7 +26,6 @@ extern kernel_main
 extern create_table
 extern term_init
 extern idt_init
-extern irq0
 _start:
 	
 	cli
@@ -60,6 +59,7 @@ reload_CS:
 
 	call idt_init
 	
+	sti
 	;Call main kernel code
 	call kernel_main
 
@@ -82,19 +82,19 @@ gdt_end_data:
 
 
  
- idt:
-    resd 50*2
+; idt:
+;    resd 50*2
+; 
+; idtr:
+;    dw (50*8)-1
+;    dd idt
  
- idtr:
-    dw (50*8)-1
-    dd idt
- 
- test1:
-    lidt [idtr]
-    mov eax,irq0
-    mov [idt+49*8],ax
-    mov word [idt+49*8+2],8
-    mov word [idt+49*8+4],0x8E00
-    shr eax,16
-    mov [idt+49*8+6],ax
-    int 49
+; test1:
+;    lidt [idtr]
+;    mov eax,irq0
+;    mov [idt+49*8],ax
+;    mov word [idt+49*8+2],8
+;    mov word [idt+49*8+4],0x8E00
+;    shr eax,16
+;    mov [idt+49*8+6],ax
+;    int 49

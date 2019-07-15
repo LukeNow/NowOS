@@ -3,62 +3,48 @@
 #include <stdint.h>
 #include "../include/io.h"
 #include "../include/kprint.h"
+#include "../include/irq_handle.h"
 
-struct IDT_entry{
-	unsigned short int offset_lowerbits;
+#define KERN_CODE_SEGMENT 0x08
+#define TYPE_32_INT_GATE 0x8E
+
+struct idt_entry{
+	unsigned short int offset_lower;
 	unsigned short int selector;
 	unsigned char zero;
-	unsigned char type_attr;
-	unsigned short int offset_higherbits;
+	unsigned char type;
+	unsigned short int offset_higher;
 }__attribute__((packed));
 
-struct IDT_entry IDT[256];
-
-
-
-extern void divide_by_zero_int();
-extern void irq0();
-extern void irq1();
-extern void irq2();
-extern void irq3();
-extern void irq4();
-extern void irq5();
-extern void irq6();
-extern void irq7();
-extern void irq8();
-extern void irq9();
-extern void irq10();
-extern void irq11();
-extern void irq12();
-extern void irq13();
-extern void irq14();
-extern void irq15();
+struct idt_entry idt[256];
 
 extern void load_idt();
 
+static void set_idt_entry(unsigned int int_num, uint32_t address,
+			  uint16_t selector, uint8_t type)
+{
+	struct idt_entry entry;
+
+	entry.offset_lower = address & 0xFFFF;
+	entry.selector = selector;
+	entry.zero = 0;
+	entry.type = type;
+	entry.offset_higher = (address & 0xFFFF0000) >> 16;
+	
+	idt[int_num] = entry;
+}
+
+static void set_kern_interrupt(unsigned int int_num, uint32_t address)
+{
+	set_idt_entry(int_num, address, KERN_CODE_SEGMENT, 
+		      TYPE_32_INT_GATE);
+}
+
 void idt_init(void) {
 	
-	unsigned long divide_by_zero_address;
-
-	unsigned long irq0_address;
-	unsigned long irq1_address;
-	unsigned long irq2_address;
-	unsigned long irq3_address;
-	unsigned long irq4_address;
-	unsigned long irq5_address;
-	unsigned long irq6_address;
-	unsigned long irq7_address;
-	unsigned long irq8_address;
-	unsigned long irq9_address;
-	unsigned long irq10_address;
-	unsigned long irq11_address;
-	unsigned long irq12_address;
-	unsigned long irq13_address;
-	unsigned long irq14_address;
-	unsigned long irq15_address;
 	unsigned long idt_address;
 	unsigned long idt_ptr[2];
-
+			;
 	/* remapping the PIC */
 	outb(0x20, 0x11);
         outb(0xA0, 0x11);
@@ -71,136 +57,43 @@ void idt_init(void) {
         outb(0x21, 0x0);
         outb(0xA1, 0x0);
 	
-	divide_by_zero_address = (unsigned long)
-				 divide_by_zero_int;
-	IDT[0].offset_lowerbits = divide_by_zero_address & 0xffff;
-	IDT[0].selector = 0x08;
-	IDT[0].zero = 0;
-	IDT[0].type_attr = 0x08e;
-	IDT[0].offset_higherbits = (divide_by_zero_address & 0xffff0000) >> 16;
+	set_kern_interrupt(0, (unsigned long) interrupt_handler_0);
+	set_kern_interrupt(2, (unsigned long) interrupt_handler_1);
+	set_kern_interrupt(4, (unsigned long) interrupt_handler_4);
+	set_kern_interrupt(5, (unsigned long) interrupt_handler_5);
+	set_kern_interrupt(6, (unsigned long) interrupt_handler_6);
+	set_kern_interrupt(7, (unsigned long) interrupt_handler_7);
+	set_kern_interrupt(8, (unsigned long) interrupt_handler_8);
+	set_kern_interrupt(10, (unsigned long) interrupt_handler_10);
+	set_kern_interrupt(11, (unsigned long) interrupt_handler_11);
+	set_kern_interrupt(12, (unsigned long) interrupt_handler_12);
+	set_kern_interrupt(13, (unsigned long) interrupt_handler_13);
+	set_kern_interrupt(14, (unsigned long) interrupt_handler_14);
 
-
-	irq0_address = (unsigned long)irq0;
-	IDT[32].offset_lowerbits = irq0_address & 0xffff;
-	IDT[32].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[32].zero = 0;
-	IDT[32].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[32].offset_higherbits = (irq0_address & 0xffff0000) >> 16;
-
-	irq1_address = (unsigned long)irq1;
-	IDT[33].offset_lowerbits = irq1_address & 0xffff;
-	IDT[33].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[33].zero = 0;
-	IDT[33].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[33].offset_higherbits = (irq1_address & 0xffff0000) >> 16;
-
-	irq2_address = (unsigned long)irq2;
-	IDT[34].offset_lowerbits = irq2_address & 0xffff;
-	IDT[34].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[34].zero = 0;
-	IDT[34].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[34].offset_higherbits = (irq2_address & 0xffff0000) >> 16;
-
-	irq3_address = (unsigned long)irq3;
-	IDT[35].offset_lowerbits = irq3_address & 0xffff;
-	IDT[35].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[35].zero = 0;
-	IDT[35].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[35].offset_higherbits = (irq3_address & 0xffff0000) >> 16;
-
-	irq4_address = (unsigned long)irq4;
-	IDT[36].offset_lowerbits = irq4_address & 0xffff;
-	IDT[36].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[36].zero = 0;
-	IDT[36].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[36].offset_higherbits = (irq4_address & 0xffff0000) >> 16;
-
-	irq5_address = (unsigned long)irq5;
-	IDT[37].offset_lowerbits = irq5_address & 0xffff;
-	IDT[37].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[37].zero = 0;
-	IDT[37].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[37].offset_higherbits = (irq5_address & 0xffff0000) >> 16;
-
-	irq6_address = (unsigned long)irq6;
-	IDT[38].offset_lowerbits = irq6_address & 0xffff;
-	IDT[38].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[38].zero = 0;
-	IDT[38].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[38].offset_higherbits = (irq6_address & 0xffff0000) >> 16;
-
-	irq7_address = (unsigned long)irq7;
-	IDT[39].offset_lowerbits = irq7_address & 0xffff;
-	IDT[39].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[39].zero = 0;
-	IDT[39].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[39].offset_higherbits = (irq7_address & 0xffff0000) >> 16;
-
-	irq8_address = (unsigned long)irq8;
-	IDT[40].offset_lowerbits = irq8_address & 0xffff;
-	IDT[40].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[40].zero = 0;
-	IDT[40].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[40].offset_higherbits = (irq8_address & 0xffff0000) >> 16;
-
-	irq9_address = (unsigned long)irq9;
-	IDT[41].offset_lowerbits = irq9_address & 0xffff;
-	IDT[41].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[41].zero = 0;
-	IDT[41].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[41].offset_higherbits = (irq9_address & 0xffff0000) >> 16;
-
-	irq10_address = (unsigned long)irq10;
-	IDT[42].offset_lowerbits = irq10_address & 0xffff;
-	IDT[42].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[42].zero = 0;
-	IDT[42].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[42].offset_higherbits = (irq10_address & 0xffff0000) >> 16;
-
-	irq11_address = (unsigned long)irq11;
-	IDT[43].offset_lowerbits = irq11_address & 0xffff;
-	IDT[43].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[43].zero = 0;
-	IDT[43].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[43].offset_higherbits = (irq11_address & 0xffff0000) >> 16;
-
-	irq12_address = (unsigned long)irq12;
-	IDT[44].offset_lowerbits = irq12_address & 0xffff;
-	IDT[44].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[44].zero = 0;
-	IDT[44].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[44].offset_higherbits = (irq12_address & 0xffff0000) >> 16;
-
-	irq13_address = (unsigned long)irq13;
-	IDT[45].offset_lowerbits = irq13_address & 0xffff;
-	IDT[45].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[45].zero = 0;
-	IDT[45].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[45].offset_higherbits = (irq13_address & 0xffff0000) >> 16;
-
-	irq14_address = (unsigned long)irq14;
-	IDT[46].offset_lowerbits = irq14_address & 0xffff;
-	IDT[46].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[46].zero = 0;
-	IDT[46].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[46].offset_higherbits = (irq14_address & 0xffff0000) >> 16;
-
-        irq15_address = (unsigned long)irq15;
-	IDT[47].offset_lowerbits = irq15_address & 0xffff;
-	IDT[47].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[47].zero = 0;
-	IDT[47].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[47].offset_higherbits = (irq15_address & 0xffff0000) >> 16;
+	set_kern_interrupt(32, (unsigned long) interrupt_handler_32);
+	set_kern_interrupt(33, (unsigned long) interrupt_handler_33);
+	set_kern_interrupt(34, (unsigned long) interrupt_handler_34);
+	set_kern_interrupt(35, (unsigned long) interrupt_handler_35);
+	set_kern_interrupt(36, (unsigned long) interrupt_handler_36);
+	set_kern_interrupt(37, (unsigned long) interrupt_handler_37);
+	set_kern_interrupt(38, (unsigned long) interrupt_handler_38);
+	set_kern_interrupt(39, (unsigned long) interrupt_handler_39);
+	set_kern_interrupt(40, (unsigned long) interrupt_handler_40);
+	set_kern_interrupt(41, (unsigned long) interrupt_handler_41);
+	set_kern_interrupt(42, (unsigned long) interrupt_handler_42);
+	set_kern_interrupt(43, (unsigned long) interrupt_handler_43);
+	set_kern_interrupt(44, (unsigned long) interrupt_handler_44);
+	set_kern_interrupt(45, (unsigned long) interrupt_handler_45);
+	set_kern_interrupt(46, (unsigned long) interrupt_handler_46);
+	set_kern_interrupt(47, (unsigned long) interrupt_handler_47);
 
 	/* fill the IDT descriptor */
-	idt_address = (unsigned long)IDT ;
-	idt_ptr[0] = (sizeof (struct IDT_entry) * 256) + ((idt_address & 0xffff) << 16);
+	idt_address = (unsigned long) idt;
+	idt_ptr[0] = (sizeof (struct idt_entry) * 256) + ((idt_address & 0xffff) << 16);
 	idt_ptr[1] = idt_address >> 16 ;
-	
 
-
-	kprint(INFO, "IDT table loaded\n");
 	load_idt(idt_ptr);
+	kprint(INFO, "IDT table loaded\n");
 }
 
 	
