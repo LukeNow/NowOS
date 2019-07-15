@@ -6,6 +6,7 @@
 #include "../include/machine.h"
 #include "../include/processor.h"
 #include "../include/io.h"
+
 void kernel_main(void)
 {
 	//term_init();

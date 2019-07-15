@@ -201,8 +201,8 @@ void irq15_handler(struct cpu_state cpu, struct stack_state stack)
 	pic_sendEOI(15);
 }
 
-void interrupt_handler(struct cpu_state cpu, struct stack_state stack,
-		       unsigned int interrupt)
+void interrupt_handler(struct cpu_state cpu, unsigned int interrupt,
+		       struct stack_state stack)
 {
 	switch (interrupt) {
 		case 0: divide_by_zero_handler(cpu, stack);
