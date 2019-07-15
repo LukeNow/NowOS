@@ -2,3 +2,5 @@
 *.d
 *.o
 *.log
+*.txt
+*.ini

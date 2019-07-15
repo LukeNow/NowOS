@@ -19,6 +19,7 @@ debug_print:
 	mov al, [esp + 4]
 	mov dx, 0x3F8 
 	out dx, al
+	ret
 
 div_zero
 	mov eax, 100

@@ -9,7 +9,9 @@
 
 void divide_by_zero_handler(void)
 {
-	interrupt_register_dump(0);
+	
+	kprint(INFO, "DIVIDE BY_ZERO!!!!\n");
+	//interrupt_register_dump(0);
 	halt_system();
 }
 
