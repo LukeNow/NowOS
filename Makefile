@@ -20,7 +20,9 @@ KERN_OBJS:= kernel/io.o  \
 
 BOOT_OBJS:= boot/boot.o \
 		
-ARCH_OBJS:= arch/gdt.o \
+ARCH_OBJS:= 	arch/gdt_init.o \
+		arch/idt_init.o \
+		arch/gdt.o \
 		arch/idt.o \
 		arch/irq_handle.o \
 		arch/irq.o \

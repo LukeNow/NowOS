@@ -34,6 +34,4 @@ void create_table(uint64_t *table)
 	table[2] = create_descriptor(0, 0x000FFFFF, (GDT_DATA_PL0));
 	table[3] = create_descriptor(0, 0x000FFFFF, (GDT_CODE_PL3));
 	table[4] = create_descriptor(0, 0x000FFFFF, (GDT_DATA_PL3));
-
-	kprint(INFO, "GDT TABLE LOADED\n");
 }

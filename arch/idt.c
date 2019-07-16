@@ -41,11 +41,10 @@ static void set_kern_interrupt(unsigned int int_num, uint32_t address)
 }
 
 void idt_init(void) {
-	
 	unsigned long idt_address;
 	unsigned long idt_ptr[2];
 			;
-	/* remapping the PIC */
+	/* remapping the PIC  */
 	outb(0x20, 0x11);
         outb(0xA0, 0x11);
         outb(0x21, 0x20);
@@ -55,7 +54,7 @@ void idt_init(void) {
         outb(0x21, 0x01);
         outb(0xA1, 0x01);
         outb(0x21, 0x0);
-        outb(0xA1, 0x0);
+        outb(0xA1, 0x0); 
 	
 	set_kern_interrupt(0, (unsigned long) interrupt_handler_0);
 	set_kern_interrupt(2, (unsigned long) interrupt_handler_1);
