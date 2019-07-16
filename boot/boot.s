@@ -11,7 +11,6 @@ align 4
 	dd FLAGS
 	dd CHECKSUM
 
-;Lets reserve our stack space
 section .bss
 align 16
 stack_bottom:
@@ -20,20 +19,28 @@ stack_top:
 
 section .text
 global _start
+global gdt_init_ret
 extern kernel_main
 extern term_init
 extern gdt_init
 extern idt_init
 
 _start:
+	;Turn off interrupts
 	cli
 	;Set up our initial stack
 	mov esp, stack_top
+	;Set up our terminal so we can print
 	call term_init
-	call gdt_init
+	;Set up our GDT table
+	jmp gdt_init
+gdt_init_ret:
+	;Set up our IDT table
 	call idt_init
+	;Turn on interrupts
 	sti
 	;Call main kernel code
 	call kernel_main
+	;We shouldnt be returning from kernel_main
 hang:	hlt
 	jmp hang

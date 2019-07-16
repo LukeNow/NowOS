@@ -27,7 +27,7 @@
 #define ICW4_BUF_MASTER	0x0C		/* Buffered mode/master */
 #define ICW4_SFNM	0x10		/* Special fully nested (not) */
 
-void pic_remap(int offset1, int offset2);
+void pic_remap();
 void pic_sendEOI(unsigned char irq);
 void pic_set_mask(unsigned char irq);
 void pic_clear_mask(unsigned char irq);
