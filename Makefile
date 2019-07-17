@@ -39,7 +39,7 @@ all: clean nowos.kernel
 
 nowos.kernel: $(OBJS) boot/linker.ld
 	$(CC) -T boot/linker.ld -o $(KERNELDIR)/$(KERNELNAME).kernel $(CFLAGS) $(OBJS) 
-
+	sh scripts/check-multiboot.sh $(KERNELDIR) $(KERNELNAME)
 qemu-run: all
 	qemu-system-i386 -kernel $(KERNELDIR)/$(KERNELNAME).kernel -serial file:serial.log
 
