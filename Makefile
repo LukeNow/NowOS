@@ -1,5 +1,5 @@
 ARCH:=i686-elf
-CFLAGS:=-g -ffreestanding -Wall -Wextra -lgcc -nostdlib
+CFLAGS:=-g -ffreestanding -Wall -Wextra -lgcc -nostdlib -m32 -Wl,--build-id=none
 ASFLAGS:=
 
 CC:=$(ARCH)-gcc
@@ -15,7 +15,7 @@ KERNELNAME:=nowos
 
 KERN_OBJS:= kernel/io.o  \
 	       kernel/tty.o \
-	       kernel/kernel.o \
+	       kernel/kmain.o \
 	       kernel/kprint.o 
 
 BOOT_OBJS:= boot/boot.o \
@@ -28,7 +28,7 @@ ARCH_OBJS:= 	arch/gdt_init.o \
 		arch/irq.o \
 		arch/pic.o \
 		arch/processor.o \
-		arch/machine.o
+		arch/machine.o 
 
 OBJS:= $(BOOT_OBJS) $(KERN_OBJS) $(ARCH_OBJS)
 	  
@@ -38,15 +38,15 @@ OBJS:= $(BOOT_OBJS) $(KERN_OBJS) $(ARCH_OBJS)
 all: clean nowos.kernel
 
 nowos.kernel: $(OBJS) boot/linker.ld
-	$(CC) -T boot/linker.ld -o $(KERNELDIR)/$(KERNELNAME).kernel $(CFLAGS) $(OBJS)
+	$(CC) -T boot/linker.ld -o $(KERNELDIR)/$(KERNELNAME).kernel $(CFLAGS) $(OBJS) 
 
 qemu-run: all
 	qemu-system-i386 -kernel $(KERNELDIR)/$(KERNELNAME).kernel -serial file:serial.log
 
-bochs-run: iso
+bochs-run: iso1
 	bochs -q 
 
-iso: all
+iso1: all
 	genisoimage -R                          \
                 -b boot/grub/stage2_eltorito    \
                 -no-emul-boot                   \
@@ -57,6 +57,9 @@ iso: all
                 -boot-info-table                \
                 -o nowos.iso                    \
                 boot/iso	
+
+iso2: all
+	grub-mkrescue -o nowos.iso boot/iso
 
 clean:	
 	rm -f bx_enh_dbg.ini

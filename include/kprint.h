@@ -1,7 +1,6 @@
 #ifndef _KERN_PRINT_H
 #define _KERN_PRINT_H
 #include <stddef.h>
-#include <stdint.h>
 
 enum LOG_LEVEL {
 	INFO = 0,

@@ -6,17 +6,21 @@
 #include "../include/machine.h"
 #include "../include/processor.h"
 #include "../include/io.h"
+#include "../include/multiboot.h"
 
-void kernel_main(void)
+void kmain(multiboot_info_t* mbt, unsigned int magic)
 {
-	//term_init();
-	//kprint("The number is %d\n", 10);
+	
+	multiboot_memory_map_t* mmap = mbt->mmap_addr;
+	
+	kprint(INFO, "KMAIN mmap_addr: %x\n", mmap);
+	kprint(INFO, "MAGIC: %x\n", magic);
 	kprint(INFO, "Hello world!\n");
 	kprint(INFO, "This would be an error!!!!\n");
 	kprint(WARN, "The number is %d, the string is %s\n", 10, "Hello world!");
 	kprint(ERROR, "The hex number is %x, hehe\n", 0xABCD);
 	
-	register_dump();
+	//register_dump();
 	
 	/* Hang, we dont return from this function */
 	for(;;) 

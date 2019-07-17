@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
+#include "../include/stdint.h"
 #include "../include/io.h"
 #include "../include/kprint.h"
 #include "../include/irq_handle.h"
@@ -18,7 +18,7 @@ struct idt_entry{
 
 struct idt_entry idt[256];
 
-extern void load_idt();
+extern void load_idt(unsigned long* idt_ptr);
 
 static void set_idt_entry(unsigned int int_num, uint32_t address,
 			  uint16_t selector, uint8_t type)
@@ -56,7 +56,7 @@ void set_idt(void) {
 	set_kern_interrupt(12, (unsigned long) interrupt_handler_12);
 	set_kern_interrupt(13, (unsigned long) interrupt_handler_13);
 	set_kern_interrupt(14, (unsigned long) interrupt_handler_14);
-
+	/* PIC INTERRUPTS */
 	set_kern_interrupt(32, (unsigned long) interrupt_handler_32);
 	set_kern_interrupt(33, (unsigned long) interrupt_handler_33);
 	set_kern_interrupt(34, (unsigned long) interrupt_handler_34);

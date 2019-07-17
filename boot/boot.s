@@ -4,7 +4,7 @@ FLAGS equ MBALIGN | MEMINFO
 MAGIC equ 0x1BADB002
 CHECKSUM equ -(MAGIC + FLAGS)
 
-;Store our magic headers so that GRUB runs out kernel code
+;Store our magic headers so that GRUB runs our kernel code
 section .multiboot
 align 4
 	dd MAGIC
@@ -20,19 +20,24 @@ stack_top:
 section .text
 global _start
 global gdt_init_ret
-extern kernel_main
+
+extern kmain
 extern term_init
 extern gdt_init
 extern idt_init
-
 _start:
-	;Turn off interrupts
+	;Turn off interrupts just in case
 	cli
 	;Set up our initial stack
 	mov esp, stack_top
+	;Push multiboot info from bootloader
+	push eax
+	push ebx
 	;Set up our terminal so we can print
 	call term_init
 	;Set up our GDT table
+	
+	;call gdt_init
 	jmp gdt_init
 gdt_init_ret:
 	;Set up our IDT table
@@ -40,7 +45,7 @@ gdt_init_ret:
 	;Turn on interrupts
 	sti
 	;Call main kernel code
-	call kernel_main
+	call kmain
 	;We shouldnt be returning from kernel_main
 hang:	hlt
 	jmp hang
