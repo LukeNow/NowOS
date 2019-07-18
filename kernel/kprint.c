@@ -26,6 +26,8 @@ static char *convert(unsigned int num, int base)
 	return ptr;
 }
 
+
+
 void kprint(enum LOG_LEVEL level, char* format, ...)
 {
 	char *charp;

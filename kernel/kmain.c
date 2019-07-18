@@ -11,6 +11,7 @@
 void kmain(multiboot_info_t* mbt, unsigned int magic)
 {
 	
+	int i = 0;
 	multiboot_memory_map_t* mmap = mbt->mmap_addr;
 	
 	kprint(INFO, "KMAIN mmap_addr: %x\n", mmap);
@@ -20,8 +21,10 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	kprint(WARN, "The number is %d, the string is %s\n", 10, "Hello world!");
 	kprint(ERROR, "The hex number is %x, hehe\n", 0xABCD);
 	
-	//register_dump();
+	kprint(INFO, "ADDR IS %x\n", &i);
 	
+	PANIC("we fucked up")
+
 	/* Hang, we dont return from this function */
 	for(;;) 
 	
