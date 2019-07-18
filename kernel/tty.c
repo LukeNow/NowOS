@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-
 #include "../include/tty.h"
 #include "../include/io.h"
 
@@ -28,7 +27,7 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
 	return (uint16_t) uc | (uint16_t) color << 8;
 }
 
-void term_init(void)
+void term_init()
 {
 	terminal_row = 0;
 	terminal_column = 0;

@@ -4,14 +4,29 @@
 #include "../include/io.h"
 #include "../include/pic.h"
 
+
 /*
 arguments:
 	offset1 - vector offset for master PIC
 		vectors on the master become offset1..offset1+7
 	offset2 - same for slave PIC: offset2..offset2+7
 */
-void pic_remap(int offset1, int offset2)
+void pic_remap()
 {
+	
+	/* remapping the PIC */
+	outb(0x20, 0x11);
+        outb(0xA0, 0x11);
+        outb(0x21, 0x20);
+        outb(0xA1, 40);
+        outb(0x21, 0x04);
+        outb(0xA1, 0x02);
+        outb(0x21, 0x01);
+        outb(0xA1, 0x01);
+        outb(0x21, 0x0);
+        outb(0xA1, 0x0);  
+
+	/*
 	unsigned char a1, a2;
  
 	a1 = inb(PIC1_DATA);                        // save masks
@@ -28,7 +43,7 @@ void pic_remap(int offset1, int offset2)
 	outb(PIC2_DATA, ICW4_8086);
  
 	outb(PIC1_DATA, a1);   // restore saved masks.
-	outb(PIC2_DATA, a2);
+	outb(PIC2_DATA, a2); */
 }
 
 void pic_sendEOI(unsigned char irq)

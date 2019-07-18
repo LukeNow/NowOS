@@ -58,7 +58,7 @@ get_esp:
 	mov eax, esp
 	ret
 get_eip:
-	mov eax, [ebp + 4]
+	mov eax, [esp]
 	ret
 get_eflags:
 	pushfd

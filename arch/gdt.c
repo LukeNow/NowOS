@@ -30,10 +30,8 @@ create_descriptor(uint32_t base, uint32_t limit, uint16_t flag)
 void create_table(uint64_t *table)
 {
 	table[0] = create_descriptor(0, 0, 0);
-	table[1] = create_descriptor(0, 0x000FFFFF, (GDT_CODE_PL0));
-	table[2] = create_descriptor(0, 0x000FFFFF, (GDT_DATA_PL0));
-	table[3] = create_descriptor(0, 0x000FFFFF, (GDT_CODE_PL3));
-	table[4] = create_descriptor(0, 0x000FFFFF, (GDT_DATA_PL3));
-
-	kprint(INFO, "GDT TABLE LOADED\n");
+	table[1] = create_descriptor(0, 0xFFFFFFFF, (GDT_CODE_PL0));
+	table[2] = create_descriptor(0, 0xFFFFFFFF, (GDT_DATA_PL0));
+	table[3] = create_descriptor(0, 0xFFFFFFFF, (GDT_CODE_PL3));
+	table[4] = create_descriptor(0, 0xFFFFFFFF, (GDT_DATA_PL3));
 }

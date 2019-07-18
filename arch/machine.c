@@ -4,19 +4,26 @@
 
 void halt_system()
 {
-	__halt_system();
+	__halt_system(); //hlt
 }
 
 void enable_int()
 {
-	__enable_int();
+	__enable_int(); //sti
 }
 
 void disable_int()
 {
-	__disable_int();
+	__disable_int(); //cli
 }
 
+void _panic()
+{
+	disable_int();
+	halt_system();
+	for (;;);
+
+}
 void register_dump()
 {
 	unsigned int eax, ebx, ecx, edx, esi, edi, 

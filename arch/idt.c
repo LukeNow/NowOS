@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
+#include "../include/stdint.h"
 #include "../include/io.h"
 #include "../include/kprint.h"
 #include "../include/irq_handle.h"
@@ -18,7 +18,7 @@ struct idt_entry{
 
 struct idt_entry idt[256];
 
-extern void load_idt();
+extern void load_idt(unsigned long* idt_ptr);
 
 static void set_idt_entry(unsigned int int_num, uint32_t address,
 			  uint16_t selector, uint8_t type)
@@ -40,23 +40,10 @@ static void set_kern_interrupt(unsigned int int_num, uint32_t address)
 		      TYPE_32_INT_GATE);
 }
 
-void idt_init(void) {
-	
+void set_idt(void) {
 	unsigned long idt_address;
 	unsigned long idt_ptr[2];
-			;
-	/* remapping the PIC */
-	outb(0x20, 0x11);
-        outb(0xA0, 0x11);
-        outb(0x21, 0x20);
-        outb(0xA1, 40);
-        outb(0x21, 0x04);
-        outb(0xA1, 0x02);
-        outb(0x21, 0x01);
-        outb(0xA1, 0x01);
-        outb(0x21, 0x0);
-        outb(0xA1, 0x0);
-	
+		
 	set_kern_interrupt(0, (unsigned long) interrupt_handler_0);
 	set_kern_interrupt(2, (unsigned long) interrupt_handler_1);
 	set_kern_interrupt(4, (unsigned long) interrupt_handler_4);
@@ -69,7 +56,7 @@ void idt_init(void) {
 	set_kern_interrupt(12, (unsigned long) interrupt_handler_12);
 	set_kern_interrupt(13, (unsigned long) interrupt_handler_13);
 	set_kern_interrupt(14, (unsigned long) interrupt_handler_14);
-
+	/* PIC INTERRUPTS */
 	set_kern_interrupt(32, (unsigned long) interrupt_handler_32);
 	set_kern_interrupt(33, (unsigned long) interrupt_handler_33);
 	set_kern_interrupt(34, (unsigned long) interrupt_handler_34);

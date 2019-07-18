@@ -76,9 +76,3 @@ no_error_code_interrupt_handler 44 ;PS2 Mouse
 no_error_code_interrupt_handler 45 ;FPU / Coprocessor
 no_error_code_interrupt_handler 46 ;Primary ATA hard disk
 no_error_code_interrupt_handler 47 ;Secodary ATA
-
-global load_idt
-load_idt:
-	mov edx, [esp + 4]
-	lidt [edx]
-	ret
