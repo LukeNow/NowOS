@@ -94,6 +94,7 @@ void page_fault_handler(struct cpu_state cpu, struct stack_state stack)
 {
 	kprint(ERROR, "Page fault handler called\n");
 	interrupt_register_dump(cpu, stack, 14);
+	PANIC("YEET\n");
 }
 
 void default_handler(struct cpu_state cpu, struct stack_state stack,
