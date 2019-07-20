@@ -43,9 +43,11 @@ static void set_kern_interrupt(unsigned int int_num, uint32_t address)
 void set_idt(void) {
 	unsigned long idt_address;
 	unsigned long idt_ptr[2];
-		
+
 	set_kern_interrupt(0, (unsigned long) interrupt_handler_0);
-	set_kern_interrupt(2, (unsigned long) interrupt_handler_1);
+	set_kern_interrupt(1, (unsigned long) interrupt_handler_1);
+	set_kern_interrupt(2, (unsigned long) interrupt_handler_2);
+	set_kern_interrupt(3, (unsigned long) interrupt_handler_3);
 	set_kern_interrupt(4, (unsigned long) interrupt_handler_4);
 	set_kern_interrupt(5, (unsigned long) interrupt_handler_5);
 	set_kern_interrupt(6, (unsigned long) interrupt_handler_6);
@@ -56,6 +58,12 @@ void set_idt(void) {
 	set_kern_interrupt(12, (unsigned long) interrupt_handler_12);
 	set_kern_interrupt(13, (unsigned long) interrupt_handler_13);
 	set_kern_interrupt(14, (unsigned long) interrupt_handler_14);
+	set_kern_interrupt(16, (unsigned long) interrupt_handler_16);
+	set_kern_interrupt(17, (unsigned long) interrupt_handler_17);
+	set_kern_interrupt(18, (unsigned long) interrupt_handler_18);
+	set_kern_interrupt(19, (unsigned long) interrupt_handler_19);
+	set_kern_interrupt(20, (unsigned long) interrupt_handler_20);
+	set_kern_interrupt(30, (unsigned long) interrupt_handler_30);
 	/* PIC INTERRUPTS */
 	set_kern_interrupt(32, (unsigned long) interrupt_handler_32);
 	set_kern_interrupt(33, (unsigned long) interrupt_handler_33);
@@ -73,7 +81,14 @@ void set_idt(void) {
 	set_kern_interrupt(45, (unsigned long) interrupt_handler_45);
 	set_kern_interrupt(46, (unsigned long) interrupt_handler_46);
 	set_kern_interrupt(47, (unsigned long) interrupt_handler_47);
+	
 
+	for (int i = 0; i < 256; i++) {
+		struct idt_entry temp = idt[i];
+		if ( ((uint64_t)temp.offset_lower) == 0) {
+			set_kern_interrupt(i, (unsigned long) interrupt_handler_1);
+		}
+	}
 	/* fill the IDT descriptor */
 	idt_address = (unsigned long) idt;
 	idt_ptr[0] = (sizeof (struct idt_entry) * 256) + ((idt_address & 0xffff) << 16);

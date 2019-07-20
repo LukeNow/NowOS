@@ -6,7 +6,7 @@
 
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
-#define VGA_MEM 0xB8000
+#define VGA_MEM 0xC00B8000
 
 #define TERM_COMMAND_PORT 0x3D4
 #define TERM_DATA_PORT 0x3D5
@@ -42,6 +42,14 @@ void term_init()
 	}
 }
 
+void term_move_cursor(unsigned short pos)
+{
+	outb(TERM_COMMAND_PORT, TERM_HIGH_BYTE_COMMAND);
+	outb(TERM_DATA_PORT, ((pos >> 8) & 0x00FF));
+	outb(TERM_COMMAND_PORT, TERM_LOW_BYTE_COMMAND);
+	outb(TERM_DATA_PORT, pos & 0x00FF);
+}
+
 void term_setcolor(uint8_t color) {
 	terminal_color = color;
 }
@@ -49,30 +57,63 @@ void term_setcolor(uint8_t color) {
 void term_putentryat(unsigned char c, uint8_t color, size_t x, size_t y) {
 	const size_t index = y * VGA_WIDTH + x;
 	terminal_buffer[index] = vga_entry(c, color);
+	term_move_cursor(index);
+}
+
+static void move_entries_up() {
+	for (size_t y = 0; y < VGA_HEIGHT; y++) {
+		for (size_t x = 0; x < VGA_WIDTH; x++) {
+
+			const size_t from_index = (y + 1) * VGA_WIDTH + x;
+			const size_t to_index = (y) * VGA_WIDTH + x;
+			
+			if (y == VGA_HEIGHT - 1) {
+				const size_t cursor_pos = (y) * VGA_WIDTH;
+				terminal_buffer[to_index] = vga_entry(' ', terminal_color);
+				term_move_cursor(cursor_pos);
+			}
+			else 
+				terminal_buffer[to_index] = terminal_buffer[from_index];
+				
+		
+		}
+	}
+
+
+
 }
 
 void term_putchar(char c) {
 	
 	switch(c) {
-		case '\n':
-			{
+		case '\n': {
 				terminal_column = 0;
-				terminal_row++;
+				if (++terminal_row == VGA_HEIGHT) {
+					terminal_row = VGA_HEIGHT - 1;
+					move_entries_up();
+				}
+
 				break;
-			}
+			   }
 		
 		default: {
-				term_putentryat(c, terminal_color, terminal_column, terminal_row);
+				
 				if (++terminal_column == VGA_WIDTH) {
 					terminal_column = 0;
-					if (++terminal_row == VGA_HEIGHT)
-						terminal_row = 0;
+					if (++terminal_row == VGA_HEIGHT) {
+						terminal_row = VGA_HEIGHT - 1;
+						move_entries_up();
+					}
+						
 				}
 				
+				term_putentryat(c, terminal_color, terminal_column, terminal_row);
 
 			 }
 
 	}
+
+
 	debug_print(c); //Write character to serial log
 
 }
@@ -88,11 +129,5 @@ void term_writestring(const char* data) {
 	}
 }
 
-void term_move_cursor(unsigned short pos)
-{
-	outb(TERM_COMMAND_PORT, TERM_HIGH_BYTE_COMMAND);
-	outb(TERM_DATA_PORT, ((pos >> 8) & 0x00FF));
-	outb(TERM_COMMAND_PORT, TERM_LOW_BYTE_COMMAND);
-	outb(TERM_DATA_PORT, pos & 0x00FF);
-}
+
 

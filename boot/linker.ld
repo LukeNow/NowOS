@@ -18,7 +18,6 @@ SECTIONS
 
 	.text ALIGN(4K) : AT(ADDR (.text) - KERNEL_VIRTUAL_BASE)
 	{	
-		*(.multiboot)
 		*(.text)
 	}
 

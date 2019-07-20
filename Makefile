@@ -16,21 +16,26 @@ KERNELNAME:=nowos
 KERN_OBJS:= kernel/io.o  \
 	       kernel/tty.o \
 	       kernel/kmain.o \
-	       kernel/kprint.o 
+	       kernel/kprint.o \
+	       kernel/kheap.o \
+	       kernel/paging.o
 
 BOOT_OBJS:= boot/boot.o \
 		
 ARCH_OBJS:= 	arch/gdt_init.o \
 		arch/idt_init.o \
 		arch/gdt.o \
-		arch/idt.o \
 		arch/irq_handle.o \
 		arch/irq.o \
+		arch/idt.o \
 		arch/pic.o \
 		arch/processor.o \
-		arch/machine.o 
+		arch/machine.o \
+		arch/paging_init.o
 
-OBJS:= $(BOOT_OBJS) $(KERN_OBJS) $(ARCH_OBJS)
+KLIB_OBJS:=	klib/string.o
+
+OBJS:= $(BOOT_OBJS) $(KLIB_OBJS) $(KERN_OBJS) $(ARCH_OBJS) 
 	  
 .PHONY: all clean run iso bochs-run qemu-run
 .SUFFIXES: .o .c .s
