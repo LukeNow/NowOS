@@ -10,9 +10,10 @@ enum LOG_LEVEL {
 	
 };
 
-#define PANIC(x) kprint(ERROR, "%s:%d %s\n", __FILE__,__LINE__, x); \
-		_panic();
+#define PANIC(x) kprint(ERROR, "%s:%d %s\n", __FILE__,__LINE__, (x)); \
+		_panic()
 
+#define WARN(x) kprint(WARN, "%s:%d %s\n", __FILE__, __LINE__, (x))
 
 void kprint(enum LOG_LEVEL level, char* format, ...);
 

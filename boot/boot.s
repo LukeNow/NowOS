@@ -1,5 +1,7 @@
 KERNEL_VIRTUAL_BASE equ 0xC0000000 ; 3GB
 KERNEL_PAGE_NUMBER equ (KERNEL_VIRTUAL_BASE >> 22) 
+KERNEL_PAGE_ADDR equ ((0x01 << 12) | 0x00000083)
+
 MBALIGN equ 1 << 0
 MEMINFO equ 1 << 1
 FLAGS equ MBALIGN | MEMINFO
@@ -14,7 +16,7 @@ align 4
 	dd CHECKSUM
 
 align 0x1000 ;Align on page boundary
-BootPageDirectory:
+boot_page_directory:
     dd 0x00000083
     times (KERNEL_PAGE_NUMBER - 1) dd 0
     dd 0x00000083
@@ -27,7 +29,7 @@ BootPageDirectory:
 section .multiboot.text progbits alloc exec nowrite align=16
 global entry
 entry:
-    mov ecx, BootPageDirectory
+    mov ecx, boot_page_directory
     mov cr3, ecx
     mov ecx, cr4
     ; Set PSE bit in to enable 4MB pages
@@ -43,9 +45,18 @@ entry:
 ; Higher mem stack
 section .bss
 align 16
+global stack_bottom
 stack_bottom:
 	resb 16384
 stack_top:
+
+global stack_top
+global heap_bottom
+global heap_top
+
+heap_bottom:
+	resb 65535
+heap_top:
 
 ; Higher mem code
 section .text
@@ -55,6 +66,7 @@ extern kmain
 extern term_init
 extern gdt_init
 extern idt_init
+extern init_kern_paging
 
 _start:
 	;Turn off interrupts just in case
@@ -73,6 +85,9 @@ gdt_init_ret:
 	;Set up our IDT table
 	call idt_init
 	;Turn on interrupts
+	
+	call init_kern_paging
+	
 	sti
 	;Call main kernel code
 	call kmain

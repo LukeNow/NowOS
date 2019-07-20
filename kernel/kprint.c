@@ -22,7 +22,8 @@ static char *convert(unsigned int num, int base)
 		*--ptr = representation[num % base];
 		num /= base;
 	} while(num != 0);
-
+	
+		
 	return ptr;
 }
 
@@ -84,6 +85,10 @@ void kprint(enum LOG_LEVEL level, char* format, ...)
 						term_writestring("0x");
 						term_writestring(convert(i, 16));
 						break;
+				/*case 'b': i = va_arg(arg, unsigned int);
+						term_writestring("B");
+						term_writestring(convert(i, 2));
+						break;*/
 			}
 
 		}
