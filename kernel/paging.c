@@ -5,12 +5,9 @@
 #include "../include/kheap.h"
 #include "../include/kprint.h"
 #include "../include/string.h"
+#include "../include/kdef.h"
 
-#define PAGE_SIZE 4096
-#define MB(X) ((2 << 20) * (X))
 #define DIR_SIZE 2 << 22
-#define KERN_MAX_VIRTUAL_ADDR 0xFFFFFFFF
-#define KERN_VIRTUAL_ADDR 0xC0000000
 
 #define PAGE_DIRECTORY_INDEX(x) (((x) >> 22) & 0x3ff)
 #define PAGE_TABLE_INDEX(x) (((x) >> 12) & 0x3ff)

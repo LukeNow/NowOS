@@ -2,6 +2,8 @@
 #include <stddef.h>
 #include "../include/kheap.h"
 #include "../include/kprint.h"
+#include "../include/kdef.h"
+
 extern void heap_bottom();
 extern void heap_top();
 /* Start early kheap at bottom of the stack
@@ -73,7 +75,7 @@ uint32_t early_kmalloc_pages(int num_pages)
 		temp += PAGE_SIZE;
 	}
 	
-	temp_bottom = temp_bottom - VIRTUAL_BASE_ADDR;
+	temp_bottom = temp_bottom - KERN_VIRTUAL_ADDR;
 	placement_address += (num_pages * PAGE_SIZE);
 	return temp_bottom;
 }

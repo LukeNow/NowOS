@@ -9,8 +9,8 @@
 #include "../include/multiboot.h"
 #include "../include/kheap.h"
 #include "../include/string.h"
-
-#define PAGE_SIZE 4096
+#include "../include/mm.h"
+#include "../include/kdef.h"
 
 void kmain(multiboot_info_t* mbt, unsigned int magic)
 {
@@ -19,22 +19,31 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	extern void heap_bottom();
 	extern void stack_top();
 
+	uint32_t mem_limit;
 	int i = 0;
 	int addr = 0;
 	
 	multiboot_memory_map_t* mmap = mbt->mmap_addr;
 	
-	//kprint(INFO, "HELLO Beautiful world :)\n");
-	//kprint(INFO, "MAGIC = %x\n", magic);
+	kprint(INFO, "MEM LOWER: %x\n", mbt->mem_lower);
+	kprint(INFO, "MEM HIGHER: %x\n", mbt->mem_upper);
 	
+	mem_limit = mbt->mem_upper * 1024;
+	mem_limit = ALIGN_DOWN(mem_limit, PAGE_SIZE);
+	mem_manage_init(mem_limit);
 	
-	//kprint(INFO, "HEAP BOTTOM: %x\n", (uint32_t)heap_bottom);
-	
-	//kprint(INFO, "BINARY 3: %x\n", 0x0FFFFFFF);
-	addr = early_kmalloc(PAGE_SIZE);
-	kprint(INFO, "ADDR: %x\n", (unsigned int) addr);
-	memset((uint32_t*) addr, 0x01, PAGE_SIZE * 3); 
-	PANIC("WE DID IT");
+	uint32_t mem_count = 0;
+	for(int i = 0; i < 100; i++) {
+		uint32_t temp_addr = get_free_page_mem();
+		if (temp_addr != mem_count) {
+			kprint(INFO, "NOT EQUAL ON %d\n", i);
+			PANIC("SHIT");
+		}
+		mem_count += PAGE_SIZE;
+	}
+
+
+	PANIC("KMAIN STOP");
 	/* Hang, we dont return from this function */
 	for(;;) 
 	
