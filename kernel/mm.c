@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "../include/kprint.h"
 #include "../include/kdef.h"
+#include "../include/string.h"
 #include "../include/mm.h"
 
 uint32_t phys_page_num;
@@ -9,20 +10,45 @@ uint8_t *mem_tbl;
 uint32_t tbl_size;
 uint8_t* free_ptr;
 
+unsigned int pages_mapped = 0;
+
 extern void mem_tbl_bottom();
+
+static inline uint32_t index_to_addr(unsigned int tbl_index, 
+			    unsigned int byte_index)
+{
+	return ((tbl_index * 8) + byte_index) * PAGE_SIZE;
+}
+
+static void update_free_ptr()
+{
+	uint8_t temp_entry = *free_ptr;
+	
+	while (free_ptr < (mem_tbl + tbl_size)) {
+		if (temp_entry != 0xFF){
+			return;
+		}
+		temp_entry = *++free_ptr;
+	}
+
+	PANIC("WE COULDNT FIND ANY MORE FREE SPACE");
+}
 
 void mem_manage_init(uint32_t phys_size)
 {
 	mem_tbl = (uint8_t *)mem_tbl_bottom;
+	phys_size = ALIGN_DOWN(phys_size, PAGE_SIZE);
 	phys_page_num = phys_size / PAGE_SIZE;
 	tbl_size = (phys_page_num / 8);
 	free_ptr = mem_tbl;
-
-	kprint(INFO, "MEM INIT. mem_tbl: %x tbl_size: %d\n", 
-			mem_tbl, tbl_size);
+	
+	memset(mem_tbl, 0, tbl_size);
+	kprint(INFO, "MM: Mem table start addr: %x\n", mem_tbl);
+	kprint(INFO, "MM: Mem table size: %d bytes, mem phys_page_num: %x\n",
+	       tbl_size, phys_page_num);
 }
 
-void set_tbl(uint32_t phys_addr) 
+void mem_set_tbl(uint32_t phys_addr) 
 {
 	unsigned int tbl_index;
 	unsigned int byte_index;
@@ -32,10 +58,17 @@ void set_tbl(uint32_t phys_addr)
 	byte_index = PHYS_ADDR_TO_PAGE_INDEX(phys_addr) % 8;
 	
 	temp_entry = *(mem_tbl + tbl_index);
+	
+	if ((temp_entry & (1 << byte_index)) == 0){
+		pages_mapped++;
+	}
+	
 	*(mem_tbl + tbl_index) = (temp_entry | (1 << byte_index));
+	
+
 }
 
-void free_tbl(uint32_t phys_addr)
+void mem_free_tbl(uint32_t phys_addr)
 {
 	unsigned int tbl_index;
 	unsigned int byte_index;
@@ -47,11 +80,17 @@ void free_tbl(uint32_t phys_addr)
 	if (free_ptr > mem_tbl + tbl_index)
 		free_ptr = (mem_tbl + tbl_index);
 
+	
 	temp_entry = *(mem_tbl + tbl_index);
+	
+	if ((temp_entry & (1 << byte_index)) != 0){ //Keeping track
+		pages_mapped--;
+	}
+
 	*(mem_tbl + tbl_index) = (temp_entry & ~(1 << byte_index));
 }
 
-unsigned int check_tbl(uint32_t phys_addr)
+uint32_t mem_check_tbl(uint32_t phys_addr)
 {
 	unsigned int tbl_index;
 	unsigned int byte_index;
@@ -67,26 +106,9 @@ unsigned int check_tbl(uint32_t phys_addr)
 	return ret;
 }
 
-static inline uint32_t index_to_addr(unsigned int tbl_index, 
-			    unsigned int byte_index)
-{
-	return ((tbl_index * 8) + byte_index) * PAGE_SIZE;
-}
 
-void update_free_ptr()
-{
-	uint8_t temp_entry = *free_ptr;
-	
-	while (free_ptr < (mem_tbl + tbl_size)) {
-		if (temp_entry != 0xFFFF){
-			return;
-		}
-		*++free_ptr = temp_entry;
-	}
-	PANIC("WE COULDNT FIND ANY MORE FREE SPACE");
-}
 
-uint32_t get_free_page_mem()
+uint32_t mem_get_free_page()
 {
 	uint8_t temp_entry;
 	uint32_t tbl_index;
@@ -96,14 +118,13 @@ uint32_t get_free_page_mem()
 	unsigned int i = 0;
 
 	tbl_index =(uint32_t)(free_ptr - mem_tbl);
-	if (mem_tbl[tbl_index] == 0xFFFF) {
+	if (mem_tbl[tbl_index] == 0xFF) {
 		update_free_ptr();
-		WARN("Free pointer updated?");
 	}
 	
 	tbl_index =(uint32_t)(free_ptr - mem_tbl);
-	if (mem_tbl[tbl_index] == 0xFFFF) {
-		PANIC("MEM_TBL NOT FREE");
+	if (mem_tbl[tbl_index] == 0xFF) {
+		PANIC("MEM_TBL NOT FREE???");
 	}
 	
 	temp_entry = mem_tbl[tbl_index];
@@ -119,11 +140,11 @@ uint32_t get_free_page_mem()
 	}
 
 	ret_addr = index_to_addr(tbl_index, byte_index);
-	set_tbl(ret_addr);
+	mem_set_tbl(ret_addr);
 	return ret_addr;
 }
 
-void release_page_mem(uint32_t phys_addr)
+void mem_release_page(uint32_t phys_addr)
 {
-	free_tbl(phys_addr);
+	mem_free_tbl(phys_addr);
 }
