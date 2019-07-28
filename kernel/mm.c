@@ -12,7 +12,8 @@ uint8_t* free_ptr;
 
 unsigned int pages_mapped = 0;
 
-extern void mem_tbl_bottom();
+extern void heap_bottom();
+extern int heap_ptr;
 
 static inline uint32_t index_to_addr(unsigned int tbl_index, 
 			    unsigned int byte_index)
@@ -34,15 +35,16 @@ static void update_free_ptr()
 	PANIC("WE COULDNT FIND ANY MORE FREE SPACE");
 }
 
-void mem_manage_init(uint32_t phys_size)
+void init_mem_manager(uint32_t phys_size)
 {
-	mem_tbl = (uint8_t *)mem_tbl_bottom;
+	mem_tbl = (uint8_t *)heap_ptr;
 	phys_size = ALIGN_DOWN(phys_size, PAGE_SIZE);
 	phys_page_num = phys_size / PAGE_SIZE;
 	tbl_size = (phys_page_num / 8);
 	free_ptr = mem_tbl;
 	
 	memset(mem_tbl, 0, tbl_size);
+	heap_ptr += tbl_size;
 	kprint(INFO, "MM: Mem table start addr: %x\n", mem_tbl);
 	kprint(INFO, "MM: Mem table size: %d bytes, mem phys_page_num: %x\n",
 	       tbl_size, phys_page_num);

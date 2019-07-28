@@ -3,6 +3,39 @@
 #include <stddef.h>
 #include <stdint.h>
 
-uint32_t early_kmalloc(size_t size);
+typedef struct node_header {
+	uint32_t magic;
+	void *next_ptr;
+	void *prev_ptr;
+	uint32_t size;
+}node_header_t;
+
+/* Early kheap methods 
+ * 
+ * The early kheap is the space that we give to things that
+ * we dont plan on taking away i.e. its static storage. 
+ *
+ * We use it for assigning and manipulating kernel page directories
+ * and for kheap managment*/
+void init_early_kheap();
+uint32_t early_kmalloc_sectors(size_t sector_num);
 uint32_t early_kmalloc_pages(int num_pages);
+
+/* Array methods
+ *
+ * We export these methods to the sorted_array_list to manage
+ * the kernel heap.
+ */
+void expand_array();
+void contract_array();
+
+/* kheap methods
+ *
+ * These are the methods for the kheap
+ * i.e. our bread and butter dynamic memory management
+ */
+void *kmalloc(size_t size);
+void kfree(void *ptr);
+void init_kheap();
+
 #endif

@@ -34,7 +34,8 @@ ARCH_OBJS:= 	arch/gdt_init.o \
 		arch/machine.o \
 		arch/paging_init.o
 
-KLIB_OBJS:=	klib/string.o
+KLIB_OBJS:=	klib/string.o \
+		klib/sorted_array_list.o
 
 OBJS:= $(BOOT_OBJS) $(KLIB_OBJS) $(KERN_OBJS) $(ARCH_OBJS) 
 	  

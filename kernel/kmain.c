@@ -12,6 +12,11 @@
 #include "../include/mm.h"
 #include "../include/kdef.h"
 #include "../include/paging.h"
+#include "../include/sorted_array_list.h"
+
+
+#define SECTOR_SIZE 512
+#define ARRAY_EXPAND_SIZE (SECTOR_SIZE / sizeof(void*))
 
 void kmain(multiboot_info_t* mbt, unsigned int magic)
 {
@@ -30,10 +35,68 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	
 	kprint(INFO, "MEM SIZE: %x\n", mbt->mem_upper * 1024);
 	mem_limit = mbt->mem_upper * 1024;
-	mem_manage_init(mem_limit); //Physical page alloc
+	init_early_kheap();
+	init_mem_manager(mem_limit); //Physical page alloc
 	init_kern_paging(); //Map kernel pages to table
 	
-	kprint(INFO, "Phys pages mapped %d\n", pages_mapped);
+	init_kheap(); //Regular kheap
+	
+	
+	
+	//kprint(INFO, "Phys pages mapped %d\n", pages_mapped);
+	
+	/*
+	sorted_array_list_t list;
+	addr = early_kmalloc_sectors(1);
+	
+	init_sorted_list(&list, (void**)addr, ARRAY_EXPAND_SIZE, 
+			 expand_array, contract_array);
+
+	
+	
+	
+	int ret = insert_list(12, &list);
+	ret = insert_list(11, &list);
+	ret = insert_list(10, &list);	
+	ret = insert_list(9, &list);	
+	ret = insert_list(8, &list);	
+	ret = insert_list(7, &list);	
+	ret = insert_list(6, &list);	
+	ret = insert_list(5, &list);	
+	ret = insert_list(4, &list);	
+	ret = insert_list(3, &list);	
+
+	
+	for (int i = 0; i < 15; i++) {
+		kprint(INFO, "%d: %d\n", i, list.arr[i]);
+	}
+	
+	ret = remove_list(3, &list);
+	ret = remove_list(12, &list);
+	for (int i = 0; i < 15; i++) {
+		kprint(INFO, "%d: %d\n", i, list.arr[i]);
+	}
+	*/
+	/*
+	for (int i = 0; i < 513; i++) {
+		ret = insert_list(i + 2, &list);
+	}
+
+	ret = insert_list(1, &list);
+	ret = insert_list(0, &list);
+
+	ret = remove_list(1, &list);
+
+	ret = remove_list(2, &list);
+	ret = remove_list(3, &list);
+	ret = remove_list(4, &list);
+	ret = remove_list(5, &list);
+	ret = remove_list(6, &list);
+	for (int i = 0; i < 513; i++) {
+		kprint(INFO, "%d: %d\n", i, list.arr[i]);
+	}
+	*/
+	
 	/*
 	uint32_t mem_count = 0;
 	for(int i = 0; i < 100; i++) {
