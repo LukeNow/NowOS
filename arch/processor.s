@@ -1,6 +1,7 @@
 global __halt_system
 global __enable_int
 global __disable_int
+global get_cr2
 global get_eax
 global get_ebx
 global get_ecx
@@ -25,6 +26,11 @@ __enable_int:
 __disable_int:
 	nmi
 	ret
+
+get_cr2:
+	mov eax, cr2
+	ret
+
 
 get_eax:
 	push eax

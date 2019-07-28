@@ -3,20 +3,39 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define IS_ALIGNED(x, size) ((x) % (size) == 0)
+typedef struct node_header {
+	uint32_t magic;
+	void *next_ptr;
+	void *prev_ptr;
+	uint32_t size;
+}node_header_t;
 
-#define ROUND_DOWN(x, size) ((x) - ((x) % (size)))
-
-#define ROUND_UP(x, size) IS_ALIGNED((x), (size)) ? \
-		(x) : ((x) + ((size) - ((x) % (size)))) 
-
-#define ALIGN_DOWN(x, size) ROUND_DOWN((x) + (size) - 1, (size))
-
-#define ALIGN_UP(x, size) ROUND_UP((x), (size))
-
-#define PAGE_SIZE 4096
-#define VIRTUAL_BASE_ADDR 0xC0000000
-
-uint32_t early_kmalloc(size_t size);
+/* Early kheap methods 
+ * 
+ * The early kheap is the space that we give to things that
+ * we dont plan on taking away i.e. its static storage. 
+ *
+ * We use it for assigning and manipulating kernel page directories
+ * and for kheap managment*/
+void init_early_kheap();
+uint32_t early_kmalloc_sectors(size_t sector_num);
 uint32_t early_kmalloc_pages(int num_pages);
+
+/* Array methods
+ *
+ * We export these methods to the sorted_array_list to manage
+ * the kernel heap.
+ */
+void expand_array();
+void contract_array();
+
+/* kheap methods
+ *
+ * These are the methods for the kheap
+ * i.e. our bread and butter dynamic memory management
+ */
+void *kmalloc(size_t size);
+void kfree(void *ptr);
+void init_kheap();
+
 #endif

@@ -45,18 +45,25 @@ entry:
 ; Higher mem stack
 section .bss
 align 16
-global stack_bottom
-stack_bottom:
-	resb 16384
-stack_top:
 
+global stack_bottom
 global stack_top
 global heap_bottom
 global heap_top
+global early_heap_bottom
+global early_heap_top
+
+early_heap_bottom:
+	resb 32768
+early_heap_top:
 
 heap_bottom:
-	resb 65535
+	resb 102400
 heap_top:
+
+stack_bottom:
+	resb 16384
+stack_top:
 
 ; Higher mem code
 section .text
@@ -85,8 +92,6 @@ gdt_init_ret:
 	;Set up our IDT table
 	call idt_init
 	;Turn on interrupts
-	
-	call init_kern_paging
 	
 	sti
 	;Call main kernel code

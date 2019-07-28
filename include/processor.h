@@ -5,6 +5,7 @@ void __halt_system();
 void __enable_int();
 void __disable_int();
 
+unsigned int get_cr2();
 unsigned int get_eax();
 unsigned int get_ebx();
 unsigned int get_ecx();
