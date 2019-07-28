@@ -25,21 +25,21 @@ static void insert_item(void *item, unsigned int index,
 	int i;
 
 	if (list->curr_size == list->arr_size){
-		kprint(INFO, "EXPANDED\n");
+		/*kprint(INFO, "EXPANDED\n"); */
 		list->expand();
 		list->arr_size += list->expand_size;
 	}
 	
-	list->curr_size += 1;
 	
 	for (i = list->curr_size - 1; i > index; i--) {
 		list->arr[i] = list->arr[i - 1];
 	}
 
+	list->curr_size += 1;
 	list->arr[index] = item;
-	
+	/*
 	kprint(INFO, "INSERTED AT %d, curr_size %d, arr_size %d\n", 
-			index, list->curr_size, list->arr_size);
+			index, list->curr_size, list->arr_size); */
 }
 
 static void remove_item(void *item, unsigned int index, 
@@ -48,20 +48,21 @@ static void remove_item(void *item, unsigned int index,
 	int i;
 
 	if (list->curr_size == (list->arr_size - list->expand_size)) {
-		kprint(INFO, "CONTRACTED\n");
+		/*
+		kprint(INFO, "CONTRACTED\n"); */
 		list->contract();
 		list->arr_size -= list->expand_size;
 	}
 
-	list->curr_size -= 1;
 
+	list->curr_size -= 1;
 	for (i = index; i < list->arr_size - 1; i++) {
 		list->arr[i] = list->arr[i + 1];
 	}
 
-
+	/*
 	kprint(INFO, "REMOVED AT %d, curr size %d, arr_size %d\n", 
-			index, list->curr_size, list->arr_size);
+			index, list->curr_size, list->arr_size); */
 }
 
 /* Search the list for an item. 
@@ -115,12 +116,12 @@ int insert_list(void *item, sorted_array_list_t *list)
 			return 1; //already exists
 
 		if (l == r) {
-			insert_item(item, l, list);	
+			insert_item(item, curr_index, list);	
 			return 0; //success
 		}
 
 		if (item < list->arr[curr_index]) {
-			r = curr_index - 1;
+			r = curr_index;
 		}
 		else {
 			l = curr_index + 1;
@@ -155,7 +156,7 @@ int remove_list(void *item, sorted_array_list_t *list)
 		}
 
 		if (item < list->arr[curr_index]) {
-			r = curr_index - 1;
+			r = curr_index;
 		}
 		else {
 			l = curr_index + 1;
@@ -165,5 +166,13 @@ int remove_list(void *item, sorted_array_list_t *list)
 	}
 
 	return -1; //some error
+}
 
+void print_list(sorted_array_list_t *list)
+{
+	uint32_t arr_size = list->curr_size - 1;
+	kprint(INFO, "***Printed sorted array list %x***\n", (uint32_t)list);
+	for (int i = 0; i < arr_size; i++) {
+		kprint(INFO, "[%d]: %x\n", i, list->arr[i]);
+	}
 }
