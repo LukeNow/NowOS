@@ -34,7 +34,7 @@ void contract_array();
  * These are the methods for the kheap
  * i.e. our bread and butter dynamic memory management
  */
-void *kmalloc(size_t size);
+char *kmalloc(size_t size);
 void kfree(void *ptr);
 void init_kheap();
 

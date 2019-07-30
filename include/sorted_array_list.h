@@ -20,5 +20,5 @@ int insert_list(void *item, sorted_array_list_t *list);
 
 int remove_list(void *item, sorted_array_list_t *list);
 
-void print_list();
+void print_list(sorted_array_list_t *list);
 #endif
