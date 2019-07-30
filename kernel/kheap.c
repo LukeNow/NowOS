@@ -8,7 +8,6 @@
 
 #define HEAP_EXPAND_SIZE KB(4)
 #define SECTOR_SIZE 512
-#define ARRAY_EXPAND_SIZE (SECTOR_SIZE / sizeof(void*))
 #define HEAP_SPLIT_THRESHOLD 16
 
 #define MAGIC_FREE 0x45455246 //FREE IN ASCII
@@ -36,7 +35,6 @@ void init_early_kheap()
 	early_heap_ptr = (uint32_t) early_heap_bottom;
 	kprint(INFO, "[INIT EARLY KHEAP] Early heap ptr: %x\n", early_heap_ptr);
 }
-
 
 /* Sector is 512 bytes 
  * Linear address */
@@ -80,24 +78,6 @@ uint32_t early_kmalloc_pages(int num_pages)
 	early_heap_ptr += (num_pages * PAGE_SIZE);
 	return temp_bottom;
 }
-
-/*******************
- * Free list methods
- *******************/
-void expand_array()
-{
-	early_kmalloc_sectors(1);
-	if (early_heap_ptr >= (uint32_t)early_heap_top){
-		WARN("EARLY MM: Expanded over early_heap_top");
-	}
-}
-
-void contract_array()
-{
-	early_heap_ptr -= SECTOR_SIZE;
-	//kprint(INFO, "CONTRACTED to %x\n", early_heap_ptr);
-}
-
 
 /***************
  * kheap methods
@@ -398,10 +378,12 @@ void init_kheap()
 	heap_ptr = ALIGN_UP(heap_ptr, sizeof(uint32_t));
 
 	top_heap_ptr = heap_ptr + HEAP_EXPAND_SIZE;
-
-	init_sorted_list(&free_list, early_heap_ptr, 
-			 ARRAY_EXPAND_SIZE, expand_array,
-			 contract_array);
+	
+	uint32_t list_size = ((uint32_t)early_heap_top - early_heap_ptr) /
+			     sizeof(node_header_t *);
+	
+	kprint(INFO, "List size: %d\n", list_size);
+	init_sorted_list(&free_list, early_heap_ptr, list_size);
 	
 	uint32_t heap_begin = heap_ptr + sizeof(node_header_t);
 	uint32_t heap_end = top_heap_ptr;

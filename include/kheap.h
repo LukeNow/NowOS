@@ -21,21 +21,13 @@ void init_early_kheap();
 uint32_t early_kmalloc_sectors(size_t sector_num);
 uint32_t early_kmalloc_pages(int num_pages);
 
-/* Array methods
- *
- * We export these methods to the sorted_array_list to manage
- * the kernel heap.
- */
-void expand_array();
-void contract_array();
-
 /* kheap methods
  *
  * These are the methods for the kheap
  * i.e. our bread and butter dynamic memory management
  */
+void init_kheap();
 char *kmalloc(size_t size);
 void kfree(void *ptr);
-void init_kheap();
 
 #endif

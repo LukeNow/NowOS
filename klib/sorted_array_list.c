@@ -3,31 +3,23 @@
 #include "../include/kprint.h"
 
 
-void init_sorted_list(sorted_array_list_t *list, void **init_arr_ptr, 
-		      uint32_t init_expand_size, void (*init_expand)(), 
-		      void (*init_contract)())
+void init_sorted_list(sorted_array_list_t *list, void **arr_ptr, 
+		      uint32_t array_size)
 {
-	list->arr = init_arr_ptr;
-	list->arr_size = init_expand_size;
+	list->arr = arr_ptr;
+	list->arr_size = array_size;
 	list->curr_size = 1;
-	list->expand_size = init_expand_size;
-	list->expand = init_expand;
-	list->contract = init_contract;
-	kprint(INFO, "ARR_SIZE %d, EXPAN_SIZE %d\n", 
-			list->arr_size, list->expand_size);
 }
 
 
 
-static void insert_item(void *item, unsigned int index, 
-			sorted_array_list_t *list)
+static int insert_item(void *item, unsigned int index, 
+		       sorted_array_list_t *list)
 {
 	int i;
 
 	if (list->curr_size == list->arr_size){
-		/*kprint(INFO, "EXPANDED\n"); */
-		list->expand();
-		list->arr_size += list->expand_size;
+		return -1;
 	}
 	
 	
@@ -37,9 +29,8 @@ static void insert_item(void *item, unsigned int index,
 
 	list->curr_size += 1;
 	list->arr[index] = item;
-	/*
-	kprint(INFO, "INSERTED AT %d, curr_size %d, arr_size %d\n", 
-			index, list->curr_size, list->arr_size); */
+	
+	return 0;
 }
 
 static void remove_item(void *item, unsigned int index, 
@@ -47,22 +38,11 @@ static void remove_item(void *item, unsigned int index,
 {
 	int i;
 
-	if (list->curr_size == (list->arr_size - list->expand_size)) {
-		/*
-		kprint(INFO, "CONTRACTED\n"); */
-		list->contract();
-		list->arr_size -= list->expand_size;
-	}
-
-
-	list->curr_size -= 1;
-	for (i = index; i < list->arr_size - 1; i++) {
+	for (i = index; i < list->curr_size - 1; i++) {
 		list->arr[i] = list->arr[i + 1];
 	}
-
-	/*
-	kprint(INFO, "REMOVED AT %d, curr size %d, arr_size %d\n", 
-			index, list->curr_size, list->arr_size); */
+	
+	list->curr_size -= 1;
 }
 
 /* Search the list for an item. 
@@ -103,7 +83,7 @@ int search_list(void *item, sorted_array_list_t *list)
  *
  * 0 - success
  * 1 - Item already exists
- * -1 - inexplicable error occured. 
+ * -1 - List is probably full
  */
 int insert_list(void *item, sorted_array_list_t *list)
 {
@@ -116,7 +96,10 @@ int insert_list(void *item, sorted_array_list_t *list)
 			return 1; //already exists
 
 		if (l == r) {
-			insert_item(item, curr_index, list);	
+			if (insert_item(item, curr_index, list) == -1) {
+				kprint(ERROR, "Sorted_array_list: List is full\n");
+				return -1;	
+			};	
 			return 0; //success
 		}
 
