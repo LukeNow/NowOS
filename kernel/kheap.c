@@ -253,12 +253,11 @@ static void heap_split_node(node_header_t *free_node, uint32_t new_alloc_size)
 	/* This new free node gets the rest of the space */
 	new_free_node = (node_header_t *)((uint32_t)free_node + total_new_alloc_size);
 	
-	
 	if (new_free_alloc_size < 0) {
 		PANIC("NEW ALLOC IS LESS THAN 0");
 	}
 	
-	/* If we dont have enough space for the threshold, 
+	/* IF we dont have enough space for the threshold, 
 	 * We only make one used node */
 	if (total_size_left <= HEAP_SPLIT_THRESHOLD) {
 		new_alloc_size += total_size_left;
@@ -275,6 +274,9 @@ static void heap_split_node(node_header_t *free_node, uint32_t new_alloc_size)
 		
 		heap_set_header((uint32_t)new_used_node, USED, old_next_ptr,
 				old_prev_ptr, new_alloc_size);
+		
+		if (new_used_node->next_ptr == NULL)
+			heap_list_end_ptr = (uint32_t) new_used_node;
 
 		return;
 	}
@@ -286,10 +288,7 @@ static void heap_split_node(node_header_t *free_node, uint32_t new_alloc_size)
 	if (old_prev_ptr != NULL)
 		old_prev_ptr->next_ptr = new_used_node;
 	
-	/* If this is the last node in the list, set the last ptr */
-	if (new_free_node->next_ptr == NULL)
-		heap_list_end_ptr = (uint32_t) new_free_node;
-
+	
 	heap_set_header((uint32_t)new_free_node, FREE, old_next_ptr, 
 			new_used_node, new_free_alloc_size);
 	
@@ -299,6 +298,10 @@ static void heap_split_node(node_header_t *free_node, uint32_t new_alloc_size)
 	
 	/* Add our new free node to the free list */
 	insert_list((void *)new_free_node, &free_list);
+
+	/* If this is the last node in the list, set the last ptr */
+	if (new_free_node->next_ptr == NULL)
+		heap_list_end_ptr = (uint32_t) new_free_node;
 }
 
 static void expand_heap(size_t size)
@@ -310,8 +313,9 @@ static void expand_heap(size_t size)
 	}
 
 	node_header_t *last_node = (node_header_t *)heap_list_end_ptr;
+	
+	/* sanity check our node */
 	check_header(last_node);
-	heap_print_header(last_node);
 	
 	uint32_t new_free_node = ((uint32_t)last_node) + sizeof(node_header_t) +
 				 last_node->size;
@@ -320,10 +324,13 @@ static void expand_heap(size_t size)
 	heap_set_header(new_free_node, FREE, NULL, last_node, new_alloc_size);
 	last_node->next_ptr = (node_header_t *)new_free_node;
 	
+	/* Insert our new expanded node to the list of free nodes */
 	insert_list((void *)new_free_node, &free_list);
-
-	heap_merge_nodes(last_node);
-
+	
+	/* Merge the nodes around our new node to make one big free node */
+	heap_merge_nodes((node_header_t *)new_free_node);
+	
+	/* Set the last pointer to this because it is gaurenteed to be last */
 	heap_list_end_ptr = (uint32_t)new_free_node;
 }
 
@@ -345,7 +352,7 @@ char *kmalloc(size_t size)
 	}
 	
 	if (node == NULL) {
-		PANIC("Not enought memory?");
+		PANIC("Not enough memory?");
 	}
 		
 	/* Split this free node into a used and a free one */
@@ -356,10 +363,17 @@ char *kmalloc(size_t size)
 }
 
 void kfree(void *ptr)
-{
-	node_header_t *node = (node_header_t *)((uint32_t)ptr - sizeof(node_header_t));
-	/* Santity check */
+{	
+	if (ptr == NULL)
+		return;
+	
+	/* Grab the header section of this pointer */
+	node_header_t *node = (node_header_t *)
+			      ((uint32_t)ptr - sizeof(node_header_t));
+	
+	/* Santity check that this isnt a bad free...*/
 	check_header(node);	
+	
 	/* Make this node free */
 	heap_set_header((uint32_t)node, FREE, node->next_ptr, 
 			node->prev_ptr, node->size);
@@ -373,7 +387,8 @@ void kfree(void *ptr)
 
 void init_kheap()
 {
-	heap_ptr = (uint32_t) heap_bottom;
+	heap_ptr = (uint32_t)heap_bottom;
+	
 	/* Align just in case */
 	heap_ptr = ALIGN_UP(heap_ptr, sizeof(uint32_t));
 
@@ -382,8 +397,7 @@ void init_kheap()
 	uint32_t list_size = ((uint32_t)early_heap_top - early_heap_ptr) /
 			     sizeof(node_header_t *);
 	
-	kprint(INFO, "List size: %d\n", list_size);
-	init_sorted_list(&free_list, early_heap_ptr, list_size);
+	init_sorted_list(&free_list, (void **)early_heap_ptr, list_size);
 	
 	uint32_t heap_begin = heap_ptr + sizeof(node_header_t);
 	uint32_t heap_end = top_heap_ptr;
