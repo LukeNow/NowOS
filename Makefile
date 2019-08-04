@@ -19,7 +19,8 @@ KERN_OBJS:= kernel/io.o  \
 	       kernel/kprint.o \
 	       kernel/kheap.o \
 	       kernel/paging.o \
-	       kernel/mm.o
+	       kernel/mm.o \
+	       kernel/test.o
 
 BOOT_OBJS:= boot/boot.o \
 		

@@ -148,7 +148,6 @@ static node_header_t *heap_find_free_node(uint32_t alloc_size)
 		     node->size < best_node->size)) {
 			best_node = node;
 		}
-		
 	}
 	
 	/* Will be null if not found */
@@ -349,12 +348,12 @@ char *kmalloc(size_t size)
 		while (expand_count <= size) expand_count += HEAP_EXPAND_SIZE;
 		expand_heap(expand_count);
 		node = heap_find_free_node(size);
+		if (node == NULL) {
+			PANIC("Not enough memory?");
+		}
 	}
 	
-	if (node == NULL) {
-		PANIC("Not enough memory?");
-	}
-		
+			
 	/* Split this free node into a used and a free one */
 	heap_split_node(node, size);
 	
@@ -389,9 +388,12 @@ void init_kheap()
 {
 	heap_ptr = (uint32_t)heap_bottom;
 	
+	uint32_t total_heap_size = (uint32_t)heap_top - (uint32_t)heap_bottom;
+	memset((void *)heap_ptr, 0, total_heap_size);
+
 	/* Align just in case */
 	heap_ptr = ALIGN_UP(heap_ptr, sizeof(uint32_t));
-
+	
 	top_heap_ptr = heap_ptr + HEAP_EXPAND_SIZE;
 	
 	uint32_t list_size = ((uint32_t)early_heap_top - early_heap_ptr) /
@@ -410,6 +412,7 @@ void init_kheap()
 	insert_list((void *)heap_ptr, &free_list);
 	
 	heap_list_end_ptr = heap_ptr;
+	
 	
 	kprint(INFO, "[INIT KHEAP] Heap ptr: %x Heap size: %d\n", 
 	       heap_ptr, beginning_heap_size);

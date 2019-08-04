@@ -13,7 +13,7 @@
 #include "../include/kdef.h"
 #include "../include/paging.h"
 #include "../include/sorted_array_list.h"
-
+#include "../include/test.h"
 
 #define SECTOR_SIZE 512
 #define ARRAY_EXPAND_SIZE (SECTOR_SIZE / sizeof(void*))
@@ -39,6 +39,9 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	init_mem_manager(mem_limit); //Physical page alloc
 	init_kern_paging(); //Map kernel pages to table
 	
+
+	test();
+
 	init_kheap(); //Regular kheap
 	
 	PANIC("KMAIN STOP");
