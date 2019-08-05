@@ -74,6 +74,7 @@ extern term_init
 extern gdt_init
 extern idt_init
 extern init_kern_paging
+extern init_pit
 
 _start:
 	;Turn off interrupts just in case
@@ -93,6 +94,8 @@ gdt_init_ret:
 	call idt_init
 	;Turn on interrupts
 	
+	call init_pit
+
 	sti
 	;Call main kernel code
 	call kmain

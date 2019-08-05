@@ -14,6 +14,7 @@
 #include "../include/paging.h"
 #include "../include/sorted_array_list.h"
 #include "../include/test.h"
+#include "../include/pit.h"
 
 #define SECTOR_SIZE 512
 #define ARRAY_EXPAND_SIZE (SECTOR_SIZE / sizeof(void*))
@@ -40,10 +41,16 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	init_kern_paging(); //Map kernel pages to table
 	
 
-	test();
+	//test();
 
 	init_kheap(); //Regular kheap
 	
+
+	for (int i = 0; i < 100; i++) {
+		size_t ns = pit_get_ns();
+		kprint(INFO, "[%d] ns: %d\n", i, ns);
+	}
+
 	PANIC("KMAIN STOP");
 	/* Hang, we dont return from this function */
 	for(;;) 

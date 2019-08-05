@@ -33,7 +33,8 @@ ARCH_OBJS:= 	arch/gdt_init.o \
 		arch/pic.o \
 		arch/processor.o \
 		arch/machine.o \
-		arch/paging_init.o
+		arch/paging_init.o \
+		arch/pit.o
 
 KLIB_OBJS:=	klib/string.o \
 		klib/sorted_array_list.o
