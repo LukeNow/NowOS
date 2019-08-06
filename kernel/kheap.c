@@ -15,6 +15,8 @@
 #define USED 1
 #define FREE 0
 
+#define HEADER_SIZE sizeof(node_header_t)
+
 extern void heap_bottom();
 extern void heap_top();
 extern void early_heap_bottom();
@@ -82,6 +84,8 @@ uint32_t early_kmalloc_pages(int num_pages)
 /***************
  * kheap methods
  ***************/
+
+
 
 /* This method will panic if it doesent find a MAGIC value */
 static inline void check_header(node_header_t *header)
@@ -163,7 +167,7 @@ static node_header_t *heap_merge_left(node_header_t *node)
 	node_header_t *new_prev_ptr = node_left->prev_ptr;
 	node_header_t *new_next_ptr = node->next_ptr;
 	uint32_t new_node_size = node->size + node_left->size +
-				 sizeof(node_header_t);
+				 HEADER_SIZE;
 	
 	/* Set the nodes next to us to point to us */
 	if (new_next_ptr != NULL)
@@ -187,7 +191,7 @@ static node_header_t *heap_merge_right(node_header_t *node)
 	node_header_t *new_prev_ptr = node->prev_ptr;
 	node_header_t *new_next_ptr = node_right->next_ptr;
 	uint32_t new_node_size = node->size + node_right->size +
-				 sizeof(node_header_t);
+				 HEADER_SIZE;
 	
 	/* Set the nodes next to us to point to us */
 	if (new_next_ptr != NULL)
@@ -241,10 +245,10 @@ static void heap_split_node(node_header_t *free_node, uint32_t new_alloc_size)
 	node_header_t *old_next_ptr = free_node->next_ptr;
 	node_header_t *old_prev_ptr = free_node->prev_ptr;
 
-	uint32_t total_free_size = free_node->size + sizeof(node_header_t);
-	uint32_t total_new_alloc_size = new_alloc_size + sizeof(node_header_t);
+	uint32_t total_free_size = free_node->size + HEADER_SIZE;
+	uint32_t total_new_alloc_size = new_alloc_size + HEADER_SIZE;
 	uint32_t total_size_left = total_free_size - total_new_alloc_size;
-	uint32_t new_free_alloc_size = total_size_left - sizeof(node_header_t);
+	uint32_t new_free_alloc_size = total_size_left - HEADER_SIZE;
 	
 	/* Our new used header will be in the exact same place as the old
 	 * free node we are spliting */
@@ -279,6 +283,7 @@ static void heap_split_node(node_header_t *free_node, uint32_t new_alloc_size)
 
 		return;
 	}
+	
 	/*ELSE we make a used node and a free node */
 
 	/* Set the nodes next to this one to point to our new node */
@@ -316,7 +321,7 @@ static void expand_heap(size_t size)
 	/* sanity check our node */
 	check_header(last_node);
 	
-	uint32_t new_free_node = ((uint32_t)last_node) + sizeof(node_header_t) +
+	uint32_t new_free_node = ((uint32_t)last_node) + HEADER_SIZE +
 				 last_node->size;
 	uint32_t new_alloc_size = top_heap_ptr - new_free_node;
 	
@@ -333,7 +338,8 @@ static void expand_heap(size_t size)
 	heap_list_end_ptr = (uint32_t)new_free_node;
 }
 
-char *kmalloc(size_t size)
+
+void *kmalloc(size_t size)
 {
 	node_header_t *node;
 	/* Align the size to natural word */
@@ -358,7 +364,7 @@ char *kmalloc(size_t size)
 	heap_split_node(node, size);
 	
 	/* Return a ptr to the non-header section */
-	return (char *)((uint32_t)node + sizeof(node_header_t));
+	return (char *)((uint32_t)node + HEADER_SIZE);
 }
 
 void kfree(void *ptr)
@@ -368,7 +374,7 @@ void kfree(void *ptr)
 	
 	/* Grab the header section of this pointer */
 	node_header_t *node = (node_header_t *)
-			      ((uint32_t)ptr - sizeof(node_header_t));
+			      ((uint32_t)ptr - HEADER_SIZE);
 	
 	/* Santity check that this isnt a bad free...*/
 	check_header(node);	
@@ -382,6 +388,28 @@ void kfree(void *ptr)
 	/* Merge potential free nodes next to this one 
 	 * to make one large free node */
 	heap_merge_nodes(node);
+}
+
+void check_heap_integrity()
+{
+	
+	uint32_t heap_size = (uint32_t)top_heap_ptr - (uint32_t)heap_bottom;
+	node_header_t *node = (node_header_t *)heap_bottom;
+	check_header(node);
+	
+	uint32_t heap_count = 0;
+	while (node != NULL) {
+		heap_count += (node->size + HEADER_SIZE);
+		node = node->next_ptr;
+	}
+
+	if (heap_count != heap_size) {
+		kprint(ERROR,  "WE FUCKED: heap_count: %d, heap_size: %d\n", 
+				heap_count, heap_size);
+		
+	}
+
+	
 }
 
 void init_kheap()
@@ -401,7 +429,7 @@ void init_kheap()
 	
 	init_sorted_list(&free_list, (void **)early_heap_ptr, list_size);
 	
-	uint32_t heap_begin = heap_ptr + sizeof(node_header_t);
+	uint32_t heap_begin = heap_ptr + HEADER_SIZE;
 	uint32_t heap_end = top_heap_ptr;
 	uint32_t beginning_heap_size = heap_end - heap_begin;
 	

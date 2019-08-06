@@ -37,7 +37,8 @@ ARCH_OBJS:= 	arch/gdt_init.o \
 		arch/pit.o
 
 KLIB_OBJS:=	klib/string.o \
-		klib/sorted_array_list.o
+		klib/sorted_array_list.o \
+		klib/linked_list.o
 
 OBJS:= $(BOOT_OBJS) $(KLIB_OBJS) $(KERN_OBJS) $(ARCH_OBJS) 
 	  

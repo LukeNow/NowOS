@@ -15,9 +15,7 @@
 #include "../include/sorted_array_list.h"
 #include "../include/test.h"
 #include "../include/pit.h"
-
-#define SECTOR_SIZE 512
-#define ARRAY_EXPAND_SIZE (SECTOR_SIZE / sizeof(void*))
+#include "../include/linked_list.h"
 
 void kmain(multiboot_info_t* mbt, unsigned int magic)
 {
@@ -29,7 +27,6 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	extern unsigned int pages_mapped;
 	
 	uint32_t mem_limit;
-	int i = 0;
 	int addr = 0;
 	
 	multiboot_memory_map_t* mmap = mbt->mmap_addr;
@@ -40,18 +37,13 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	init_mem_manager(mem_limit); //Physical page alloc
 	init_kern_paging(); //Map kernel pages to table
 	
-
-	//test();
-
+	//test_kheap(); 
 	init_kheap(); //Regular kheap
 	
-
-	for (int i = 0; i < 100; i++) {
-		size_t ns = pit_get_ns();
-		kprint(INFO, "[%d] ns: %d\n", i, ns);
-	}
-
-	PANIC("KMAIN STOP");
+	//test();
+	
+	PANIC("KMAIN STOP"); 
+	
 	/* Hang, we dont return from this function */
 	for(;;) 
 	

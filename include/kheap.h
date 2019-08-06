@@ -27,7 +27,8 @@ uint32_t early_kmalloc_pages(int num_pages);
  * i.e. our bread and butter dynamic memory management
  */
 void init_kheap();
-char *kmalloc(size_t size);
+void check_heap_integrity();
+void *kmalloc(size_t size);
 void kfree(void *ptr);
 
 #endif

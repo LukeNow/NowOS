@@ -2,10 +2,14 @@
 #include "../include/kheap.h"
 #include "../include/kprint.h"
 #include "../include/string.h"
+#include "../include/linked_list.h"
 
-
-static void test_kheap()
+void test_kheap()
 {
+	
+	
+	kprint(INFO, "Testing kheap\n");
+	
 	init_kheap();
 
 	char *ptr1, *ptr2, *ptr3, *ptr4;
@@ -52,14 +56,43 @@ static void test_kheap()
 	kfree(ptr2);
 	kfree(ptr3);
 	kfree(ptr4);
+}
+
+static void test_linked_list()
+{
+	linked_list_t *list = linked_list_init();
 	
+	for (int i = 0; i < 10; i++) {
+		int *val = kmalloc(sizeof(int));
+		*val = i;
+		linked_list_add(val, list);
+	}
+	
+	//int *v = linked_list_find(9, list);
+	
+	//linked_list_remove(v, list);
+	
+	//int v2 = 10;
+
+	//linked_list_add(&v2, list);
+
+	linked_list_for_each(p, list){
+		int *val = p->data;
+		kfree(val);
+		kfree(p);	
+	}
+
+
+
+	check_heap_integrity();
+
 }
 
 void test()
 {	
 	kprint(INFO, "***Starting testing***\n");
-	kprint(INFO, "Testing kheap\n");
-	test_kheap();
+	kprint(INFO, "***Testing linked list***\n");
+	test_linked_list();
 	kprint(INFO, "***Testing done ***\n");
 }
 
