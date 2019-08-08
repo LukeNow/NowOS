@@ -20,7 +20,9 @@ KERN_OBJS:= kernel/io.o  \
 	       kernel/kheap.o \
 	       kernel/paging.o \
 	       kernel/mm.o \
-	       kernel/test.o
+	       kernel/test.o \
+	       kernel/scheduler.o \
+	       kernel/task.o
 
 BOOT_OBJS:= boot/boot.o \
 		
@@ -34,7 +36,8 @@ ARCH_OBJS:= 	arch/gdt_init.o \
 		arch/processor.o \
 		arch/machine.o \
 		arch/paging_init.o \
-		arch/pit.o
+		arch/pit.o \
+		arch/task.o
 
 KLIB_OBJS:=	klib/string.o \
 		klib/sorted_array_list.o \

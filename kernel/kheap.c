@@ -21,6 +21,8 @@ extern void heap_bottom();
 extern void heap_top();
 extern void early_heap_bottom();
 extern void early_heap_top();
+extern void page_heap_bottom();
+extern void page_heap_top();
 
 uint32_t heap_ptr = 0;
 uint32_t top_heap_ptr = 0;
@@ -84,8 +86,6 @@ uint32_t early_kmalloc_pages(int num_pages)
 /***************
  * kheap methods
  ***************/
-
-
 
 /* This method will panic if it doesent find a MAGIC value */
 static inline void check_header(node_header_t *header)
@@ -408,8 +408,6 @@ void check_heap_integrity()
 				heap_count, heap_size);
 		
 	}
-
-	
 }
 
 void init_kheap()

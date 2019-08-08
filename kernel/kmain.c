@@ -16,6 +16,13 @@
 #include "../include/test.h"
 #include "../include/pit.h"
 #include "../include/linked_list.h"
+#include "../include/task.h"
+
+
+void main1()
+{
+	kprint(INFO, "HELLO WORLD!\n");
+}
 
 void kmain(multiboot_info_t* mbt, unsigned int magic)
 {
@@ -41,7 +48,13 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	init_kheap(); //Regular kheap
 	
 	//test();
+	init_multitasking();
+	create_task(main1, "main1");
 	
+	disable_int();
+	switch_task();
+	enable_int();
+
 	PANIC("KMAIN STOP"); 
 	
 	/* Hang, we dont return from this function */
