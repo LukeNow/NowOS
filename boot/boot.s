@@ -48,12 +48,15 @@ align 4096
 
 global stack_bottom
 global stack_top
+
 global heap_bottom
 global heap_top
+
 global early_heap_bottom
 global early_heap_top
+
 global page_heap_bottom
-global page_heap top
+global page_heap_top
 ;Early heap for kernel page mappings
 ;And kheap lists
 early_heap_bottom:
@@ -62,7 +65,7 @@ early_heap_top:
 
 ;We will give heap pages
 page_heap_bottom:
-	resb 65536
+	resb 65536 ;BIGGER????
 page_heap_top:
 
 ;Actual heap

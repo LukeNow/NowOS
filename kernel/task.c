@@ -10,6 +10,7 @@
 
 LINKED_LIST_INIT(task_list);
 task_control_block_t *main_task;
+task_control_block_t *other_task;
 task_control_block_t *current_task;
 task_control_block_t *next_task;
 
@@ -22,6 +23,22 @@ void init_multitasking()
 	memset(main_task_ptr, 0, sizeof(task_control_block_t));
 	memcpy(main_task_ptr->name, task_name, TASK_NAME_LEN);
 	
+	main_task_ptr->cpu_state.cr3 = get_cr3(); //same page directory
+	main_task_ptr->cpu_state.cr2 = get_cr2();
+	main_task_ptr->cpu_state.cr0 = get_cr0();
+	main_task_ptr->cpu_state.eax = 0;
+	main_task_ptr->cpu_state.ebx = 0;
+	main_task_ptr->cpu_state.ecx = 0;
+	main_task_ptr->cpu_state.edx = 0;
+	main_task_ptr->cpu_state.esi = 0;
+	main_task_ptr->cpu_state.edi = 0;
+	main_task_ptr->cpu_state.eflags = get_eflags();
+	main_task_ptr->cpu_state.eip = 0; //will be updatedj
+	main_task_ptr->cpu_state.esp = 0; //will be updated
+	main_task_ptr->cpu_state.ebp = 0;
+
+	
+
 	linked_list_add(main_task_ptr, &task_list);
 	
 	main_task = main_task_ptr;
@@ -35,15 +52,17 @@ void create_task(void (*main)(), const char *name)
 	memset(task, 0, sizeof(task_control_block_t));
 	memcpy(task->name, name, TASK_NAME_LEN);
 
-	uint32_t new_stack_addr = mem_get_free_page_virt() + PAGE_SIZE; //start at top of page
-	uint32_t new_esp = new_stack_addr - (6 * 4);
+	uint32_t new_stack_addr = (uint32_t)kmalloc_page() + PAGE_SIZE; //start at top of page
+	uint32_t new_esp = new_stack_addr - (4 * 4);
 	kprint(INFO, "PREPING STACK AT %x with new ESP %x\n", new_stack_addr, new_esp);
 	
 	disable_int();
 	prep_stack_frame(task, main, new_stack_addr);
 	enable_int();
-	next_task = task;
-
+	
+	next_task = task;//
+	other_task = task;
+	kprint(INFO, "Task cpu state %x\n", &task->cpu_state);
 	task->cpu_state.cr3 = get_cr3(); //same page directory
 	task->cpu_state.cr2 = get_cr2();
 	task->cpu_state.cr0 = get_cr0();
@@ -55,10 +74,7 @@ void create_task(void (*main)(), const char *name)
 	task->cpu_state.edi = 0;
 	task->cpu_state.eflags = get_eflags();
 	task->cpu_state.eip = (uint32_t) start_task;
-	task->cpu_state.esp = new_esp;
-	
-
-	//PANIC("SO FAR SO GOOD");
+	task->cpu_state.esp = new_esp; //sp at our preped stack
 }
 
 void start_task(void (*main)(), task_control_block_t *task)
@@ -72,3 +88,7 @@ void destroy_task(task_control_block_t *task)
 	PANIC("TASK ENDED");
 }
 
+void yield()
+{	
+	switch_task();
+}

@@ -16,5 +16,6 @@ void prep_stack_frame(task_control_block_t *task, void (*main)(),
 void create_task(void (*main)(), const char *name);
 void start_task(void (*main)(), task_control_block_t *task);
 void destroy_task(task_control_block_t *task);
+void yield();
 void init_multitasking();
 #endif

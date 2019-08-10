@@ -17,7 +17,7 @@ typedef struct node_header {
  *
  * We use it for assigning and manipulating kernel page directories
  * and for kheap managment*/
-void init_early_kheap();
+void init_early_heap();
 uint32_t early_kmalloc_sectors(size_t sector_num);
 uint32_t early_kmalloc_pages(int num_pages);
 
@@ -27,8 +27,16 @@ uint32_t early_kmalloc_pages(int num_pages);
  * i.e. our bread and butter dynamic memory management
  */
 void init_kheap();
-void check_heap_integrity();
+void check_kheap_integrity();
 void *kmalloc(size_t size);
 void kfree(void *ptr);
 
+/* Page heap methods
+ *
+ * These are the methods for the page heap
+ * that give out page aligned pages
+ */
+void init_page_heap();
+void *kmalloc_page();
+void kfree_page();
 #endif

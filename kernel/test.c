@@ -84,7 +84,7 @@ static void test_linked_list()
 
 
 
-	check_heap_integrity();
+	check_kheap_integrity();
 
 }
 

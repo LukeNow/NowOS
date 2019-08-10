@@ -2,6 +2,8 @@
 #define _SORTED_ARRAY_LIST_H
 #include <stdint.h>
 
+#define SORTED_ARRAY_LIST_INIT(list) \
+	static sorted_array_list_t (list) = { 0, 0, 0 }
 
 typedef struct sorted_array_list {
 	void **arr;
