@@ -4,6 +4,7 @@
 #include "../include/string.h"
 #include "../include/kheap.h"
 #include "../include/linked_list.h"
+#include "../include/kprint.h"
 
 linked_list_t *linked_list_init()
 {
@@ -13,7 +14,7 @@ linked_list_t *linked_list_init()
 	return list;
 }
 
-void *linked_list_find(unsigned int index, linked_list_t *list)
+void *linked_list_get(unsigned int index, linked_list_t *list)
 {
 	if (list == NULL)
 		return NULL;
@@ -21,11 +22,16 @@ void *linked_list_find(unsigned int index, linked_list_t *list)
 	linked_list_node_t *node = list->start_ptr;
 	void *data = node->data;
 
-	for (int i = 0; i < index; i++) {
-		node = node->next_ptr;
+	for (int i = 0; i < index + 1; i++) {
+		
+		if (node == NULL) {
+			return NULL;
+		}
+		
 		data = node->data;
+		node = node->next_ptr;
 	}
-
+	
 	return data;
 }
 
@@ -72,7 +78,7 @@ int linked_list_add(void *data, linked_list_t *list)
 		node->prev_ptr = last_node; //update new node
 		list->end_ptr = node; //update list
 	}
-
+	
 	return 0;
 }
 
