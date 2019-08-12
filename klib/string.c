@@ -15,14 +15,6 @@ void* memmove(void* dstptr, const void* srcptr, size_t size)
 	return dstptr;
 }
 
-size_t strlen(const char* str) 
-{
-	size_t len = 0;
-	while (str[len])
-		len++;
-	return len;
-}
-
 int memcmp(const void* aptr, const void* bptr, size_t size) 
 {
 	const unsigned char* a = (const unsigned char*) aptr;
@@ -44,7 +36,7 @@ void* memset(void* bufptr, int value, size_t size)
 	return bufptr;
 }
 
-void* memcpy(void* restrict dstptr, const void* restrict srcptr, size_t size) 
+void* memcpy(void *restrict dstptr, const void *restrict srcptr, size_t size) 
 {
 	unsigned char* dst = (unsigned char*) dstptr;
 	const unsigned char* src = (const unsigned char*) srcptr;
@@ -53,4 +45,19 @@ void* memcpy(void* restrict dstptr, const void* restrict srcptr, size_t size)
 	return dstptr;
 }
 
+size_t strlen(const char *str) 
+{
+	size_t len = 0;
+	while (str[len])
+		len++;
+	return len;
+}
 
+int strcmp(const char *str1, const char *str2)
+{
+	size_t len1 = strlen(str1);
+	size_t len2 = strlen(str2);
+	size_t cmp_len = (len1 < len2) ? len1 : len2;
+	
+	return memcmp(str1, str2, cmp_len + 1);
+}
