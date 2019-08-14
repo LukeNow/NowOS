@@ -159,8 +159,11 @@ void schedule()
 	
 	/* If the next task happens to be the same task as our
 	 * current one, there is no need to switch tasks */
-	if (next_task == current_task)
+	if (next_task == current_task) {
+		/* Record time usage starting now */
+		current_task->last_time = timer_get_ns();
 		return;
+	}
 
 	switch_task();
 	
@@ -174,7 +177,6 @@ void schedule_task_ready(task_control_block_t *task)
 	if (blocked_index != -1)
 		linked_list_remove(blocked_index, &blocked_list);
 	linked_list_enqueue(task, &ready_list);
-	task->state = READY;
 }
 
 void schedule_task_blocked(task_control_block_t *task)
@@ -226,7 +228,7 @@ void init_scheduler(task_control_block_t *first_task)
 	soft_lock_scheduler();
 	current_task = first_task;
 	next_task = NULL;
-	linked_list_enqueue(first_task, &ready_list);
 	first_task->state = READY;
+	linked_list_enqueue(first_task, &ready_list);
 	soft_unlock_scheduler();
 }
