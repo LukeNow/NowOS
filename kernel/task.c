@@ -7,42 +7,26 @@
 #include "../include/mm.h"
 #include "../include/kdef.h"
 #include "../include/kprint.h"
-
-LINKED_LIST_INIT(task_list);
-task_control_block_t *main_task;
-task_control_block_t *other_task;
-task_control_block_t *current_task;
-task_control_block_t *next_task;
+#include "../include/scheduler.h"
+#include "../include/timer.h"
 
 void init_multitasking()
 {
 	char task_name[TASK_NAME_LEN] = "main_task";
 	
-	task_control_block_t *main_task_ptr = 
+	task_control_block_t *main_task = 
 		kmalloc(sizeof(task_control_block_t));
-	memset(main_task_ptr, 0, sizeof(task_control_block_t));
-	memcpy(main_task_ptr->name, task_name, TASK_NAME_LEN);
+	memset(main_task, 0, sizeof(task_control_block_t));
+	memcpy(main_task->name, task_name, TASK_NAME_LEN);
 	
-	main_task_ptr->cpu_state.cr3 = get_cr3(); //same page directory
-	main_task_ptr->cpu_state.cr2 = get_cr2();
-	main_task_ptr->cpu_state.cr0 = get_cr0();
-	main_task_ptr->cpu_state.eax = 0;
-	main_task_ptr->cpu_state.ebx = 0;
-	main_task_ptr->cpu_state.ecx = 0;
-	main_task_ptr->cpu_state.edx = 0;
-	main_task_ptr->cpu_state.esi = 0;
-	main_task_ptr->cpu_state.edi = 0;
-	main_task_ptr->cpu_state.eflags = get_eflags();
-	main_task_ptr->cpu_state.eip = 0; //will be updatedj
-	main_task_ptr->cpu_state.esp = 0; //will be updated
-	main_task_ptr->cpu_state.ebp = 0;
-
-	
-
-	linked_list_add(main_task_ptr, &task_list);
-	
-	main_task = main_task_ptr;
-	current_task = main_task;
+	/* All other fields will be zero */
+	main_task->cpu_state.cr3 = get_cr3(); //page directory
+	main_task->cpu_state.cr2 = get_cr2();
+	main_task->cpu_state.cr0 = get_cr0();
+	main_task->cpu_state.eflags = get_eflags();
+	/* All other registers will be updated */
+	main_task->state = READY;
+	init_scheduler(main_task);
 }
 
 void create_task(void (*main)(), const char *name)
@@ -53,42 +37,39 @@ void create_task(void (*main)(), const char *name)
 	memcpy(task->name, name, TASK_NAME_LEN);
 
 	uint32_t new_stack_addr = (uint32_t)kmalloc_page() + PAGE_SIZE; //start at top of page
-	uint32_t new_esp = new_stack_addr - (4 * 4);
+	uint32_t new_esp = new_stack_addr - (4 * sizeof(unsigned int));
 	kprint(INFO, "PREPING STACK AT %x with new ESP %x\n", new_stack_addr, new_esp);
 	
-	disable_int();
 	prep_stack_frame(task, main, new_stack_addr);
-	enable_int();
 	
-	next_task = task;//
-	other_task = task;
-	kprint(INFO, "Task cpu state %x\n", &task->cpu_state);
+	/* All other fields will be zero */
 	task->cpu_state.cr3 = get_cr3(); //same page directory
 	task->cpu_state.cr2 = get_cr2();
 	task->cpu_state.cr0 = get_cr0();
-	task->cpu_state.eax = 0;
-	task->cpu_state.ebx = 0;
-	task->cpu_state.ecx = 0;
-	task->cpu_state.edx = 0;
-	task->cpu_state.esi = 0;
-	task->cpu_state.edi = 0;
 	task->cpu_state.eflags = get_eflags();
 	task->cpu_state.eip = (uint32_t) start_task;
 	task->cpu_state.esp = new_esp; //sp at our preped stack
+	task->state = READY;
+	schedule_task_ready(task);
 }
 
-void start_task(void (*main)(), task_control_block_t *task)
-{
-	main();
-	destroy_task(task);
-}
-
+/* Function gets called naturally when a task returns
+ * from its function, or if unaturally terminated */
 void destroy_task(task_control_block_t *task)
 {
-	PANIC("TASK ENDED");
+	unschedule_task(task);
+	kfree(task);
 }
 
-void yield()
-{	
-	switch_task();
+/* The main function will run, when it returns, it will fall through to
+ * the destroy task function which will automatically clean up for us */
+void start_task(void (*main)(), task_control_block_t *task)
+{
+	soft_unlock_scheduler();
+	task->last_time = timer_get_ns();
+	main();
+	destroy_task(task);
+	soft_lock_scheduler();
+	schedule();
+	PANIC("We reached end of task, we shouldnt be");
 }

@@ -1,6 +1,7 @@
 global __halt_system
 global __enable_int
 global __disable_int
+global __nop
 global get_cr3
 global get_cr2
 global get_cr0
@@ -16,15 +17,22 @@ global get_eip
 global get_eflags
 
 __halt_system:
-	hang: hlt
+	hang:
+	hlt
 	jmp hang
 	ret
 __enable_int:
 	sti
 	ret
 __disable_int:
-	nmi
+	cli
 	ret
+__nop:
+	nop
+	nop
+	nop
+	ret
+
 get_cr3:
 	mov eax, cr3
 	ret

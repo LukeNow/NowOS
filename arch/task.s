@@ -1,3 +1,6 @@
+extern scheduler_lock_counter
+extern scheduler_postponed_counter
+extern scheduler_postponed_flag
 extern current_task
 extern next_task
 extern destroy_task
@@ -27,6 +30,7 @@ prep_stack_frame:
 
 bootstrap_task:
 	call start_task
+	xchg bx, bx
 
 load_regs_to_task:
 	;; Save current register state
@@ -47,7 +51,6 @@ load_regs_to_task:
 	mov ecx, esp
 	mov [eax + 20], ecx ;esp
 
-	xchg bx, bx
 	;mov ecx, ebp
 	;mov [eax + 24], ecx ;ebp
 	;mov ecx, edi
@@ -70,6 +73,11 @@ switch_task:
 	;jmp load_regs_to_task
 load_regs_to_task_ret:
 	
+	cmp dword [scheduler_postponed_counter], 0
+	je .continue
+	mov dword [scheduler_postponed_flag], 1
+	ret
+.continue:
 	mov eax, [current_task]
 	mov ecx, esp
 	mov [eax + 20], ecx
@@ -88,6 +96,6 @@ load_regs_to_task_ret:
 	je .sameVAS ;same virtual address space
 	
 	mov cr3, eax
-.sameVAS
+.sameVAS:
 
 	ret

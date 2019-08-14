@@ -65,7 +65,7 @@ static void test_linked_list()
 	for (int i = 0; i < 10; i++) {
 		int *val = kmalloc(sizeof(int));
 		*val = i;
-		linked_list_add(val, list);
+		linked_list_enqueue(val, list);
 	}
 	
 	//int *v = linked_list_find(9, list);

@@ -120,7 +120,6 @@ void irq1_handler(struct cpu_state cpu, struct stack_state stack)
 	pic_sendEOI(1);
 }
 
- 
 void irq2_handler(struct cpu_state cpu, struct stack_state stack)
 {
 	kprint(INFO, "IRQ 2 FIRED\n");

@@ -3,15 +3,26 @@
 #include "../include/pit.h"
 #include "../include/io.h"
 #include "../include/pic.h"
+#include "../include/kprint.h"
 
 size_t ns_ticks;
 size_t ns_counter;
 size_t ticks;
 
+void (*pit_handler)() = NULL;
+
 void pit_interrupt_handler()
 {
 	ns_counter += ns_ticks;
 	ticks++;
+	
+	if (pit_handler != NULL)
+		pit_handler();
+	
+}
+
+void register_pit_handler(void (*handler)()) {
+	pit_handler = handler;
 }
 
 void init_pit()

@@ -2,11 +2,21 @@
 #define _TASK_H
 #include <stdint.h>
 #include "../include/processor.h"
+#include "../include/kdef.h"
 
 #define TASK_NAME_LEN 64
 
+typedef enum task_state {
+	READY, 
+	SLEEPING, 
+	PAUSED
+}task_state_t;
+
 typedef struct task_control_block {
 	cpu_state_t cpu_state;
+	task_state_t state;
+	time_t time_used;
+	time_t last_time;
 	char name[TASK_NAME_LEN];
 }task_control_block_t;
 
@@ -16,6 +26,5 @@ void prep_stack_frame(task_control_block_t *task, void (*main)(),
 void create_task(void (*main)(), const char *name);
 void start_task(void (*main)(), task_control_block_t *task);
 void destroy_task(task_control_block_t *task);
-void yield();
 void init_multitasking();
 #endif

@@ -30,6 +30,7 @@ typedef struct stack_state stack_state_t;
 void __halt_system();
 void __enable_int();
 void __disable_int();
+void __nop();
 
 unsigned int get_cr3();
 unsigned int get_cr2();

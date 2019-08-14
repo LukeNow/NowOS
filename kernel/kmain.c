@@ -17,23 +17,64 @@
 #include "../include/pit.h"
 #include "../include/linked_list.h"
 #include "../include/task.h"
+#include "../include/scheduler.h"
+#include "../include/string.h"
+#include "../include/timer.h"
 
-extern task_control_block_t *main_task;
-extern task_control_block_t *other_task;
-extern task_control_block_t *current_task;
-extern task_control_block_t *next_task;
+void do_work()
+{	
+	for (int i = 0; i < 100000; i++) {
+		enable_int();
+		nop();
+		disable_int();
+	}
+}
 
 void main1()
 {
-	for (;;) {
-		kprint(INFO, "Othertask!!\n");
-		disable_int();
+	for (int i = 0; i < 10; i++) {
 		
-		next_task = main_task;
-		yield();
-		enable_int();
-		kprint(INFO, "Other task returned\n");
+		
+		if (i == 1) {
+			block_task(SLEEPING);
+			//sleep_for(1000);
+		}
+		
+		kprint(INFO, "OTHERTASK1 Enter %d\n", i);
+		soft_lock_scheduler();
+		//disable_int();
+		schedule();
+		soft_unlock_scheduler();
+		//enable_int();
+		kprint(INFO, "OTHERTASK1 leave %d\n", i);
+		//i++;
+
+
 	}
+}
+
+void main2()
+{
+	for (int i = 0; i < 10; i++) {
+		
+		
+		if (i == 0) {
+			//block_task(SLEEPING);
+			sleep_for(10000);
+		}
+		
+		kprint(INFO, "OTHERTASK2 Enter %d\n", i);
+		soft_lock_scheduler();
+		//disable_int();
+		schedule();
+		soft_unlock_scheduler();
+		//enable_int();
+		kprint(INFO, "OTHERTASK2 leave %d\n", i);
+		//i++;
+
+
+	}
+
 }
 
 void kmain(multiboot_info_t* mbt, unsigned int magic)
@@ -55,21 +96,31 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	
 	init_kheap(); //Regular kheap
 	init_page_heap();
-	
 	init_multitasking();
-	create_task(main1, "main1");
 	
-	disable_int();
-	for (int i = 0; i < 10; i++) {
-		kprint(INFO, "MAIN! %d\n", i);
-		disable_int();
-		next_task = other_task;
-		yield();
-		enable_int();
-		//kprint(INFO, "MAIN RETURNED! %d\n");
+	soft_lock_scheduler();
+	create_task(main1, "main1");
+	soft_unlock_scheduler();
+
+	soft_lock_scheduler();
+	create_task(main2, "main2");
+	soft_unlock_scheduler();
+
+	for (int i = 0; i < 20; i++) {
+		//do_work();
+		if (i == 10) {
+			unblock_task(name_to_tcb("main1"));
+		}
+
+		kprint(INFO, "MAIN enter %d\n", i);
+		//disable_int();
+		soft_lock_scheduler();
+		schedule();
+		soft_unlock_scheduler(); 
+		//enable_int();
+		kprint(INFO, "Main leave %d\n", i);
 	}
-	//yield();
-	//yield();
+	
 
 	PANIC("KMAIN STOP"); 
 	

@@ -22,7 +22,8 @@ KERN_OBJS:= kernel/io.o  \
 	       kernel/mm.o \
 	       kernel/test.o \
 	       kernel/scheduler.o \
-	       kernel/task.o
+	       kernel/task.o \
+	       kernel/timer.o
 
 BOOT_OBJS:= boot/boot.o \
 		
