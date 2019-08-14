@@ -148,7 +148,7 @@ void schedule()
 	/* If there is a hard scheduler lock being held
 	 * do not switch_task() */
 	if (scheduler_postponed_counter != 0) {
-		scheduler_postponed_counter = 1;
+		scheduler_postponed_flag = 1;
 		return;
 	}
 	
