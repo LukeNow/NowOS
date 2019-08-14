@@ -44,19 +44,31 @@ entry:
 
 ; Higher mem stack
 section .bss
-align 16
+align 4096
 
 global stack_bottom
 global stack_top
+
 global heap_bottom
 global heap_top
+
 global early_heap_bottom
 global early_heap_top
 
+global page_heap_bottom
+global page_heap_top
+;Early heap for kernel page mappings
+;And kheap lists
 early_heap_bottom:
 	resb 32768
 early_heap_top:
 
+;We will give heap pages
+page_heap_bottom:
+	resb 65536 ;BIGGER????
+page_heap_top:
+
+;Actual heap
 heap_bottom:
 	resb 102400
 heap_top:
@@ -67,6 +79,7 @@ stack_top:
 
 ; Higher mem code
 section .text
+align 16
 global _start
 global gdt_init_ret
 extern kmain
@@ -74,6 +87,7 @@ extern term_init
 extern gdt_init
 extern idt_init
 extern init_kern_paging
+extern init_pit
 
 _start:
 	;Turn off interrupts just in case
@@ -93,6 +107,8 @@ gdt_init_ret:
 	call idt_init
 	;Turn on interrupts
 	
+	call init_pit
+
 	sti
 	;Call main kernel code
 	call kmain

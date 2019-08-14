@@ -23,7 +23,23 @@ common_interrupt_handler:
 	push edi
 	push ebp
 	push esp
+	push dword 0 ;for interrupt handlers we dont care about eip 
+		     ;Because it is not associated with any process
+	pushfd
+	mov eax, cr3
+	push eax
+	mov eax, cr2
+	push eax
+	mov eax, cr0
+	push eax
+	
 	call interrupt_handler
+	
+	pop eax
+	pop eax
+	pop eax ;Pop cr0, cr2, cr3
+	popfd   ;Pop eflags
+	pop eax ;pop the eip that was set to 0
 	pop esp
 	pop ebp
 	pop edi

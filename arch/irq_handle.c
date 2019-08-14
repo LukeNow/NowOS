@@ -7,6 +7,7 @@
 #include "../include/machine.h"
 #include "../include/processor.h"
 #include "../include/irq_handle.h"
+#include "../include/pit.h"
 
 /* INT vec 0 */
 void divide_by_zero_handler(struct cpu_state cpu, struct stack_state stack)
@@ -109,7 +110,7 @@ void default_handler(struct cpu_state cpu, struct stack_state stack,
 
 void irq0_handler(struct cpu_state cpu, struct stack_state stack)
 {
-	//kprint(INFO, "IRQ 0 FIRED\n");
+	pit_interrupt_handler();
 	pic_sendEOI(0);
 }
 
@@ -119,7 +120,6 @@ void irq1_handler(struct cpu_state cpu, struct stack_state stack)
 	pic_sendEOI(1);
 }
 
- 
 void irq2_handler(struct cpu_state cpu, struct stack_state stack)
 {
 	kprint(INFO, "IRQ 2 FIRED\n");

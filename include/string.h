@@ -6,4 +6,5 @@ void* memcpy(void* __restrict dest, const void* __restrict src, size_t size);
 void* memmove(void* dest, const void* src, size_t size);
 void* memset(void* bufptr, int value, size_t size);
 size_t strlen(const char* str);
+int strcmp(const char *str1, const char *str2);
 #endif 

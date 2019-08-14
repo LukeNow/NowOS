@@ -1,23 +1,7 @@
 #ifndef _IRQ_HANDLE_H
 #define _IRQ_HANDLE_H
 
-struct cpu_state {
-        unsigned int esp;
-	unsigned int ebp;
-	unsigned int edi;
-	unsigned int esi;
-	unsigned int edx;
-	unsigned int ecx;
-	unsigned int ebx;
-	unsigned int eax;
-} __attribute__((packed));
-
-struct stack_state {
-	unsigned int error_code;
-	unsigned int eip;
-	unsigned int cs;
-	unsigned int eflags;
-} __attribute__((packed));
+#include "../include/processor.h"
 
 void interrupt_handler(struct cpu_state cpu, unsigned int interrupt, 
 		       struct stack_state stack);

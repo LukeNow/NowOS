@@ -5,6 +5,7 @@
 void halt_system();
 void enable_int();
 void disable_int();
+void nop();
 void register_dump();
 void _panic();
 void interrupt_register_dump(struct cpu_state cpu, struct stack_state stack,

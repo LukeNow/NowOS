@@ -1,6 +1,7 @@
 #include "../include/kprint.h"
 #include "../include/processor.h"
 #include "../include/irq_handle.h"
+#include "../include/scheduler.h"
 
 void halt_system()
 {
@@ -17,10 +18,16 @@ void disable_int()
 	__disable_int(); //cli
 }
 
+void nop()
+{
+	__nop();
+}
+
 void _panic()
 {
 	disable_int();
 	halt_system();
+	//hard_lock_scheduler();
 	for (;;);
 
 }
@@ -60,4 +67,5 @@ void interrupt_register_dump(struct cpu_state cpu, struct stack_state stack,
 	       cpu.ebp, cpu.esp);
 	kprint(INFO, "ERROR CODE: %x EIP: %x CS %x EFLAGS %x\n", stack.error_code,
 	       stack.eip, stack.cs, stack.eflags);
+	kprint(INFO, "CR0: %x CR2: %x CR3: %x\n", get_cr0(), get_cr2(), get_cr3());
 }

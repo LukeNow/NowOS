@@ -19,7 +19,11 @@ KERN_OBJS:= kernel/io.o  \
 	       kernel/kprint.o \
 	       kernel/kheap.o \
 	       kernel/paging.o \
-	       kernel/mm.o
+	       kernel/mm.o \
+	       kernel/test.o \
+	       kernel/scheduler.o \
+	       kernel/task.o \
+	       kernel/timer.o
 
 BOOT_OBJS:= boot/boot.o \
 		
@@ -32,10 +36,14 @@ ARCH_OBJS:= 	arch/gdt_init.o \
 		arch/pic.o \
 		arch/processor.o \
 		arch/machine.o \
-		arch/paging_init.o
+		arch/paging_init.o \
+		arch/pit.o \
+		arch/task.o
 
 KLIB_OBJS:=	klib/string.o \
-		klib/sorted_array_list.o
+		klib/sorted_array_list.o \
+		klib/linked_list.o \
+		klib/byte_index_list.o
 
 OBJS:= $(BOOT_OBJS) $(KLIB_OBJS) $(KERN_OBJS) $(ARCH_OBJS) 
 	  
