@@ -127,7 +127,7 @@ int linked_list_add(void *data, unsigned int index, linked_list_t *list)
 		temp_node = temp_node->next_ptr;
 		temp_index++;
 	}
-	
+
 	/* Our node will be the last node in the list */
 	if (temp_node == NULL) {
 		linked_list_node_t *last_node = list->end_ptr;
@@ -158,11 +158,12 @@ int linked_list_remove(unsigned int index, linked_list_t *list)
 	linked_list_node_t *node = list->start_ptr;
 	
 	unsigned int temp_index = 0;
-	while (node != NULL && temp_index <= index) {
+	while (node != NULL && temp_index < index) {
 		node = node->next_ptr;
 		temp_index++;
+		
 	}
-
+	
 	if (temp_index != index)
 		return -1;
 	
