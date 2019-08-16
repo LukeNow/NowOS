@@ -29,7 +29,7 @@ void init_multitasking()
 	init_scheduler(main_task);
 }
 
-void create_task(void (*main)(), const char *name)
+task_control_block_t *create_task(void (*main)(), const char *name)
 {
 	task_control_block_t *task = 
 		kmalloc(sizeof(task_control_block_t));
@@ -51,6 +51,7 @@ void create_task(void (*main)(), const char *name)
 	task->cpu_state.esp = new_esp; //sp at our preped stack
 	task->state = READY;
 	schedule_task_ready(task);
+	return task;
 }
 
 /* Function gets called naturally when a task returns

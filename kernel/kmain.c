@@ -53,6 +53,7 @@ void main1()
 	}
 }
 
+extern task_control_block_t *current_task;
 void main2()
 {
 	for (int i = 0; i < 10; i++) {
@@ -61,6 +62,7 @@ void main2()
 		if (i == 0) {
 			//block_task(SLEEPING);
 			sleep_for(10000);
+			kprint(INFO, "WOKEN UP AT %d\n", current_task->time_used);
 		}
 		
 		kprint(INFO, "OTHERTASK2 Enter %d\n", i);

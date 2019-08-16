@@ -23,7 +23,7 @@ typedef struct task_control_block {
 void switch_task();
 void prep_stack_frame(task_control_block_t *task, void (*main)(), 
 		      uint32_t stack_addr);
-void create_task(void (*main)(), const char *name);
+task_control_block_t *create_task(void (*main)(), const char *name);
 void start_task(void (*main)(), task_control_block_t *task);
 void destroy_task(task_control_block_t *task);
 void init_multitasking();
