@@ -49,8 +49,6 @@ task_control_block_t *create_task(void (*main)(), const char *name)
 	task->cpu_state.eflags = get_eflags();
 	task->cpu_state.eip = (uint32_t) start_task;
 	task->cpu_state.esp = new_esp; //sp at our preped stack
-	task->state = READY;
-	schedule_task_ready(task);
 	return task;
 }
 
@@ -72,5 +70,5 @@ void start_task(void (*main)(), task_control_block_t *task)
 	destroy_task(task);
 	soft_lock_scheduler();
 	schedule();
-	PANIC("We reached end of task, we shouldnt be");
+	PANIC("We reached end of a task that we shouldnt be reaching");
 }

@@ -9,7 +9,8 @@
 typedef enum task_state {
 	READY, 
 	SLEEPING, 
-	PAUSED
+	PAUSED,
+	IDLE
 }task_state_t;
 
 typedef struct task_control_block {

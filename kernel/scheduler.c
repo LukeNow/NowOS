@@ -19,6 +19,8 @@ LINKED_LIST_INIT(blocked_list);
 LINKED_LIST_INIT(timer_list);
 
 task_control_block_t *timer_task;
+task_control_block_t *idle_task;
+
 task_control_block_t *current_task;
 task_control_block_t *next_task;
 
@@ -51,6 +53,9 @@ static void update_next_task()
 		linked_list_cycle(&ready_list);
 		next_task = linked_list_get(0, &ready_list);
 	}
+	else if (ready_list.size == 0) {
+		next_task = idle_task;
+	}
 
 }
 
@@ -62,6 +67,19 @@ static void pit_handler()
 		schedule_task_ready(timer_task);
 		timer_task->state = READY;
 		soft_unlock_scheduler();
+	}
+}
+
+static void idle()
+{
+	for (;;) {
+		enable_int();
+		kprint(INFO, "IDLE\n");
+		
+		halt_system();
+		disable_int();
+		switch_task();
+		
 	}
 }
 
@@ -119,7 +137,7 @@ void hard_unlock_scheduler()
 	if (scheduler_lock_counter == 0) {
 		if (scheduler_postponed_flag != 0) {
 			scheduler_postponed_flag = 0;
-			//schedule();
+			schedule();
 		}
 	}
 	soft_unlock_scheduler();
@@ -191,7 +209,6 @@ void schedule_task_blocked(task_control_block_t *task)
 	int ready_index = linked_list_search(task, &ready_list);
 	if (ready_index != -1)
 		linked_list_remove(ready_index, &ready_list);
-	
 	linked_list_enqueue(task, &blocked_list);
 }
 
@@ -233,8 +250,13 @@ void init_scheduler(task_control_block_t *first_task)
 	/* Create timer task that will keep track of sleeping processes 
 	 * and register it so that it gets called on PIT ticks*/
 	timer_task = create_task(update_timer_list, "timer_task");
+	timer_task->state = READY;
+	schedule_task_ready(timer_task);
 	register_pit_handler(pit_handler);
 	
+	idle_task = create_task(idle, "idle_task");
+	idle_task->state = IDLE;
+
 	soft_lock_scheduler();
 	current_task = first_task;
 	next_task = NULL;
