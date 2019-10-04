@@ -102,15 +102,15 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	
 	task_control_block_t *temp_task;
 	soft_lock_scheduler();
-	temp_task = create_task(main1, "main1");
-	schedule_task_ready(temp_task);
+	temp_task = create_task(main1, 0, "main1");
+	schedule_task_ready(0, temp_task);
 	soft_unlock_scheduler();
 
 	soft_lock_scheduler();
-	temp_task = create_task(main2, "main2");
-	schedule_task_ready(temp_task);
+	temp_task = create_task(main2, 0, "main2");
+	schedule_task_ready(0, temp_task);
 	soft_unlock_scheduler();
-
+	
 	for (int i = 0; i < 20; i++) {
 		//do_work();
 		if (i == 10) {
@@ -131,7 +131,7 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 		
 	}
 	
-
+	
 	PANIC("KMAIN STOP"); 
 	
 	/* Hang, we dont return from this function */

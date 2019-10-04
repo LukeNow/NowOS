@@ -21,7 +21,8 @@ void pit_interrupt_handler()
 	
 }
 
-void register_pit_handler(void (*handler)()) {
+void register_pit_handler(void (*handler)()) 
+{
 	pit_handler = handler;
 }
 
