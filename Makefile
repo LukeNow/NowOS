@@ -1,8 +1,9 @@
 ARCH:=i686-elf
 CFLAGS:=-g -ffreestanding -Wall -Wextra -lgcc -nostdlib -m32 -Wl,--build-id=none
 ASFLAGS:=
+SYS_ROOT:="$(PWD)/sysroot"
 
-CC:=$(ARCH)-gcc
+CC:="$(ARCH)-gcc"
 ASM:=nasm
 
 LIBS:=-nostdlib -lk -lgcc
@@ -46,15 +47,24 @@ KLIB_OBJS:=	klib/string.o \
 		klib/byte_index_list.o
 
 OBJS:= $(BOOT_OBJS) $(KLIB_OBJS) $(KERN_OBJS) $(ARCH_OBJS) 
-	  
+
+SYS_DIR:= sysroot/usr
+INCLUDE_DIR:= include
+		
 .PHONY: all clean run iso bochs-run qemu-run
 .SUFFIXES: .o .c .s
 
 all: clean nowos.kernel
 
-nowos.kernel: $(OBJS) boot/linker.ld
+install-headers:
+	mkdir -p $(SYS_DIR)/$(INCLUDE_DIR)
+	cp -R --preserve=timestamps include/. $(SYS_DIR)/$(INCLUDE_DIR)
+
+nowos.kernel: install-headers $(OBJS) boot/linker.ld
+	echo $(SYS_ROOT)
 	$(CC) -T boot/linker.ld -o $(KERNELDIR)/$(KERNELNAME).kernel $(CFLAGS) $(OBJS) 
 	sh scripts/check-multiboot.sh $(KERNELDIR) $(KERNELNAME)
+
 qemu-run: all
 	qemu-system-i386 -kernel $(KERNELDIR)/$(KERNELNAME).kernel -serial file:serial.log
 
@@ -81,6 +91,8 @@ clean:
 	rm -f nowos.iso
 	rm -f $(KERNELDIR)/$(KERNELNAME).kernel
 	rm -f $(OBJS) 
+	rm -rf $(SYS_DIR)
+	rm -rf sysroot
 .c.o:
 	$(CC) -c $< -o $@ -std=gnu11 $(CFLAGS)
 

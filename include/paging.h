@@ -25,5 +25,7 @@ void set_page_dir_entry(page_dir_entry_t *entry, uint32_t phys_addr,
 			 int read_write, int privledge, int write_through,
 			 int cache_disabled, int page_size);
 
+
+extern void paging_init(page_dir_t *dir);
 void init_kern_paging();
 #endif

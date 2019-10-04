@@ -53,6 +53,7 @@ void main1()
 	}
 }
 
+extern task_control_block_t *current_task;
 void main2()
 {
 	for (int i = 0; i < 10; i++) {
@@ -61,6 +62,7 @@ void main2()
 		if (i == 0) {
 			//block_task(SLEEPING);
 			sleep_for(10000);
+			kprint(INFO, "WOKEN UP AT %d\n", current_task->time_used);
 		}
 		
 		kprint(INFO, "OTHERTASK2 Enter %d\n", i);
@@ -98,20 +100,26 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	init_page_heap();
 	init_multitasking();
 	
+	task_control_block_t *temp_task;
 	soft_lock_scheduler();
-	create_task(main1, "main1");
+	temp_task = create_task(main1, 0, "main1");
+	schedule_task_ready(0, temp_task);
 	soft_unlock_scheduler();
 
 	soft_lock_scheduler();
-	create_task(main2, "main2");
+	temp_task = create_task(main2, 0, "main2");
+	schedule_task_ready(0, temp_task);
 	soft_unlock_scheduler();
-
+	
 	for (int i = 0; i < 20; i++) {
 		//do_work();
 		if (i == 10) {
 			unblock_task(name_to_tcb("main1"));
 		}
-
+		
+		if (i == 15) {
+			sleep_for(100000);
+		}
 		kprint(INFO, "MAIN enter %d\n", i);
 		//disable_int();
 		soft_lock_scheduler();
@@ -119,9 +127,11 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 		soft_unlock_scheduler(); 
 		//enable_int();
 		kprint(INFO, "Main leave %d\n", i);
+		
+		
 	}
 	
-
+	
 	PANIC("KMAIN STOP"); 
 	
 	/* Hang, we dont return from this function */
