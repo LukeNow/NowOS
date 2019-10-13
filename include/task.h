@@ -3,10 +3,9 @@
 #include <stdint.h>
 #include "../include/processor.h"
 #include "../include/kdef.h"
+#include "../include/ipc.h"
 
-#define TASK_NAME_LEN 64
-
-typedef int priority_t;
+#define MESSAGE_BUFF_LEN 4
 
 typedef enum task_state {
 	READY, 
@@ -22,6 +21,10 @@ typedef struct task_control_block {
 	time_t last_time;
 	priority_t current_priority;
 	priority_t starting_priority;
+	task_id_t task_id; //task_id of this task
+	proc_id_t proc_id; //proc_id that this tasks belongs to
+	/* task_id & proc_id make the unique ID for this task */
+	message_t message_buff[MESSAGE_BUFF_LEN];
 	char name[TASK_NAME_LEN];
 }task_control_block_t;
 
