@@ -16,9 +16,9 @@ struct idt_entry{
 	unsigned short int offset_higher;
 }__attribute__((packed));
 
-struct idt_entry idt[256];
-
 extern void load_idt(unsigned long* idt_ptr);
+
+static struct idt_entry idt[256];
 
 static void set_idt_entry(unsigned int int_num, uint32_t address,
 			  uint16_t selector, uint8_t type)
@@ -82,18 +82,21 @@ void set_idt(void) {
 	set_kern_interrupt(46, (unsigned long) interrupt_handler_46);
 	set_kern_interrupt(47, (unsigned long) interrupt_handler_47);
 	
-
+	/* Fill all NULL idt entries with an entry, so that we can debug it if 
+	 * it was to fire (for some unknown reasons that we should have handled */
 	for (int i = 0; i < 256; i++) {
 		struct idt_entry temp = idt[i];
 		if ( ((uint64_t)temp.offset_lower) == 0) {
 			set_kern_interrupt(i, (unsigned long) interrupt_handler_1);
 		}
 	}
+
 	/* fill the IDT descriptor */
 	idt_address = (unsigned long) idt;
 	idt_ptr[0] = (sizeof (struct idt_entry) * 256) + ((idt_address & 0xffff) << 16);
 	idt_ptr[1] = idt_address >> 16 ;
-
+	
+	/* Call asm funcion to load table */
 	load_idt(idt_ptr);
 	kprint(INFO, "IDT table loaded\n");
 }
