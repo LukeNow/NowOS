@@ -1,5 +1,5 @@
 # NowOS
-A simple operating system written in C targeted towards x86 compatible machines.
+A simple operating system written in C targeted towards x86-32 compatible machines.
 
 This project mainly aims to learn about building an OS from scratch (everything except the bootloader, thank you GRUB) and in general learning about operating system design and implementation. I am interested in developing an operating system using a micro-kernel architecture, as modular design is much easier to implement and debugging becomes much more feasible (which we will need it to be). 
 
