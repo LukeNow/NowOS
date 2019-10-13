@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include "../include/processor.h"
 #include "../include/kdef.h"
-#include "../include/ipc.h"
 
 #define MESSAGE_BUFF_LEN 4
 
@@ -24,7 +23,6 @@ typedef struct task_control_block {
 	task_id_t task_id; //task_id of this task
 	proc_id_t proc_id; //proc_id that this tasks belongs to
 	/* task_id & proc_id make the unique ID for this task */
-	message_t message_buff[MESSAGE_BUFF_LEN];
 	char name[TASK_NAME_LEN];
 }task_control_block_t;
 
