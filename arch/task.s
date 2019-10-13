@@ -29,14 +29,16 @@ prep_stack_frame:
 ; We need to save segments and TSS for switching between userspace
 ; and kernel space
 
+; Dummy label that a tasks jumps to when it is given its prepped stack
 bootstrap_task:
 	call start_task
-	xchg bx, bx
 
 ; We need to disable IRQs before and renable after this function
 global switch_task
 switch_task:
 	
+	; Check that a scheduler lock isnt being held
+	; If it is we dont switch tasks, else continue
 	cmp dword [scheduler_postponed_counter], 0
 	je .continue
 	mov dword [scheduler_postponed_flag], 1
@@ -50,7 +52,6 @@ switch_task:
 	;;Get next task and start loading it
 	mov ecx, [next_task] ;get next task
 	mov [current_task], ecx ;move next task into current task
-	
 	mov esp, [ecx + 20] ;load next esp
 	mov ebp, [ecx + 24]
 	mov eax, [ecx + 8]  ;load cr3

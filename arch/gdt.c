@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-
 #include "../include/kprint.h"
 #include "../include/gdt.h"
 

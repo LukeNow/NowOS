@@ -1,6 +1,7 @@
 global gdt_init
 extern create_table
 extern gdt_init_ret
+
 ;GDT description with data and size
 gdt:
 	dw gdt_end_data - gdt_data - 1

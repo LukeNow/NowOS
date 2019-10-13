@@ -23,8 +23,8 @@ void update_time_used()
 	current_task->last_time = current_time;
 	current_task->time_used += time_elapsed;
 	
-	kprint(INFO, "%s: time elapsed: %d\n", current_task->name, 
-	       current_task->time_used);
+	/*kprint(INFO, "%s: time elapsed: %d\n", current_task->name, 
+	       current_task->time_used); */
 }
 
 void timer_task()
@@ -48,7 +48,12 @@ void timer_task()
 			}
 		}
 		hard_unlock_scheduler();
-		block_task(PAUSED);
+		//block_task(PAUSED); 
+		//TODO we need to implement proper messaging so that interrupt
+		//handlers can schedule the timer_task
+		soft_lock_scheduler();
+		schedule();
+		soft_unlock_scheduler();
 	}
 
 }
@@ -61,14 +66,4 @@ size_t timer_get_ms()
 size_t timer_get_ns()
 {
 	return pit_get_ns();
-}
-
-void sleep_ms(unsigned int ms)
-{
-	size_t start_time = timer_get_ms();
-	for (;;) {
-		size_t curr_time = timer_get_ms();
-		if (curr_time - start_time >= ms)
-			break;
-	}
 }

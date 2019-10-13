@@ -63,14 +63,9 @@ void start_task(void (*main)(), task_control_block_t *task)
 void idle_task()
 {
 	for (;;) {
-		enable_int();
-		kprint(INFO, "IDLE\n");
-		//halt_system();
-		
-		PANIC("IDLE TASK REACHED");
-		disable_int();
-		switch_task();
-		
+		soft_unlock_scheduler();
+		soft_lock_scheduler();
+		schedule();
 	}
 }
 
