@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <stddef.h>
-
 #include "../include/paging.h"
 #include "../include/kheap.h"
 #include "../include/kprint.h"
@@ -9,12 +8,10 @@
 #include "../include/mm.h"
 
 #define DIR_SIZE 2 << 22
-
 #define PAGE_DIRECTORY_INDEX(x) (((x) >> 22) & 0x3ff)
 #define PAGE_TABLE_INDEX(x) (((x) >> 12) & 0x3ff)
 #define GET_TBL_PHYS_ADDR(x) ((x) & ~0x3ff)
 #define PAGE_GET_PHYS_ADDRR(x) (*x & ~0xfff)
-
 
 void set_page_dir_entry(page_dir_entry_t *entry, uint32_t phys_addr,
 			 int read_write, int privledge, int write_through,
@@ -32,7 +29,6 @@ void set_page_dir_entry(page_dir_entry_t *entry, uint32_t phys_addr,
 	temp_entry |= page_size << 7;
 	*entry = (page_dir_entry_t) temp_entry;
 }
-
 
 void set_page_tbl_entry(page_tbl_entry_t *entry, uint32_t phys_addr, 
 			int read_write, int privledge, int write_through, 
@@ -71,7 +67,6 @@ static void map_kern_page(page_dir_t *dir, uint32_t virtual_addr, uint32_t phys_
 	mem_set_tbl(phys_addr);
 }
 
-
 void init_kern_paging()
 {
 	unsigned long virt_addr_count = 0;
@@ -91,7 +86,6 @@ void init_kern_paging()
 		phys_addr_count += PAGE_SIZE;
 	}
 	
-	
 	virt_addr_count = KERN_VIRTUAL_ADDR;
 	phys_addr_count = 0;
 	/* Map the from 1MB - 4MB -> 3GB + 1MB - 3GB + 4MB */
@@ -106,5 +100,3 @@ void init_kern_paging()
 	kprint(INFO, "PAGE COUNT: %d\n", count);
 	paging_init(kernel_dir);
 }
-
-

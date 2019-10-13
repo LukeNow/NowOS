@@ -46,6 +46,26 @@ static linked_list_t *queue_num_to_list(int queue_num)
 	}
 }
 
+task_control_block_t *name_to_tcb(char *name)
+{
+	for (int i = 0; i < QUEUE_NUM; i++) {
+		linked_list_t *ready_list = queue_num_to_list(i);
+		linked_list_for_each(index, ready_list) {
+			task_control_block_t *task = index->data;
+			if (strcmp(name, task->name) == 0)
+				return task;
+		}
+	}
+		
+	linked_list_for_each(index, &blocked_list) {
+		task_control_block_t *task = index->data;
+		if (strcmp(name, task->name) == 0)
+			return task;
+	}
+
+	return NULL;
+}
+
 static void update_next_task()
 {	
 	/* Get the next available task from the highest priority, non-empty
@@ -65,26 +85,6 @@ static void update_next_task()
 	}
 	/* If we didnt find a ready task, we schedule the idle task */
 	next_task = idle_task_tcb;
-}
-
-task_control_block_t *name_to_tcb(char *name)
-{
-	for (int i = 0; i < QUEUE_NUM; i++) {
-		linked_list_t *ready_list = queue_num_to_list(i);
-		linked_list_for_each(index, ready_list) {
-			task_control_block_t *task = index->data;
-			if (strcmp(name, task->name) == 0)
-				return task;
-		}
-	}
-		
-	linked_list_for_each(index, &blocked_list) {
-		task_control_block_t *task = index->data;
-		if (strcmp(name, task->name) == 0)
-			return task;
-	}
-
-	return NULL;
 }
 
 void print_ready_queue(int queue_num)
@@ -231,7 +231,6 @@ void unblock_task(task_control_block_t *task)
 	schedule();
 	soft_unlock_scheduler();
 }
-
 
 void init_scheduler(task_control_block_t *first_task)
 {
