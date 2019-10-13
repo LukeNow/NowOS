@@ -21,71 +21,50 @@
 #include "../include/string.h"
 #include "../include/timer.h"
 
-void do_work()
-{	
-	for (int i = 0; i < 100000; i++) {
-		enable_int();
-		nop();
-		disable_int();
-	}
-}
-
-void main1()
-{
-	for (int i = 0; i < 10; i++) {
-		
-		
-		if (i == 1) {
-			block_task(SLEEPING);
-			//sleep_for(1000);
-		}
-		
-		kprint(INFO, "OTHERTASK1 Enter %d\n", i);
-		soft_lock_scheduler();
-		//disable_int();
-		schedule();
-		soft_unlock_scheduler();
-		//enable_int();
-		kprint(INFO, "OTHERTASK1 leave %d\n", i);
-		//i++;
-
-
-	}
-}
+/* Use the label addresses as the addresses for the start and end points of 
+ * important areas of memory */
+extern void heap_top();
+extern void heap_bottom();
+extern void stack_top();
 
 extern task_control_block_t *current_task;
-void main2()
+
+void test_task_1()
+{
+	for (int i = 0; i < 10; i++) {
+		if (i == 1) {
+			block_task(SLEEPING);
+		}
+		
+		kprint(INFO, "Test task 1 Enter %d\n", i);
+		soft_lock_scheduler();
+		schedule();
+		soft_unlock_scheduler();
+		kprint(INFO, "Test task 1 leave %d\n", i);
+	}
+}
+
+void test_task_2()
 {
 	for (int i = 0; i < 10; i++) {
 		
 		
 		if (i == 0) {
-			//block_task(SLEEPING);
 			sleep_for(10000);
-			kprint(INFO, "WOKEN UP AT %d\n", current_task->time_used);
+			kprint(INFO, "Test task 2 WOKEN UP AT %d\n", current_task->time_used);
 		}
 		
-		kprint(INFO, "OTHERTASK2 Enter %d\n", i);
+		kprint(INFO, "Test task 2 Enter %d\n", i);
 		soft_lock_scheduler();
-		//disable_int();
 		schedule();
 		soft_unlock_scheduler();
-		//enable_int();
-		kprint(INFO, "OTHERTASK2 leave %d\n", i);
-		//i++;
-
-
+		kprint(INFO, "Test Task 2 leave %d\n", i);
 	}
-
 }
 
 void kmain(multiboot_info_t* mbt, unsigned int magic)
 {
-	
-	extern void heap_top();
-	extern void heap_bottom();
-	extern void stack_top();
-	
+		
 	uint32_t mem_limit;
 	
 	multiboot_memory_map_t* mmap = mbt->mmap_addr;
@@ -102,35 +81,29 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	
 	task_control_block_t *temp_task;
 	soft_lock_scheduler();
-	temp_task = create_task(main1, 0, "main1");
+	temp_task = create_task(test_task_1, 0, "test_task_1");
 	schedule_task_ready(0, temp_task);
 	soft_unlock_scheduler();
 
 	soft_lock_scheduler();
-	temp_task = create_task(main2, 0, "main2");
+	temp_task = create_task(test_task_2, 0, "test_task_2");
 	schedule_task_ready(0, temp_task);
 	soft_unlock_scheduler();
 	
 	for (int i = 0; i < 20; i++) {
-		//do_work();
 		if (i == 10) {
-			unblock_task(name_to_tcb("main1"));
+			unblock_task(name_to_tcb("test_task_1"));
 		}
 		
 		if (i == 15) {
 			sleep_for(100000);
 		}
 		kprint(INFO, "MAIN enter %d\n", i);
-		//disable_int();
 		soft_lock_scheduler();
 		schedule();
 		soft_unlock_scheduler(); 
-		//enable_int();
 		kprint(INFO, "Main leave %d\n", i);
-		
-		
 	}
-	
 	
 	PANIC("KMAIN STOP"); 
 	
