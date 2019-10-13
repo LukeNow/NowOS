@@ -8,6 +8,26 @@ FLAGS equ MBALIGN | MEMINFO
 MAGIC equ 0x1BADB002
 CHECKSUM equ -(MAGIC + FLAGS)
 
+;Common label declarations
+global stack_bottom
+global stack_top
+global heap_bottom
+global heap_top
+global early_heap_bottom
+global early_heap_top
+global page_heap_bottom
+global page_heap_top
+
+;Function delcarations
+global _start
+global gdt_init_ret
+extern kmain
+extern term_init
+extern gdt_init
+extern idt_init
+extern init_kern_paging
+extern init_pit
+
 ;Store our magic headers so that GRUB runs our kernel code
 section .multiboot.data
 align 4
@@ -15,6 +35,8 @@ align 4
 	dd FLAGS
 	dd CHECKSUM
 
+;Our initial page directory so that we can work in our higher
+;half kernel immediately
 align 0x1000 ;Align on page boundary
 boot_page_directory:
     dd 0x00000083
@@ -46,17 +68,6 @@ entry:
 section .bss
 align 4096
 
-global stack_bottom
-global stack_top
-
-global heap_bottom
-global heap_top
-
-global early_heap_bottom
-global early_heap_top
-
-global page_heap_bottom
-global page_heap_top
 ;Early heap for kernel page mappings
 ;And kheap lists
 early_heap_bottom:
@@ -65,7 +76,7 @@ early_heap_top:
 
 ;We will give heap pages
 page_heap_bottom:
-	resb 65536 ;BIGGER????
+	resb 65536 ;TODO should we give more?
 page_heap_top:
 
 ;Actual heap
@@ -80,14 +91,6 @@ stack_top:
 ; Higher mem code
 section .text
 align 16
-global _start
-global gdt_init_ret
-extern kmain
-extern term_init
-extern gdt_init
-extern idt_init
-extern init_kern_paging
-extern init_pit
 
 _start:
 	;Turn off interrupts just in case
@@ -105,10 +108,8 @@ _start:
 gdt_init_ret:
 	;Set up our IDT table
 	call idt_init
-	;Turn on interrupts
-	
+	;Start clock
 	call init_pit
-
 	sti
 	;Call main kernel code
 	call kmain
