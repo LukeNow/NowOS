@@ -407,7 +407,7 @@ void check_kheap_integrity()
 	}
 
 	if (heap_count != heap_size) {
-		kprint(ERROR,  "WE FUCKED: heap_count: %d, heap_size: %d\n", 
+		kprint(ERROR,  "Heap integrity compromised: heap_count: %d, heap_size: %d\n", 
 				heap_count, heap_size);
 		
 	}
