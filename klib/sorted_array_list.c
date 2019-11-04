@@ -16,7 +16,7 @@ void init_sorted_list(sorted_array_list_t *list, void **arr_ptr,
 static int insert_item(void *item, unsigned int index, 
 		       sorted_array_list_t *list)
 {
-	int i;
+	unsigned int i;
 
 	if (list->curr_size == list->arr_size){
 		return -1;
@@ -36,7 +36,7 @@ static int insert_item(void *item, unsigned int index,
 static void remove_item(void *item, unsigned int index, 
 			sorted_array_list_t *list)
 {
-	int i;
+	unsigned int i;
 
 	for (i = index; i < list->curr_size - 1; i++) {
 		list->arr[i] = list->arr[i + 1];
@@ -52,9 +52,9 @@ static void remove_item(void *item, unsigned int index,
  */
 int search_list(void *item, sorted_array_list_t *list)
 {
-	int l = 0;
-	int r = list->curr_size - 1;
-	int curr_index = l + (r - l) / 2;
+	unsigned int l = 0;
+	unsigned int r = list->curr_size - 1;
+	unsigned int curr_index = l + (r - l) / 2;
 
 	while (curr_index >= 0 && curr_index < list->arr_size) {
 		if (item == list->arr[curr_index]){
@@ -87,9 +87,9 @@ int search_list(void *item, sorted_array_list_t *list)
  */
 int insert_list(void *item, sorted_array_list_t *list)
 {
-	int l = 0;
-	int r = list->curr_size - 1;
-	int curr_index = l + (r - l) / 2;
+	unsigned int l = 0;
+	unsigned int r = list->curr_size - 1;
+	unsigned int curr_index = l + (r - l) / 2;
 
 	while (curr_index >= 0 && curr_index < list->arr_size) {
 		if (item == list->arr[curr_index])
@@ -124,9 +124,9 @@ int insert_list(void *item, sorted_array_list_t *list)
  */
 int remove_list(void *item, sorted_array_list_t *list)
 {
-	int l = 0;
-	int r = list->curr_size - 1;
-	int curr_index = l + (r - l) / 2;
+	unsigned int l = 0;
+	unsigned int r = list->curr_size - 1;
+	unsigned int curr_index = l + (r - l) / 2;
 
 	while (curr_index >= 0 && curr_index < list->arr_size) {
 		if (item == list->arr[curr_index]){
