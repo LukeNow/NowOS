@@ -20,6 +20,7 @@
 #include "../include/scheduler.h"
 #include "../include/string.h"
 #include "../include/timer.h"
+#include "../include/process.h"
 
 /* Use the label addresses as the addresses for the start and end points of 
  * important areas of memory */
@@ -32,9 +33,10 @@ extern task_control_block_t *current_task;
 void test_task_1()
 {
 	for (int i = 0; i < 10; i++) {
+		/*
 		if (i == 1) {
 			block_task(SLEEPING);
-		}
+		} */
 		
 		kprint(INFO, "Test task 1 Enter %d\n", i);
 		soft_lock_scheduler();
@@ -62,9 +64,16 @@ void test_task_2()
 	}
 }
 
+static void init_multitasking()
+{
+	task_control_block_t * first_task = init_tasking();
+	init_scheduler(first_task);
+	init_processes(first_task);
+}
+
 void kmain(multiboot_info_t* mbt, unsigned int magic)
 {
-		
+	int rc;
 	uint32_t mem_limit;
 	
 	multiboot_memory_map_t* mmap = mbt->mmap_addr;
@@ -77,8 +86,9 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	
 	init_kheap(); //Regular kheap
 	init_page_heap();
-	init_multitasking();
 	
+	init_multitasking();
+	/*
 	task_control_block_t *temp_task;
 	soft_lock_scheduler();
 	temp_task = create_task(test_task_1, 0, "test_task_1");
@@ -89,15 +99,26 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	temp_task = create_task(test_task_2, 0, "test_task_2");
 	schedule_task_ready(0, temp_task);
 	soft_unlock_scheduler();
+	*/
+	proc_id_t id1 = create_process(test_task_1, 0, 0, "test_task_1");
+	if (id1 != 1) {
+		PANIC("PROC CREATION FAILURE");
+	}
+
+	rc = start_process(id1);
+	if (rc == FAILURE) {
+		PANIC("PROC START FAILURE");
+	}
 	
 	for (int i = 0; i < 20; i++) {
+		/*
 		if (i == 10) {
 			unblock_task(name_to_tcb("test_task_1"));
-		}
-		
+		} */
+		/*
 		if (i == 15) {
 			sleep_for(100000);
-		}
+		} */
 		kprint(INFO, "MAIN enter %d\n", i);
 		soft_lock_scheduler();
 		schedule();

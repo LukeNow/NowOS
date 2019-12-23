@@ -23,7 +23,7 @@ task_control_block_t *create_task(void (*main)(), priority_t starting_priority,
 
 	uint32_t new_stack_addr = (uint32_t)kmalloc_page() + PAGE_SIZE; //start at top of page
 	uint32_t new_esp = new_stack_addr - (4 * sizeof(unsigned int));
-	kprint(INFO, "PREPING STACK AT %x with new ESP %x\n", new_stack_addr, new_esp);
+	//kprint(INFO, "PREPING STACK AT %x with new ESP %x\n", new_stack_addr, new_esp);
 	
 	prep_stack_frame(task, main, new_stack_addr);
 	
@@ -34,6 +34,10 @@ task_control_block_t *create_task(void (*main)(), priority_t starting_priority,
 	task->cpu_state.eflags = get_eflags();
 	task->cpu_state.eip = (uint32_t) start_task;
 	task->cpu_state.esp = new_esp; //sp at our preped stack
+	
+	task->main = main;
+	init_circ_buf(MESSAGE_BUF_LEN, sizeof(message_t), &task->message_buf);
+
 	return task;
 }
 
@@ -42,22 +46,38 @@ task_control_block_t *create_task(void (*main)(), priority_t starting_priority,
 void destroy_task(task_control_block_t *task)
 {
 	unschedule_task(task);
+	destroy_circ_buf(&task->message_buf);
 	kfree(task);
 }
 
+
+//TODO Phase out main() parameter in function assmebly function call
 /* The main function will run, when it returns, it will fall through to
  * the destroy task function which will automatically clean up for us */
-void start_task(void (*main)(), task_control_block_t *task)
+void bootstrap_task(void (*main)(), task_control_block_t *task)
 {
 	soft_unlock_scheduler();
 	task->last_time = timer_get_ns();
 	task->current_priority = task->starting_priority;
-	main();
+	/* Start main function of this task */
+	task->main();
 	ASSERT(current_task->current_priority != -1);
+	/* Destory and unschedule this task */
 	destroy_task(task);
 	soft_lock_scheduler();
+	/* Switch to next task */
 	schedule();
 	PANIC("We reached end of a task that we shouldnt be reaching");
+}
+
+int start_task(task_control_block_t * task)
+{
+	if (task == NULL)
+		return FAILURE;
+
+	soft_lock_scheduler();
+	schedule_task_ready(task->starting_priority, task);
+	soft_unlock_scheduler();
 }
 
 void idle_task()
@@ -79,7 +99,7 @@ void sleep_for(time_t ns_to_wait)
 	block_task(SLEEPING);
 }
 
-void init_multitasking()
+task_control_block_t * init_tasking()
 {
 	char task_name[TASK_NAME_LEN] = "main_task";
 	
@@ -95,5 +115,6 @@ void init_multitasking()
 	main_task->cpu_state.cr0 = get_cr0();
 	main_task->cpu_state.eflags = get_eflags();
 	/* All other registers will be updated */
-	init_scheduler(main_task);
+
+	return main_task;
 }

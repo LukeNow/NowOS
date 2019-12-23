@@ -1,6 +1,7 @@
 ARCH:=i686-elf
 CFLAGS:=-g -ffreestanding -Wall -Wextra -lgcc -nostdlib -m32 -Wl,--build-id=none
 ASFLAGS:=
+DEBUGFLAGS:= -D DEBUG
 SYS_ROOT:="$(PWD)/sysroot"
 
 CC:="$(ARCH)-gcc"
@@ -13,6 +14,12 @@ BOOTDIR:=boot
 INCLUDEDIR:=include
 KERNELDIR:=boot/iso/boot
 KERNELNAME:=nowos
+SYS_DIR:= sysroot/usr
+INCLUDE_DIR:= include
+	
+ifdef DEBUG
+	CFLAGS := $(CFLAGS) $(DEBUGFLAGS)
+endif
 
 KERN_OBJS:= kernel/io.o  \
 	       kernel/tty.o \
@@ -24,7 +31,9 @@ KERN_OBJS:= kernel/io.o  \
 	       kernel/test.o \
 	       kernel/scheduler.o \
 	       kernel/task.o \
-	       kernel/timer.o
+	       kernel/timer.o \
+	       kernel/process.o \
+	       kernel/ipc.o
 
 BOOT_OBJS:= boot/boot.o \
 		
@@ -44,13 +53,11 @@ ARCH_OBJS:= 	arch/gdt_init.o \
 KLIB_OBJS:=	klib/string.o \
 		klib/sorted_array_list.o \
 		klib/linked_list.o \
-		klib/byte_index_list.o
+		klib/byte_index_list.o \
+		klib/circ_buf.o
 
 OBJS:= $(BOOT_OBJS) $(KLIB_OBJS) $(KERN_OBJS) $(ARCH_OBJS) 
 
-SYS_DIR:= sysroot/usr
-INCLUDE_DIR:= include
-		
 .PHONY: all clean run iso bochs-run qemu-run
 .SUFFIXES: .o .c .s
 

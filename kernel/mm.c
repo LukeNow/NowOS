@@ -54,6 +54,7 @@ uint32_t mem_check_tbl(uint32_t phys_addr)
 uint32_t mem_get_free_page_phys()
 {
 	uint32_t index = byte_index_get_free_slot(&phys_mem_tbl);
+	// TODO do we put null addresses as invalid addresses?
 	if (index == -1)
 		return -1;
 	
