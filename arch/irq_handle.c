@@ -43,6 +43,7 @@ void bound_range_exceeded_handler(struct cpu_state cpu,
 void invalid_opcode_handler(struct cpu_state cpu, struct stack_state stack)
 {
 	kprint(ERROR, "Invalid op code interrupt called\n");
+	interrupt_register_dump(cpu, stack, 6);
 	halt_system();
 }
 
