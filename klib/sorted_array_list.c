@@ -155,7 +155,7 @@ void print_list(sorted_array_list_t *list)
 {
 	uint32_t arr_size = list->curr_size - 1;
 	kprint(INFO, "***Printed sorted array list %x***\n", (uint32_t)list);
-	for (int i = 0; i < arr_size; i++) {
+	for (unsigned int i = 0; i < arr_size; i++) {
 		kprint(INFO, "[%d]: %x\n", i, list->arr[i]);
 	}
 }
