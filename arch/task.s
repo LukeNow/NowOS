@@ -4,7 +4,7 @@ extern scheduler_postponed_flag
 extern current_task
 extern next_task
 extern destroy_task
-extern start_task
+extern bootstrap_task
 
 ; void prep_stack_frame(task_control_block *task, void (*main)(), 
 ;		        uint32_t stack_addr) 
@@ -15,13 +15,15 @@ prep_stack_frame:
 	mov ebx, [esp + 4] ;task
 	mov ecx, [esp + 8] ;main
 	mov edx, [esp + 12] ;stack addr
-	mov esi, bootstrap_task ;return addr
+
+	mov esi, dummy_bootstrap_task ;return addr
 	
 	mov [edx - 0], dword 0xDEADBEEF ;eip, zero because we dont return here
 	mov [edx - 4], dword 0xDEADBEEF
 	mov [edx - 8], ebx
 	mov [edx - 12], ecx
 	mov [edx - 16], esi
+	
 
 	ret
 
@@ -30,8 +32,8 @@ prep_stack_frame:
 ; and kernel space
 
 ; Dummy label that a tasks jumps to when it is given its prepped stack
-bootstrap_task:
-	call start_task
+dummy_bootstrap_task:
+	call bootstrap_task
 
 ; We need to disable IRQs before and renable after this function
 global switch_task
@@ -63,4 +65,8 @@ switch_task:
 	mov cr3, eax
 .sameVAS:
 
-	ret
+	xchg bx, bx
+	ret ;Because we changed the SP, we will pop the return addr
+	    ;of the function we are switching to
+	    ;This means that this function is not an asyncrounous
+	    ;task switch, something we will need to implement later
