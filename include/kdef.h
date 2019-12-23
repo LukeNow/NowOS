@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+/* General return definitions */
+#define SUCCESS 0
+#define FAILURE 1
+
 /* General numerical/address definitions */
 #define PAGE_SIZE 4096
 #define KERN_MAX_VIRTUAL_ADDR 0xFFFFFFFF
@@ -33,15 +37,32 @@ typedef long long time_t;
 /*
  * Task and process definitions
  */
-#define MAX_TASKS_NUM 256
+
 #define PROC_NAME_LEN 64
 #define TASK_NAME_LEN 64
-#define MAX_PROC_ID 0xFFFFFF
-#define MAX_TASK_ID 0xFF
+#define MAX_TASKS_NUM 16
+#define MAX_PROC_NUM 1024
+#define MAX_PROC_ID (MAX_PROC_NUM - 1)
+#define MAX_TASK_ID (MAX_TASKS_NUM - 1)
 
 typedef int priority_t;
 typedef unsigned int id_t;
 typedef unsigned int proc_id_t;
 typedef unsigned int task_id_t;
+typedef uint8_t flags_t;
+
+#define MAKE_ID(proc_id, task_id) \
+	((proc_id) << 8) | (task_id)
+
+#define GET_PROC_ID(id) \
+	((id) >> 8)
+
+#define GET_TASK_ID(id) \
+	((id) & (MAX_TASK_ID))
+/*
+ * IPC definitions
+ */
+
+#define MESSAGE_BUF_LEN 4
 
 #endif 
