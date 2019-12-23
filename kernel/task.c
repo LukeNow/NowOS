@@ -9,6 +9,7 @@
 #include "../include/kprint.h"
 #include "../include/scheduler.h"
 #include "../include/timer.h"
+#include "../include/ipc.h"
 
 task_control_block_t *create_task(void (*main)(), priority_t starting_priority, 
 				  const char *name)

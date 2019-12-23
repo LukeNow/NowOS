@@ -3,11 +3,9 @@
 
 #include "../include/kdef.h"
 #include "../include/string.h"
+#include "../include/circ_buf.h"
 
 #define BODY_LEN 16
-
-#define MAKE_ID(proc_id, task_id) \
-	((proc_id) << 8) | (task_id)
 
 #define MAKE_MESSAGE(name, id, cmd, body_ptr) \
 	message_t (name); \
@@ -16,6 +14,7 @@
 	memcpy(&(name).body, (body_ptr), BODY_LEN)
 
 typedef unsigned int command_t;
+typedef circ_buf_t message_buf_t;
 
 typedef struct message_t {
 	id_t sender_id;
@@ -23,7 +22,7 @@ typedef struct message_t {
 	char body[BODY_LEN];
 }message_t;
 
-void send_msg(id_t receiver, message_t msg);
-void receive_msg();
+void async_send_msg(id_t to_id, message_t *msg, flags_t flags);
+void async_receive_msg(id_t from_id, void * buf, flags_t flags);
 
 #endif
