@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include "../include/processor.h"
 #include "../include/kdef.h"
-#include "../include/ipc.h"
 
 typedef enum task_state {
 	READY, 
