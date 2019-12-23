@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "../include/processor.h"
 #include "../include/kdef.h"
+#include "../include/circ_buf.h"
 
 typedef enum task_state {
 	READY, 
@@ -23,7 +24,7 @@ typedef struct task_control_block {
 	task_id_t task_id; //task_id of this task
 	/* task_id & proc_id make the unique ID for this task */
 	void (*main)();
-	message_buf_t message_buf;
+	circ_buf_t message_buf;
 	char name[TASK_NAME_LEN];
 }task_control_block_t;
 

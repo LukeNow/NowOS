@@ -417,26 +417,6 @@ void kfree(void *ptr)
 	heap_merge_nodes(node);
 }
 
-void check_kheap_integrity()
-{
-	
-	uint32_t heap_size = (uint32_t)top_heap_ptr - (uint32_t)heap_bottom;
-	node_header_t *node = (node_header_t *)heap_bottom;
-	check_header(node);
-	
-	uint32_t heap_count = 0;
-	while (node != NULL) {
-		heap_count += (node->size + HEADER_SIZE);
-		node = node->next_ptr;
-	}
-
-	if (heap_count != heap_size) {
-		kprint(ERROR,  "Heap integrity compromised: heap_count: %d, heap_size: %d\n", 
-				heap_count, heap_size);
-		
-	}
-}
-
 void init_kheap()
 {
 	heap_ptr = (uint32_t)heap_bottom;
