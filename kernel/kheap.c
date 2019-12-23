@@ -341,9 +341,33 @@ static void expand_heap(size_t size)
 	heap_list_end_ptr = (uint32_t)new_free_node;
 }
 
+void check_kheap_integrity()
+{
+	
+	uint32_t heap_size = (uint32_t)top_heap_ptr - (uint32_t)heap_bottom;
+	node_header_t *node = (node_header_t *)heap_bottom;
+	check_header(node);
+	
+	uint32_t heap_count = 0;
+	while (node != NULL) {
+		heap_count += (node->size + HEADER_SIZE);
+		node = node->next_ptr;
+	}
+
+	if (heap_count != heap_size) {
+		kprint(ERROR,  "Kheap integrity compromised: heap_count: %d, heap_size: %d\n", 
+				heap_count, heap_size);
+		
+	}
+}
 
 void *kmalloc(size_t size)
 {
+	
+#ifdef DEBUG
+	/* Check the heap integrity on every malloc */
+	check_kheap_integrity();
+#endif
 	node_header_t *node;
 	/* Align the size to natural word */
 	size = ALIGN_UP(size, sizeof(uint32_t));
@@ -393,25 +417,6 @@ void kfree(void *ptr)
 	heap_merge_nodes(node);
 }
 
-void check_kheap_integrity()
-{
-	
-	uint32_t heap_size = (uint32_t)top_heap_ptr - (uint32_t)heap_bottom;
-	node_header_t *node = (node_header_t *)heap_bottom;
-	check_header(node);
-	
-	uint32_t heap_count = 0;
-	while (node != NULL) {
-		heap_count += (node->size + HEADER_SIZE);
-		node = node->next_ptr;
-	}
-
-	if (heap_count != heap_size) {
-		kprint(ERROR,  "WE FUCKED: heap_count: %d, heap_size: %d\n", 
-				heap_count, heap_size);
-		
-	}
-}
 
 void init_kheap()
 {
