@@ -15,12 +15,8 @@ int push_circ_buf(void * entry_src, circ_buf_t * circ_buf)
 	uint8_t * src = (uint8_t *)entry_src;
 	uint8_t * dst = (uint8_t *)circ_buf->buf[push_index];
 	
-	for (size_t i = 0; i < circ_buf->type_size; i++){
-		*dst = *src;
-		dst++;
-		src++;
-	}
-
+	memcpy(dst, src, circ_buf->type_size);
+	
 	circ_buf->curr_size++;
 	
 	ASSERT(circ_buf->curr_size <= circ_buf->size);
@@ -37,13 +33,10 @@ int pop_circ_buf(void * entry_dst, circ_buf_t * circ_buf)
 	
 	uint8_t * src = (uint8_t *)circ_buf->buf[pop_index];
 	uint8_t * dst = (uint8_t *)entry_dst;
+	
 
-	for (size_t i = 0; i < circ_buf->type_size; i++){
-		*dst = *src;
-		dst++;
-		src++;
-	}
-
+	memcpy(dst, src, circ_buf->type_size);
+	
 	circ_buf->curr_index = (circ_buf->curr_index + 1) % circ_buf->size;
 	circ_buf->curr_size--;
 	
