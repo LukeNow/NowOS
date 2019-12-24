@@ -11,6 +11,8 @@
 #include "../include/timer.h"
 #include "../include/ipc.h"
 
+#define PREPPED_STACK_PARAM_NUM 4
+
 task_control_block_t *create_task(void (*main)(), priority_t starting_priority, 
 				  const char *name)
 {
@@ -20,10 +22,11 @@ task_control_block_t *create_task(void (*main)(), priority_t starting_priority,
 	memcpy(task->name, name, TASK_NAME_LEN);
 	
 	task->starting_priority = starting_priority;
-	task->current_priority = -1; //meaning not queued or blocked
+	task->current_priority = NOT_SCHEDULED; //meaning not queued or blocked
 
 	uint32_t new_stack_addr = (uint32_t)kmalloc_page() + PAGE_SIZE; //start at top of page
-	uint32_t new_esp = new_stack_addr - (4 * sizeof(unsigned int));
+	uint32_t new_esp = new_stack_addr - 
+			  (PREPPED_STACK_PARAM_NUM * sizeof(unsigned int));
 	//kprint(INFO, "PREPING STACK AT %x with new ESP %x\n", new_stack_addr, new_esp);
 	
 	prep_stack_frame(task, main, new_stack_addr);
@@ -79,6 +82,7 @@ int start_task(task_control_block_t * task)
 	soft_lock_scheduler();
 	schedule_task_ready(task->starting_priority, task);
 	soft_unlock_scheduler();
+	return SUCCESS;
 }
 
 void idle_task()

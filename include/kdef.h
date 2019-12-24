@@ -34,6 +34,11 @@
  * */
 typedef long long time_t;
 
+/* 
+ * Scheduler definitons
+ */
+#define NOT_SCHEDULED -1
+
 /*
  * Task and process definitions
  */

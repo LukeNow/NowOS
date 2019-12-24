@@ -210,7 +210,7 @@ void block_task(task_state_t new_state)
 
 	schedule_task_blocked(current_task);
 	current_task->state = new_state;
-	current_task->current_priority = -1;
+	current_task->current_priority = NOT_SCHEDULED;
 
 	schedule();
 	/* The task unblocks here, record start of time usage period */
@@ -246,8 +246,8 @@ void init_scheduler(task_control_block_t *first_task)
 	 * Priority is -1 meaning it is never actually in any priority queue. 
 	 * This means that we never ever schedule idle task and just jump to it
 	 * whenver we dont have anything to do */
-	idle_task_tcb = create_task(idle_task, -1, "idle_task");
-	idle_task_tcb->current_priority = -1;
+	idle_task_tcb = create_task(idle_task, NOT_SCHEDULED, "idle_task");
+	idle_task_tcb->current_priority = NOT_SCHEDULED;
 	idle_task_tcb->state = IDLE;
 	
 	/* Finally schedule the first task */
