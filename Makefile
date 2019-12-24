@@ -21,8 +21,7 @@ ifdef DEBUG
 	CFLAGS := $(CFLAGS) $(DEBUGFLAGS)
 endif
 
-KERN_OBJS:= kernel/io.o  \
-	       kernel/tty.o \
+KERN_OBJS:=  kernel/tty.o \
 	       kernel/kmain.o \
 	       kernel/kprint.o \
 	       kernel/kheap.o \
@@ -48,7 +47,8 @@ ARCH_OBJS:= 	arch/gdt_init.o \
 		arch/machine.o \
 		arch/paging_init.o \
 		arch/pit.o \
-		arch/task.o
+		arch/task.o \
+		arch/io.o
 
 KLIB_OBJS:=	klib/string.o \
 		klib/sorted_array_list.o \
