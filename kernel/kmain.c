@@ -21,6 +21,8 @@
 #include "../include/string.h"
 #include "../include/timer.h"
 #include "../include/process.h"
+#include "../include/circ_buf.h"
+#include "../include/ktest.h"
 
 /* Use the label addresses as the addresses for the start and end points of 
  * important areas of memory */
@@ -88,18 +90,11 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	init_page_heap();
 	
 	init_multitasking();
-	/*
-	task_control_block_t *temp_task;
-	soft_lock_scheduler();
-	temp_task = create_task(test_task_1, 0, "test_task_1");
-	schedule_task_ready(0, temp_task);
-	soft_unlock_scheduler();
-
-	soft_lock_scheduler();
-	temp_task = create_task(test_task_2, 0, "test_task_2");
-	schedule_task_ready(0, temp_task);
-	soft_unlock_scheduler();
-	*/
+		
+#ifdef TEST
+	run_ktest_suite();
+#endif
+	
 	proc_id_t id1 = create_process(test_task_1, 0, 0, "test_task_1");
 	if (id1 != 1) {
 		PANIC("PROC CREATION FAILURE");
