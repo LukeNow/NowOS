@@ -18,6 +18,7 @@ void hard_unlock_scheduler();
 
 void sleep_for(time_t ns_to_wait);
 
+task_control_block_t * get_current_task();
 void schedule();
 void schedule_task_ready(int queue_num, task_control_block_t *task);
 void schedule_task_blocked(task_control_block_t *task);

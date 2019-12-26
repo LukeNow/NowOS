@@ -17,6 +17,7 @@ typedef struct process_t {
 proc_id_t create_process(void (*main)(), priority_t starting_priority, 
 			  flags_t flags, char *name);
 
+id_t get_current_id();
 void destroy_process(proc_id_t id);
 int start_process(proc_id_t id);
 void fork_process_task(process_t *process);

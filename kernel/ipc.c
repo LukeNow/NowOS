@@ -9,6 +9,14 @@
 extern process_t * process_tbl[MAX_PROC_NUM];
 extern task_control_block_t * current_task;
 
+void print_message(message_t * msg)
+{
+	kprint(INFO, "--Printing message--\n");
+	kprint(INFO, "Sender ID %d\n", msg->sender_id);
+	kprint(INFO, "Command %d\n", msg->command);
+	kprint(INFO, "BODY: %d\n", msg->body[0]);
+}
+
 void async_send_msg(id_t to_id, message_t * msg, flags_t flags)
 {
 	hard_lock_scheduler();
@@ -42,7 +50,6 @@ void async_send_msg(id_t to_id, message_t * msg, flags_t flags)
 	
 	/* Push the message to the receiver */
 	push_circ_buf(msg, &recv_task->msg_buf);
-	
 	
 	int recv_task_index = 
 		linked_list_search(recv_task, &current_task->msg_wait_queue);
@@ -96,8 +103,6 @@ void async_receive_msg(id_t from_id, message_t * buf, flags_t flags)
 	}
 	
 	pop_circ_buf(buf, recv_buf);
-
-
 
 	hard_unlock_scheduler();
 }

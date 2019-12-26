@@ -23,6 +23,7 @@
 #include "../include/process.h"
 #include "../include/circ_buf.h"
 #include "../include/ktest.h"
+#include "../include/ipc.h"
 
 /* Use the label addresses as the addresses for the start and end points of 
  * important areas of memory */
@@ -34,17 +35,23 @@ extern task_control_block_t *current_task;
 
 void test_task_1()
 {
-	for (int i = 0; i < 10; i++) {
-		/*
-		if (i == 1) {
-			block_task(SLEEPING);
-		} */
+	for (int i = 0; i < 2; i++) {
 		
 		kprint(INFO, "Test task 1 Enter %d\n", i);
+		id_t curr_id = get_current_id();
+		id_t main_id = MAKE_ID(0, 0);
+
+		message_t in_msg;
+		async_receive_msg(main_id, &in_msg, 0);
+		kprint(INFO, "Task1: Message received Body %d\n", in_msg.body[0]);
+
+
+		int body = 10;
+		MAKE_MESSAGE(out_msg, curr_id, 0, &body);
 		
-		kprint(INFO, "BLOCKING PROCESS\n");
-		block_process();
-		kprint(INFO, "TASK WOKEN UP\n");
+		async_send_msg(main_id, &out_msg, 0);
+		kprint(INFO, "Task1: Sending message to kmain with %d\n", body);
+
 		kprint(INFO, "Test task 1 leave %d\n", i);
 	}
 }
@@ -106,28 +113,34 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 		PANIC("PROC START FAILURE");
 	}
 	
-	for (int i = 0; i < 20; i++) {
+	for (int i = 0; i < 2; i++) {
 		
-		id_t id = MAKE_ID(id1, 0);
-		/*
-		if (i == 10) {
-			unblock_task(name_to_tcb("test_task_1"));
-		} */
-		/*
-		if (i == 15) {
-			sleep_for(100000);
-		} */
+		message_t in_msg;
+		id_t out_id = MAKE_ID(id1, 0);
 		kprint(INFO, "MAIN enter %d\n", i);
+		
+		int body = 5;
+		MAKE_MESSAGE(out_msg, out_id, 0, &body);
+		async_send_msg(out_id, &out_msg, 0);
+		kprint(INFO, "Kmain: sending msg with %d\n", body);
+
+		async_receive_msg(out_id, &in_msg, 0);
+		kprint(INFO, "Kmain: receiving msg with %d\n", in_msg.body[0]);
+		
+		/*
 		soft_lock_scheduler();
 		schedule();
 		soft_unlock_scheduler(); 
+		*/
+
 		kprint(INFO, "Main leave %d\n", i);
-	
+		
+		/*
 		kprint(INFO, "KMAIN unblocking proc %d task %d\n", id1, 0);
 		rc = unblock_process(id);
 		if (rc == FAILURE) {
 			kprint(ERROR, "Unblock process failed\n");
-		}
+		}*/
 	}
 	
 	PANIC("KMAIN STOP"); 
