@@ -204,34 +204,6 @@ void unschedule_task(task_control_block_t *task)
 		linked_list_remove(blocked_index, &blocked_list);
 }
 
-void block_task(task_state_t new_state)
-{
-	soft_lock_scheduler();
-
-	schedule_task_blocked(current_task);
-	current_task->state = new_state;
-	current_task->current_priority = NOT_SCHEDULED;
-
-	schedule();
-	/* The task unblocks here, record start of time usage period */
-	current_task->last_time = timer_get_ns(); 
-	soft_unlock_scheduler();
-}
-
-void unblock_task(task_control_block_t *task)
-{
-	ASSERT(task->state == SLEEPING || 
-	       task->state == PAUSED);
-	soft_lock_scheduler();
-	/* When unblocked put it in its original queue */
-	schedule_task_ready(task->starting_priority, task);
-	task->current_priority = task->starting_priority; 
-	
-	current_task->state = READY;
-	schedule();
-	soft_unlock_scheduler();
-}
-
 void init_scheduler(task_control_block_t *first_task)
 {
 	soft_lock_scheduler();
