@@ -41,9 +41,10 @@ void test_task_1()
 		} */
 		
 		kprint(INFO, "Test task 1 Enter %d\n", i);
-		soft_lock_scheduler();
-		schedule();
-		soft_unlock_scheduler();
+		
+		kprint(INFO, "BLOCKING PROCESS\n");
+		block_process();
+		kprint(INFO, "TASK WOKEN UP\n");
 		kprint(INFO, "Test task 1 leave %d\n", i);
 	}
 }
@@ -106,6 +107,8 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	}
 	
 	for (int i = 0; i < 20; i++) {
+		
+		id_t id = MAKE_ID(id1, 0);
 		/*
 		if (i == 10) {
 			unblock_task(name_to_tcb("test_task_1"));
@@ -119,6 +122,12 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 		schedule();
 		soft_unlock_scheduler(); 
 		kprint(INFO, "Main leave %d\n", i);
+	
+		kprint(INFO, "KMAIN unblocking proc %d task %d\n", id1, 0);
+		rc = unblock_process(id);
+		if (rc == FAILURE) {
+			kprint(ERROR, "Unblock process failed\n");
+		}
 	}
 	
 	PANIC("KMAIN STOP"); 

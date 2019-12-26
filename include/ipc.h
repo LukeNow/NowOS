@@ -23,6 +23,6 @@ typedef struct message_t {
 }message_t;
 
 void async_send_msg(id_t to_id, message_t *msg, flags_t flags);
-void async_receive_msg(id_t from_id, void * buf, flags_t flags);
+void async_receive_msg(id_t from_id, message_t * buf, flags_t flags);
 
 #endif
