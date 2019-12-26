@@ -20,6 +20,12 @@ static proc_id_t get_next_proc_id()
 }
 
 
+id_t get_current_id()
+{
+	task_control_block_t * task = get_current_task();
+	return task->id;
+}
+
 proc_id_t create_process(void (*main)(), priority_t starting_priority, 
 			  flags_t flags, char *name)
 {

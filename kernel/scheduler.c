@@ -87,6 +87,11 @@ static void update_next_task()
 	next_task = idle_task_tcb;
 }
 
+task_control_block_t * get_current_task()
+{
+	return current_task;
+}
+
 void print_ready_queue(int queue_num)
 {
 	linked_list_t *ready_list = 
