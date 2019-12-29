@@ -24,6 +24,7 @@
 #include "../include/circ_buf.h"
 #include "../include/ktest.h"
 #include "../include/ipc.h"
+#include "../include/system.h"
 
 /* Use the label addresses as the addresses for the start and end points of 
  * important areas of memory */
@@ -49,8 +50,8 @@ void test_task_1()
 		int body = 10;
 		MAKE_MESSAGE(out_msg, curr_id, 0, &body);
 		
-		async_send_msg(main_id, &out_msg, 0);
 		kprint(INFO, "Task1: Sending message to kmain with %d\n", body);
+		async_send_msg(main_id, &out_msg, 0);
 
 		kprint(INFO, "Test task 1 leave %d\n", i);
 	}
@@ -97,17 +98,24 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	init_kheap(); //Regular kheap
 	init_page_heap();
 	
+	//Init kmain pid 0 
 	init_multitasking();
-		
+	
+	id_t system_id = create_system_process();
+	kprint(INFO, "System proc created with pid %d\n", GET_PROC_ID(system_id));
+	
+	id_t timer_id = create_timer_process();
+	kprint(INFO, "Timer proc created with pid %d\n", GET_PROC_ID(timer_id));
+	
 #ifdef TEST
 	run_ktest_suite();
 #endif
 	
 	proc_id_t id1 = create_process(test_task_1, 0, 0, "test_task_1");
-	if (id1 != 1) {
+	if (id1 == FAIL_ID) {
 		PANIC("PROC CREATION FAILURE");
 	}
-
+	
 	rc = start_process(id1);
 	if (rc == FAILURE) {
 		PANIC("PROC START FAILURE");
@@ -121,11 +129,12 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 		
 		int body = 5;
 		MAKE_MESSAGE(out_msg, out_id, 0, &body);
+		
+		kprint(INFO, "Kmain: sent msg with %d\n", body);
 		async_send_msg(out_id, &out_msg, 0);
-		kprint(INFO, "Kmain: sending msg with %d\n", body);
-
+		
 		async_receive_msg(out_id, &in_msg, 0);
-		kprint(INFO, "Kmain: receiving msg with %d\n", in_msg.body[0]);
+		kprint(INFO, "Kmain: received msg with %d\n", in_msg.body[0]);
 		
 		/*
 		soft_lock_scheduler();
@@ -142,6 +151,8 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 			kprint(ERROR, "Unblock process failed\n");
 		}*/
 	}
+	
+	print_scheduler_state();
 	
 	PANIC("KMAIN STOP"); 
 	
