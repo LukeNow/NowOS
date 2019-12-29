@@ -97,6 +97,9 @@ void init_kern_paging()
 		count ++;
 	}
 	
-	kprint(INFO, "PAGE COUNT: %d\n", count);
+
+	kprint(INFO, "---Paging initialized\n");
+	kprint(INFO, "--Top of mapped mem %x\n", virt_addr_count);
+	kprint(INFO, "--Page count %d\n", count);
 	paging_init(kernel_dir);
 }
