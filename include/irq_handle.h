@@ -3,8 +3,7 @@
 
 #include "../include/processor.h"
 
-void interrupt_handler(struct cpu_state cpu, unsigned int interrupt, 
-		       struct stack_state stack);
+void interrupt_handler(int_state_t * state);
 
 void interrupt_handler_0();
 void interrupt_handler_1();

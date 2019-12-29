@@ -27,7 +27,6 @@ void _panic()
 {
 	disable_int();
 	halt_system();
-	//hard_lock_scheduler();
 	for (;;);
 
 }
@@ -57,15 +56,14 @@ void register_dump()
 	       esi, edi, ebp, esp, eflags);
 }
 
-void interrupt_register_dump(struct cpu_state cpu, struct stack_state stack,
-			     unsigned int interrupt)
+void interrupt_register_dump(int_state_t * state)
 {
-	kprint(WARN, "*** Register dump for interrupt %d ****\n", interrupt);
-	kprint(INFO, "EAX: %x EBX: %x ECX: %x EDX: %x\n", cpu.eax, cpu.ebx,
-	       cpu.ecx, cpu.edx);
-	kprint(INFO, "ESI: %x EDI: %x EBP: %x ESP: %x\n", cpu.esi, cpu.edi, 
-	       cpu.ebp, cpu.esp);
-	kprint(INFO, "ERROR CODE: %x EIP: %x CS %x EFLAGS %x\n", stack.error_code,
-	       stack.eip, stack.cs, stack.eflags);
+	kprint(WARN, "*** Register dump for interrupt %d ****\n", state->int_num);
+	kprint(INFO, "EAX: %x EBX: %x ECX: %x EDX: %x\n", state->eax, state->ebx,
+	       state->ecx, state->edx);
+	kprint(INFO, "ESI: %x EDI: %x EBP: %x ESP: %x\n", state->esi, state->edi, 
+	       state->ebp, state->esp);
+	kprint(INFO, "ERROR CODE: %x EIP: %x CS %x EFLAGS %x\n", state->error_code,
+	       state->eip, state->cs, state->eflags);
 	kprint(INFO, "CR0: %x CR2: %x CR3: %x\n", get_cr0(), get_cr2(), get_cr3());
 }
