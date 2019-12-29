@@ -16,6 +16,8 @@ void soft_unlock_scheduler();
 void hard_lock_scheduler();
 void hard_unlock_scheduler();
 
+
+
 void sleep_for(time_t ns_to_wait);
 
 task_control_block_t * get_current_task();
@@ -25,5 +27,8 @@ void schedule_task_blocked(task_control_block_t *task);
 void unschedule_task(task_control_block_t *task);
 void init_scheduler();
 task_control_block_t *name_to_tcb(char *name);
+
 void print_ready_queue(int queue_num);
+void print_scheduler_state();
+
 #endif

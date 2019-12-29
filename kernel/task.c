@@ -116,7 +116,10 @@ void unblock_task(task_control_block_t *task)
 	task->current_priority = task->starting_priority; 
 	
 	current_task->state = READY;
-	schedule();
+	
+	/* TODO Do we go to a new task when we unblock? */
+	//schedule();
+	
 	soft_unlock_scheduler();
 }
 
