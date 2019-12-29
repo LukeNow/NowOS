@@ -20,6 +20,12 @@ static proc_id_t get_next_proc_id()
 }
 
 
+process_t * get_process_from_pid(proc_id_t pid)
+{
+	ASSERT(pid >= 0 || pid < MAX_PROC_NUM);
+	return process_tbl[pid];
+}
+
 id_t get_current_id()
 {
 	task_control_block_t * task = get_current_task();
@@ -61,7 +67,7 @@ void destroy_process(proc_id_t id)
 	process_t * proc = process_tbl[id];
 	if (proc == NULL) {
 		kprint(ERROR, "Proc %d not found\n", id);
-		return FAILURE;
+		return;
 	}
 #ifdef debug
 	for (int i = 0; i < MAX_TASKS_NUM; i++) {
@@ -104,6 +110,12 @@ int unblock_process(id_t id)
 {
 	proc_id_t pid = GET_PROC_ID(id);
 	task_id_t tid = GET_TASK_ID(id);
+	
+	if (pid >= MAX_PROC_NUM || tid >= MAX_TASKS_NUM) {
+		kprint(ERROR, "Unblock process PID or TID out of range pid %d tid %d\n", 
+				pid, tid);
+		return FAILURE;
+	}
 	process_t * proc = process_tbl[pid];
 	
 	if (proc == NULL) {
@@ -130,6 +142,13 @@ int unblock_process(id_t id)
 void fork_process_task(process_t *process)
 {
 	kprint(INFO, "Fork process not implemented\n");
+}
+
+void yield_process()
+{
+	soft_lock_scheduler();
+	schedule();
+	soft_unlock_scheduler();
 }
 
 /* We are just unregistering the task from the process control
