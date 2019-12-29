@@ -38,7 +38,8 @@ KERN_OBJS:=  kernel/tty.o \
 	       kernel/timer.o \
 	       kernel/process.o \
 	       kernel/ipc.o \
-	       kernel/ktest.o
+	       kernel/ktest.o \
+	       kernel/system.o
 
 BOOT_OBJS:= boot/boot.o \
 		
