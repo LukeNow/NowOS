@@ -33,6 +33,12 @@
  * TODO Should they be here?
  * */
 typedef long long time_t;
+typedef uint32_t register_t;
+
+/* 
+ * Scheduler definitons
+ */
+#define NOT_SCHEDULED -1
 
 /*
  * Task and process definitions
@@ -44,6 +50,8 @@ typedef long long time_t;
 #define MAX_PROC_NUM 1024
 #define MAX_PROC_ID (MAX_PROC_NUM - 1)
 #define MAX_TASK_ID (MAX_TASKS_NUM - 1)
+
+#define FAIL_ID -1
 
 typedef int priority_t;
 typedef unsigned int id_t;
@@ -59,6 +67,20 @@ typedef uint8_t flags_t;
 
 #define GET_TASK_ID(id) \
 	((id) & (MAX_TASK_ID))
+
+/* 
+ * Kernel ID definitions
+ */
+
+#define KMAIN_PID 0
+#define SYSTEM_PID 1
+#define TIMER_PID 2
+
+#define ANY_ID (MAKE_ID(-1, 0))
+#define KMAIN_ID (MAKE_ID(KMAIN_PID, 0))
+#define SYSTEM_ID (MAKE_ID(SYSTEM_PID, 0))
+#define TIMER_ID (MAKE_ID(TIMER_PID, 0))
+
 /*
  * IPC definitions
  */

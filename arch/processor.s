@@ -2,6 +2,7 @@ global __halt_system
 global __enable_int
 global __disable_int
 global __nop
+global get_int
 global get_cr3
 global get_cr2
 global get_cr0
@@ -31,6 +32,12 @@ __nop:
 	nop
 	nop
 	nop
+	ret
+get_int:
+	pushfd
+	pop eax
+	and eax, 0x0200
+	shr eax, 9
 	ret
 
 get_cr3:

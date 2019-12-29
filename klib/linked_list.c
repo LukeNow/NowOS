@@ -15,6 +15,19 @@ linked_list_t *linked_list_init()
 	return list;
 }
 
+void linked_list_destroy(linked_list_t * list)
+{
+	linked_list_node_t * node = list->start_ptr;
+	while (node != NULL) {
+		linked_list_node_t * next_node = node->next_ptr;
+		kfree(node);
+
+		node = next_node;
+	}
+	
+	kfree(list);
+}
+
 void linked_list_cycle(linked_list_t *list)
 {
 	linked_list_node_t *first_node = list->start_ptr;

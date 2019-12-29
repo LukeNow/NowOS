@@ -65,7 +65,6 @@ switch_task:
 	mov cr3, eax
 .sameVAS:
 
-	xchg bx, bx
 	ret ;Because we changed the SP, we will pop the return addr
 	    ;of the function we are switching to
 	    ;This means that this function is not an asyncrounous

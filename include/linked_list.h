@@ -92,6 +92,14 @@ int linked_list_add(void *data, unsigned int index, linked_list_t *list);
  * Returns -1 if error or the index is not in the list 
  */
 int linked_list_remove(unsigned int index, linked_list_t *list);
+
+/***
+ * Destroy the linked list
+ *
+ * Frees the buffer associated with the linked list
+ */
+void linked_list_destroy(linked_list_t * list);
+
 /***
  * Returns an instance of a list by dynamically allocating
  */

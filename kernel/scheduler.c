@@ -79,12 +79,19 @@ static void update_next_task()
 			if (next_task == current_task && ready_list->size != 1) {
 				linked_list_cycle(ready_list);
 				next_task = linked_list_get(0, ready_list);
+				//kprint(INFO, "Next task is %s\n", next_task->name);
+				//print_ready_queue(0);
 			}
 			return;
 		}
 	}
 	/* If we didnt find a ready task, we schedule the idle task */
 	next_task = idle_task_tcb;
+}
+
+task_control_block_t * get_current_task()
+{
+	return current_task;
 }
 
 void print_ready_queue(int queue_num)
@@ -97,6 +104,18 @@ void print_ready_queue(int queue_num)
 		kprint(INFO, "Task: %s\n", task->name);
 	}
 }
+
+void print_scheduler_state()
+{
+	kprint(INFO, "*** Printing scheduler state ***\n");
+	kprint(INFO, "scheduler lock counter %d\n", scheduler_lock_counter);
+	kprint(INFO, "scheduler postponed counter %d\n", scheduler_postponed_counter);
+	kprint(INFO, "scheduler postponed flag %d\n", scheduler_postponed_flag);
+
+	kprint(INFO, "interrupts: %s\n", (get_int() == INT_SET) ? "ACTIVE" : "DISABLED");
+	print_ready_queue(0);
+}
+
 
 void soft_lock_scheduler() 
 {
@@ -122,15 +141,29 @@ void hard_lock_scheduler()
 
 void hard_unlock_scheduler()
 {
+	/* Decrement counters initially */
 	scheduler_postponed_counter--;
+	scheduler_lock_counter--;
+	
 	ASSERT(scheduler_postponed_counter >= 0);
-	if (scheduler_lock_counter == 0) {
-		if (scheduler_postponed_flag != 0) {
-			scheduler_postponed_flag = 0;
-			schedule();
-		}
+	ASSERT(scheduler_lock_counter >= 0);
+	
+	if (scheduler_lock_counter == 0 &&
+	    scheduler_postponed_flag != 0) {
+		scheduler_postponed_flag = 0;
+		
+		//TODO Do we switch tasks immediately?
+		/*
+		soft_lock_scheduler();
+		schedule();
+		soft_unlock_scheduler();
+		*/
 	}
-	soft_unlock_scheduler();
+	/* If the counter is zero, we soft unlock the scheduler 
+	 * like we normally would */
+	else if (scheduler_lock_counter == 0) {
+		enable_int();
+	}
 }
 
 /* MUST be called with soft_scheduler_lock called */
@@ -169,9 +202,14 @@ void schedule_task_ready(int queue_num, task_control_block_t *task)
 		linked_list_remove(blocked_index, &blocked_list);
 	
 	linked_list_t *ready_list = queue_num_to_list(queue_num);
+	ASSERT(ready_list);
 	
-	if (ready_list != NULL)
+	int ready_index = linked_list_search(task, ready_list);
+	/* If the task is not in the queue, then we enqueue it */
+	if (ready_index == -1){
 		linked_list_enqueue(task, ready_list);
+	}
+	
 }
 
 void schedule_task_blocked(task_control_block_t *task)
@@ -204,50 +242,16 @@ void unschedule_task(task_control_block_t *task)
 		linked_list_remove(blocked_index, &blocked_list);
 }
 
-void block_task(task_state_t new_state)
-{
-	soft_lock_scheduler();
-
-	schedule_task_blocked(current_task);
-	current_task->state = new_state;
-	current_task->current_priority = -1;
-
-	schedule();
-	/* The task unblocks here, record start of time usage period */
-	current_task->last_time = timer_get_ns(); 
-	soft_unlock_scheduler();
-}
-
-void unblock_task(task_control_block_t *task)
-{
-	ASSERT(task->state == SLEEPING || 
-	       task->state == PAUSED);
-	soft_lock_scheduler();
-	/* When unblocked put it in its original queue */
-	schedule_task_ready(task->starting_priority, task);
-	task->current_priority = task->starting_priority; 
-	
-	current_task->state = READY;
-	schedule();
-	soft_unlock_scheduler();
-}
-
 void init_scheduler(task_control_block_t *first_task)
 {
 	soft_lock_scheduler();
-	
-	/* Create and schedule timer task */
-	timer_task_tcb = create_task(timer_task, 0, "timer_task");
-	timer_task_tcb->current_priority = 0;
-	timer_task_tcb->state = READY;
-	schedule_task_ready(timer_task_tcb->starting_priority, timer_task_tcb);
 	
 	/* Create and schedule idle task 
 	 * Priority is -1 meaning it is never actually in any priority queue. 
 	 * This means that we never ever schedule idle task and just jump to it
 	 * whenver we dont have anything to do */
-	idle_task_tcb = create_task(idle_task, -1, "idle_task");
-	idle_task_tcb->current_priority = -1;
+	idle_task_tcb = create_task(idle_task, NOT_SCHEDULED, "idle_task");
+	idle_task_tcb->current_priority = NOT_SCHEDULED;
 	idle_task_tcb->state = IDLE;
 	
 	/* Finally schedule the first task */

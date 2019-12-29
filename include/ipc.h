@@ -13,16 +13,20 @@
 	(name).command = (cmd); \
 	memcpy(&(name).body, (body_ptr), BODY_LEN)
 
-typedef unsigned int command_t;
+typedef enum command {NULL_CMD, SYS_CMD} command_t;
 typedef circ_buf_t message_buf_t;
 
 typedef struct message_t {
 	id_t sender_id;
 	command_t command;
-	char body[BODY_LEN];
+	uint8_t body[BODY_LEN];
 }message_t;
 
-void async_send_msg(id_t to_id, message_t *msg, flags_t flags);
-void async_receive_msg(id_t from_id, void * buf, flags_t flags);
+#define DONT_BLOCK (1 << 0)
+
+
+void print_message(message_t * msg);
+void async_send_msg(id_t to_id, message_t * msg, flags_t flags);
+void async_receive_msg(id_t from_id, message_t * buf, flags_t flags);
 
 #endif

@@ -10,6 +10,9 @@
 #include "../include/scheduler.h"
 #include "../include/timer.h"
 #include "../include/ipc.h"
+#include "../include/process.h"
+
+#define PREPPED_STACK_PARAM_NUM 4
 
 task_control_block_t *create_task(void (*main)(), priority_t starting_priority, 
 				  const char *name)
@@ -20,10 +23,11 @@ task_control_block_t *create_task(void (*main)(), priority_t starting_priority,
 	memcpy(task->name, name, TASK_NAME_LEN);
 	
 	task->starting_priority = starting_priority;
-	task->current_priority = -1; //meaning not queued or blocked
+	task->current_priority = NOT_SCHEDULED; //meaning not queued or blocked
 
 	uint32_t new_stack_addr = (uint32_t)kmalloc_page() + PAGE_SIZE; //start at top of page
-	uint32_t new_esp = new_stack_addr - (4 * sizeof(unsigned int));
+	uint32_t new_esp = new_stack_addr - 
+			  (PREPPED_STACK_PARAM_NUM * sizeof(unsigned int));
 	//kprint(INFO, "PREPING STACK AT %x with new ESP %x\n", new_stack_addr, new_esp);
 	
 	prep_stack_frame(task, main, new_stack_addr);
@@ -36,9 +40,10 @@ task_control_block_t *create_task(void (*main)(), priority_t starting_priority,
 	task->cpu_state.eip = (uint32_t) start_task;
 	task->cpu_state.esp = new_esp; //sp at our preped stack
 	
+	task->id = -1;
 	task->main = main;
-	init_circ_buf(MESSAGE_BUF_LEN, sizeof(message_t), &task->message_buf);
-
+	init_circ_buf(MESSAGE_BUF_LEN, sizeof(message_t), &task->msg_buf);
+	
 	return task;
 }
 
@@ -46,8 +51,10 @@ task_control_block_t *create_task(void (*main)(), priority_t starting_priority,
  * from its function, or if unaturally terminated */
 void destroy_task(task_control_block_t *task)
 {
+	/* FREE MESSAGE WAIT QUEUE */
 	unschedule_task(task);
-	destroy_circ_buf(&task->message_buf);
+	unregister_process_task(task);
+	destroy_circ_buf(&task->msg_buf);
 	kfree(task);
 }
 
@@ -77,13 +84,49 @@ int start_task(task_control_block_t * task)
 		return FAILURE;
 
 	soft_lock_scheduler();
+	
+	task->current_priority = task->starting_priority;
 	schedule_task_ready(task->starting_priority, task);
+	
+	soft_unlock_scheduler();
+	return SUCCESS;
+}
+
+void block_task(task_state_t new_state)
+{
+	soft_lock_scheduler();
+
+	schedule_task_blocked(current_task);
+	current_task->state = new_state;
+	current_task->current_priority = NOT_SCHEDULED;
+
+	schedule();
+	/* The task unblocks here, record start of time usage period */
+	current_task->last_time = timer_get_ns(); 
+	soft_unlock_scheduler();
+}
+
+void unblock_task(task_control_block_t *task)
+{
+	ASSERT(task->state == SLEEPING || 
+	       task->state == PAUSED);
+	soft_lock_scheduler();
+	/* When unblocked put it in its original queue */
+	schedule_task_ready(task->starting_priority, task);
+	task->current_priority = task->starting_priority; 
+	
+	current_task->state = READY;
+	
+	/* TODO Do we go to a new task when we unblock? */
+	//schedule();
+	
 	soft_unlock_scheduler();
 }
 
 void idle_task()
 {
 	for (;;) {
+		kprint(INFO, "IDLE TASK: Are we deadlocked?\n");
 		soft_unlock_scheduler();
 		soft_lock_scheduler();
 		schedule();
@@ -110,12 +153,17 @@ task_control_block_t * init_tasking()
 	memcpy(main_task->name, task_name, TASK_NAME_LEN);
 	main_task->starting_priority = 0;
 	main_task->current_priority = 0;
+	
 	/* All other fields will be zero */
 	main_task->cpu_state.cr3 = get_cr3(); //page directory
 	main_task->cpu_state.cr2 = get_cr2();
 	main_task->cpu_state.cr0 = get_cr0();
 	main_task->cpu_state.eflags = get_eflags();
 	/* All other registers will be updated */
+	
+	main_task->id = -1;
+	init_circ_buf(MESSAGE_BUF_LEN, sizeof(message_t), &main_task->msg_buf);
 
+	/* Init the rest of the main task */
 	return main_task;
 }

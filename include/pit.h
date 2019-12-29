@@ -24,7 +24,7 @@
 #define	PIT_COMMAND_COUNTER_2		0x80
 
 void pit_interrupt_handler();
-void register_pit_handler();
+void register_pit_handler(void (*handler)());
 void init_pit();
 void pit_reset_ticks();
 size_t pit_get_ticks();

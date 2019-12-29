@@ -14,5 +14,6 @@ typedef struct circ_buf_t {
 int push_circ_buf(void * entry_src, circ_buf_t * circ_buf);
 int pop_circ_buf(void * entry_dst, circ_buf_t * circ_buf);
 void init_circ_buf(unsigned int size, size_t type_size, circ_buf_t * circ_buf);
+void print_circ_buf(circ_buf_t * buf);
 void destroy_circ_buf(circ_buf_t * circ_buf);
 #endif

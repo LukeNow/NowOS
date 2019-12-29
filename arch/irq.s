@@ -13,8 +13,10 @@ interrupt_handler_%1:
 	jmp common_interrupt_handler
 %endmacro
 
+
 extern interrupt_handler
 common_interrupt_handler:
+	
 	push eax
 	push ebx
 	push ecx
@@ -22,10 +24,7 @@ common_interrupt_handler:
 	push esi
 	push edi
 	push ebp
-	push esp
-	push dword 0 ;for interrupt handlers we dont care about eip 
-		     ;Because it is not associated with any process
-	pushfd
+	push esp ;This isnt the stack pointer of the interrupt we want just the context
 	mov eax, cr3
 	push eax
 	mov eax, cr2
@@ -33,13 +32,18 @@ common_interrupt_handler:
 	mov eax, cr0
 	push eax
 	
+	; Push CPU struct ptr
+	mov eax, esp
+	push eax
+
 	call interrupt_handler
 	
+	; pop The pointer
+	pop eax
+
 	pop eax
 	pop eax
 	pop eax ;Pop cr0, cr2, cr3
-	popfd   ;Pop eflags
-	pop eax ;pop the eip that was set to 0
 	pop esp
 	pop ebp
 	pop edi
@@ -68,7 +72,7 @@ error_code_interrupt_handler 13 ;GPF
 error_code_interrupt_handler 14 ;page fault
 ; 15 reserved
 no_error_code_interrupt_handler 16 ;x86 floating point exception 
-error_code_interrupt_handler 17 ;alignment check
+no_error_code_interrupt_handler 17 ;alignment check
 no_error_code_interrupt_handler 18 ;machine check
 no_error_code_interrupt_handler 19 ;SIMD floating point exception
 no_error_code_interrupt_handler 20 ;virtualization exception

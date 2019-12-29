@@ -8,7 +8,6 @@ void disable_int();
 void nop();
 void register_dump();
 void _panic();
-void interrupt_register_dump(struct cpu_state cpu, struct stack_state stack,
-			     unsigned int interrupt);
+void interrupt_register_dump(int_state_t * state);
 
 #endif

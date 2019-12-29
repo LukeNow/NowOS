@@ -2,11 +2,10 @@ ARCH:=i686-elf
 CFLAGS:=-g -ffreestanding -Wall -Wextra -lgcc -nostdlib -m32 -Wl,--build-id=none
 ASFLAGS:=
 DEBUGFLAGS:= -D DEBUG
-SYS_ROOT:="$(PWD)/sysroot"
+TESTFLAGS:= -D TEST
 
 CC:="$(ARCH)-gcc"
 ASM:=nasm
-
 LIBS:=-nostdlib -lk -lgcc
 
 KERNDIR:=kernel
@@ -14,26 +13,33 @@ BOOTDIR:=boot
 INCLUDEDIR:=include
 KERNELDIR:=boot/iso/boot
 KERNELNAME:=nowos
-SYS_DIR:= sysroot/usr
 INCLUDE_DIR:= include
-	
+TEST_DIR := kernel/tests
+SYS_DIR:= sysroot/usr
+
 ifdef DEBUG
 	CFLAGS := $(CFLAGS) $(DEBUGFLAGS)
 endif
 
-KERN_OBJS:= kernel/io.o  \
-	       kernel/tty.o \
+ifdef TEST
+	CLFAGS := $(CFLAGS) $(TESTFLAGS)
+endif
+
+SYS_ROOT:="$(PWD)/sysroot"
+
+KERN_OBJS:=  kernel/tty.o \
 	       kernel/kmain.o \
 	       kernel/kprint.o \
 	       kernel/kheap.o \
 	       kernel/paging.o \
 	       kernel/mm.o \
-	       kernel/test.o \
 	       kernel/scheduler.o \
 	       kernel/task.o \
 	       kernel/timer.o \
 	       kernel/process.o \
-	       kernel/ipc.o
+	       kernel/ipc.o \
+	       kernel/ktest.o \
+	       kernel/system.o
 
 BOOT_OBJS:= boot/boot.o \
 		
@@ -48,7 +54,8 @@ ARCH_OBJS:= 	arch/gdt_init.o \
 		arch/machine.o \
 		arch/paging_init.o \
 		arch/pit.o \
-		arch/task.o
+		arch/task.o \
+		arch/io.o
 
 KLIB_OBJS:=	klib/string.o \
 		klib/sorted_array_list.o \
@@ -56,7 +63,12 @@ KLIB_OBJS:=	klib/string.o \
 		klib/byte_index_list.o \
 		klib/circ_buf.o
 
-OBJS:= $(BOOT_OBJS) $(KLIB_OBJS) $(KERN_OBJS) $(ARCH_OBJS) 
+TEST_OBJS:= $(TEST_DIR)/run_tests.o \
+		$(TEST_DIR)/test_circ_buf.o \
+		$(TEST_DIR)/test_linked_list.o \
+		$(TEST_DIR)/test_kheap.o
+
+OBJS:= $(BOOT_OBJS) $(KLIB_OBJS) $(KERN_OBJS) $(ARCH_OBJS) $(TEST_OBJS)
 
 .PHONY: all clean run iso bochs-run qemu-run
 .SUFFIXES: .o .c .s
