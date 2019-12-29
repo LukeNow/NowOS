@@ -44,7 +44,7 @@ static int test_0()
 void test_linked_list()
 {
 	ktest_t * ktest = kmalloc(sizeof(ktest_t));
-	init_ktest("circ_buf ktest", ktest);
+	init_ktest("linked_list ktest", ktest);
 	
 	register_ktest(test_0, ktest);
 	
