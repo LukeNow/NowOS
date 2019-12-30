@@ -1,7 +1,7 @@
-#include <stdint.h>
-#include "../include/kprint.h"
-#include "../include/ktest.h"
-#include "../include/string.h"
+#include <kdef.h>
+#include <kprint.h>
+#include <ktest.h>
+#include <string.h>
 
 void register_ktest(int (*test)(), ktest_t * ktest)
 {

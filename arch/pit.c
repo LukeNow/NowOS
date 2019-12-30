@@ -1,9 +1,8 @@
-#include <stdint.h>
-#include <stddef.h>
-#include "../include/pit.h"
-#include "../include/io.h"
-#include "../include/pic.h"
-#include "../include/kprint.h"
+#include <kdef.h>
+#include <pit.h>
+#include <io.h>
+#include <pic.h>
+#include <kprint.h>
 
 size_t ns_ticks;
 size_t ns_counter;

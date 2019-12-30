@@ -1,11 +1,9 @@
-#include <stdint.h>
-#include <stddef.h>
-#include "../include/paging.h"
-#include "../include/kheap.h"
-#include "../include/kprint.h"
-#include "../include/string.h"
-#include "../include/kdef.h"
-#include "../include/mm.h"
+#include <kdef.h>
+#include <paging.h>
+#include <kheap.h>
+#include <kprint.h>
+#include <string.h>
+#include <mm.h>
 
 #define DIR_SIZE 2 << 22
 #define PAGE_DIRECTORY_INDEX(x) (((x) >> 22) & 0x3ff)

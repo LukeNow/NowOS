@@ -1,10 +1,8 @@
-#include <stddef.h>
-#include <stdint.h>
-#include "../include/kprint.h"
-#include "../include/kdef.h"
-#include "../include/string.h"
-#include "../include/mm.h"
-#include "../include/byte_index_list.h"
+#include <kdef.h>
+#include <kprint.h>
+#include <string.h>
+#include <mm.h>
+#include <byte_index_list.h>
 
 BYTE_INDEX_LIST_INIT(phys_mem_tbl);
 

@@ -1,6 +1,4 @@
-#include <stdint.h>
-#include <stdint.h>
-#include <stdbool.h>
+#include <kdef.h>
 
 //TODO make it so we dont explicitly declate tests here
 extern void test_circ_buf();

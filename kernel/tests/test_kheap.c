@@ -1,8 +1,8 @@
-#include <stdint.h>
-#include "../../include/ktest.h"
-#include "../../include/kheap.h"
-#include "../../include/kprint.h"
-#include "../../include/string.h"
+#include <kdef.h>
+#include <ktest.h>
+#include <kheap.h>
+#include <kprint.h>
+#include <string.h>
 
 #define START_TEST \
 	int ret_test = 0

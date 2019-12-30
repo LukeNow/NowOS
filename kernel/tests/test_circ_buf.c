@@ -1,11 +1,8 @@
-#include <stdint.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "../../include/kdef.h"
-#include "../../include/kprint.h"
-#include "../../include/kheap.h"
-#include "../../include/circ_buf.h"
-#include "../../include/ktest.h"
+#include <kdef.h>
+#include <kprint.h>
+#include <kheap.h>
+#include <circ_buf.h>
+#include <ktest.h>
 
 #define START_TEST \
 	int ret_test = 0; \

@@ -1,8 +1,6 @@
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include "../include/io.h"
-#include "../include/pic.h"
+#include <kdef.h>
+#include <io.h>
+#include <pic.h>
 
 void pic_remap()
 {

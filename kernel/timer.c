@@ -1,13 +1,12 @@
-#include <stddef.h>
-#include "../include/kdef.h"
-#include "../include/timer.h"
-#include "../include/pit.h"
-#include "../include/linked_list.h"
-#include "../include/scheduler.h"
-#include "../include/kheap.h"
-#include "../include/kprint.h"
-#include "../include/process.h"
-#include "../include/ipc.h"
+#include <kdef.h>
+#include <timer.h>
+#include <pit.h>
+#include <linked_list.h>
+#include <scheduler.h>
+#include <kheap.h>
+#include <kprint.h>
+#include <process.h>
+#include <ipc.h>
 
 LINKED_LIST_INIT(timer_list);
 time_t last_update_time = 0;

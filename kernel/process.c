@@ -1,10 +1,10 @@
-#include "../include/kdef.h"
-#include "../include/linked_list.h"
-#include "../include/process.h"
-#include "../include/kheap.h"
-#include "../include/kprint.h"
-#include "../include/task.h"
-#include "../include/scheduler.h"
+#include <kdef.h>
+#include <linked_list.h>
+#include <process.h>
+#include <kheap.h>
+#include <kprint.h>
+#include <task.h>
+#include <scheduler.h>
 
 process_t * process_tbl[MAX_PROC_NUM];
 

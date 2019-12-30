@@ -1,11 +1,9 @@
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <kdef.h>
 #include <stdarg.h>
-#include "../include/tty.h"
-#include "../include/ctype.h"
-#include "../include/kprint.h"
-#include "../include/irq_handle.h"
+#include <tty.h>
+#include <ctype.h>
+#include <kprint.h>
+#include <irq_handle.h>
 
 int log_count = 0;
 

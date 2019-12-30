@@ -1,13 +1,11 @@
-#include <stddef.h>
-#include <stdint.h>
-#include "../include/kdef.h"
-#include "../include/kprint.h"
-#include "../include/linked_list.h"
-#include "../include/scheduler.h"
-#include "../include/kheap.h"
-#include "../include/kprint.h"
-#include "../include/process.h"
-#include "../include/ipc.h"
+#include <kdef.h>
+#include <kprint.h>
+#include <linked_list.h>
+#include <scheduler.h>
+#include <kheap.h>
+#include <kprint.h>
+#include <process.h>
+#include <ipc.h>
 
 static void handle_messages()
 {

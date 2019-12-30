@@ -1,10 +1,8 @@
-#include <stdint.h>
-#include <stddef.h>
-#include "../include/ipc.h"
-#include "../include/kdef.h"
-#include "../include/scheduler.h"
-#include "../include/process.h"
-#include "../include/kprint.h"
+#include <kdef.h>
+#include <ipc.h>
+#include <scheduler.h>
+#include <process.h>
+#include <kprint.h>
 
 extern process_t * process_tbl[MAX_PROC_NUM];
 

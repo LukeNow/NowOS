@@ -1,8 +1,6 @@
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include "../include/tty.h"
-#include "../include/io.h"
+#include <kdef.h>
+#include <tty.h>
+#include <io.h>
 
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25

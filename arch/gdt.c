@@ -1,9 +1,7 @@
 // Used for creating GDT segment descriptors in 64-bit integer form.
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include "../include/kprint.h"
-#include "../include/gdt.h"
+#include <kdef.h>
+#include <kprint.h>
+#include <gdt.h>
 
 static uint64_t
 create_descriptor(uint32_t base, uint32_t limit, uint16_t flag)

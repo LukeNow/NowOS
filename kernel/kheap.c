@@ -1,12 +1,9 @@
-#include <stdint.h>
-#include <stddef.h>
-#include "../include/kheap.h"
-#include "../include/kprint.h"
-#include "../include/kdef.h"
-#include "../include/sorted_array_list.h"
-#include "../include/string.h"
-#include "../include/byte_index_list.h"
-#include "../include/kdef.h"
+#include <kdef.h>
+#include <kheap.h>
+#include <kprint.h>
+#include <sorted_array_list.h>
+#include <string.h>
+#include <byte_index_list.h>
 
 #define HEAP_EXPAND_SIZE KB(4)
 #define SECTOR_SIZE 512

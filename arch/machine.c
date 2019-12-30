@@ -1,7 +1,8 @@
-#include "../include/kprint.h"
-#include "../include/processor.h"
-#include "../include/irq_handle.h"
-#include "../include/scheduler.h"
+#include <kdef.h>
+#include <kprint.h>
+#include <processor.h>
+#include <irq_handle.h>
+#include <scheduler.h>
 
 void halt_system()
 {

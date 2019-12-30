@@ -1,10 +1,8 @@
-#include <stddef.h>
-#include <stdint.h>
-
-#include "../include/string.h"
-#include "../include/kheap.h"
-#include "../include/linked_list.h"
-#include "../include/kprint.h"
+#include <kdef.h>
+#include <string.h>
+#include <kheap.h>
+#include <linked_list.h>
+#include <kprint.h>
 
 linked_list_t *linked_list_init()
 {
