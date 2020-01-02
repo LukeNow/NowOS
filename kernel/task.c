@@ -1,16 +1,14 @@
-#include <stddef.h>
-#include <stdint.h>
-#include "../include/kheap.h"
-#include "../include/linked_list.h"
-#include "../include/task.h"
-#include "../include/string.h"
-#include "../include/mm.h"
-#include "../include/kdef.h"
-#include "../include/kprint.h"
-#include "../include/scheduler.h"
-#include "../include/timer.h"
-#include "../include/ipc.h"
-#include "../include/process.h"
+#include <kheap.h>
+#include <linked_list.h>
+#include <task.h>
+#include <string.h>
+#include <mm.h>
+#include <kdef.h>
+#include <kprint.h>
+#include <scheduler.h>
+#include <timer.h>
+#include <ipc.h>
+#include <process.h>
 
 #define PREPPED_STACK_PARAM_NUM 4
 

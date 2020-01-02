@@ -1,7 +1,6 @@
-#include <stdint.h>
-#include "../include/sorted_array_list.h"
-#include "../include/kprint.h"
-
+#include <kdef.h>
+#include <sorted_array_list.h>
+#include <kprint.h>
 
 void init_sorted_list(sorted_array_list_t *list, void **arr_ptr, 
 		      uint32_t array_size)
@@ -10,8 +9,6 @@ void init_sorted_list(sorted_array_list_t *list, void **arr_ptr,
 	list->arr_size = array_size;
 	list->curr_size = 1;
 }
-
-
 
 static int insert_item(void *item, unsigned int index, 
 		       sorted_array_list_t *list)

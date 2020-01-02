@@ -1,8 +1,8 @@
-#include "../include/kdef.h"
-#include "../include/kheap.h"
-#include "../include/string.h"
-#include "../include/circ_buf.h"
-#include "../include/kprint.h"
+#include <kdef.h>
+#include <kheap.h>
+#include <string.h>
+#include <circ_buf.h>
+#include <kprint.h>
 
 int push_circ_buf(void * entry_src, circ_buf_t * circ_buf)
 {

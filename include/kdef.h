@@ -2,6 +2,8 @@
 #define _KERNDEF_H
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 
 /* General return definitions */
 #define SUCCESS 0

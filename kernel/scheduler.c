@@ -1,15 +1,13 @@
-#include <stdint.h>
-#include <stddef.h>
-#include "../include/kprint.h"
-#include "../include/task.h"
-#include "../include/linked_list.h"
-#include "../include/machine.h"
-#include "../include/string.h"
-#include "../include/timer.h"
-#include "../include/scheduler.h"
-#include "../include/pit.h"
-#include "../include/kdef.h"
-#include "../include/kheap.h"
+#include <kdef.h>
+#include <kprint.h>
+#include <task.h>
+#include <linked_list.h>
+#include <machine.h>
+#include <string.h>
+#include <timer.h>
+#include <scheduler.h>
+#include <pit.h>
+#include <kheap.h>
 
 #define GET_FIRST_TASK(list) \
 	(task_control_block_t *)(((linked_list_t)(list))->start_ptr->data)

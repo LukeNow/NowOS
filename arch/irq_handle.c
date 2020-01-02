@@ -1,13 +1,11 @@
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include "../include/io.h"
-#include "../include/pic.h"
-#include "../include/kprint.h"
-#include "../include/machine.h"
-#include "../include/processor.h"
-#include "../include/irq_handle.h"
-#include "../include/pit.h"
+#include <kdef.h>
+#include <io.h>
+#include <pic.h>
+#include <kprint.h>
+#include <machine.h>
+#include <processor.h>
+#include <irq_handle.h>
+#include <pit.h>
 
 /* INT vec 0 */
 void divide_by_zero_handler(int_state_t * state)

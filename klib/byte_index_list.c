@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
-#include "../include/kprint.h"
-#include "../include/byte_index_list.h"
+#include <kprint.h>
+#include <byte_index_list.h>
 
 void init_byte_index_list(void *array, size_t size, byte_index_list_t *list)
 {

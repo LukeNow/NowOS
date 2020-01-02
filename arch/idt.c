@@ -1,9 +1,7 @@
-#include <stdbool.h>
-#include <stddef.h>
-#include "../include/stdint.h"
-#include "../include/io.h"
-#include "../include/kprint.h"
-#include "../include/irq_handle.h"
+#include <kdef.h>
+#include <io.h>
+#include <kprint.h>
+#include <irq_handle.h>
 
 #define KERN_CODE_SEGMENT 0x08
 #define TYPE_32_INT_GATE 0x8E
