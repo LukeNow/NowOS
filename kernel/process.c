@@ -163,7 +163,6 @@ void unregister_process_task(task_control_block_t * task)
 	proc_id_t pid = GET_PROC_ID(task->id);
 	task_id_t tid = GET_TASK_ID(task->id);
 	
-	
 	process_t * proc = process_tbl[pid];
 	if (!proc) {
 		PANIC("unregister_process_task: could not find proc\n");

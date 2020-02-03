@@ -4,8 +4,6 @@
 #include <process.h>
 #include <kprint.h>
 
-extern process_t * process_tbl[MAX_PROC_NUM];
-
 void print_message(message_t * msg)
 {
 	kprint(INFO, "--Printing message--\n");
@@ -18,7 +16,7 @@ void async_send_msg(id_t to_id, message_t * msg, flags_t flags)
 {
 	hard_lock_scheduler();
 	
-	process_t * recv_proc = process_tbl[GET_PROC_ID(to_id)];
+	process_t * recv_proc = get_process_from_pid(GET_PROC_ID(to_id));
 	if (recv_proc == NULL) {
 		kprint(ERROR, "Async_send_Msg: could not find recv proc\n");
 		hard_unlock_scheduler();
@@ -104,7 +102,7 @@ void async_receive_msg(id_t from_id, message_t * buf, flags_t flags)
 		return;
 	}
 
-	process_t * sender_proc = process_tbl[GET_PROC_ID(from_id)];
+	process_t * sender_proc = get_process_from_pid(GET_PROC_ID(from_id));
 	if (sender_proc == NULL) {
 		kprint(ERROR, "Async_send_Msg: could not find recv proc\n");
 		hard_unlock_scheduler();

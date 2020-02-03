@@ -207,7 +207,6 @@ void schedule_task_ready(int queue_num, task_control_block_t *task)
 	if (ready_index == -1){
 		linked_list_enqueue(task, ready_list);
 	}
-	
 }
 
 void schedule_task_blocked(task_control_block_t *task)

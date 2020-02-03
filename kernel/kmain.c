@@ -43,7 +43,6 @@ void test_task_1()
 		async_receive_msg(main_id, &in_msg, 0);
 		kprint(INFO, "Task1: Message received Body %d\n", in_msg.body[0]);
 
-
 		int body = 10;
 		MAKE_MESSAGE(out_msg, curr_id, 0, &body);
 		
@@ -151,6 +150,7 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	
 	print_scheduler_state();
 	
+	block_process();
 	PANIC("KMAIN STOP"); 
 	
 	/* Hang, we dont return from this function */
