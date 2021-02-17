@@ -48,6 +48,14 @@
                      SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
                      SEG_PRIV(3)     | SEG_DATA_RDWR
 
+struct gdt_reg_desc_t {
+	uint16_t limit;
+	uint32_t base;
+} __attribute__ ((packed));
+typedef struct gdt_reg_desc_t gdt_reg_desc_t;
+
+extern void flush_gdt(gdt_reg_desc_t * desc);
+extern void gdt_init(void);
 void create_table(uint64_t *table);
 
 #endif

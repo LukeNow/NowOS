@@ -20,7 +20,6 @@ global page_heap_top
 
 ;Function delcarations
 global _start
-global gdt_init_ret
 extern kmain
 extern term_init
 extern gdt_init
@@ -103,9 +102,8 @@ _start:
 	;Set up our terminal so we can print
 	call term_init
 	;Set up our GDT table
-	;call gdt_init
-	jmp gdt_init
-gdt_init_ret:
+	call gdt_init
+	;jmp gdt_init
 	;Set up our IDT table
 	call idt_init
 	;Start clock

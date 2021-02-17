@@ -2,6 +2,13 @@
 #include <kdef.h>
 #include <kprint.h>
 #include <gdt.h>
+#include <string.h>
+
+#define NUM_GDT_DESC 5
+
+uint64_t gdt_table[NUM_GDT_DESC];
+
+static gdt_reg_desc_t gdt_desc;
 
 static uint64_t
 create_descriptor(uint32_t base, uint32_t limit, uint16_t flag)
@@ -24,11 +31,19 @@ create_descriptor(uint32_t base, uint32_t limit, uint16_t flag)
 	return descriptor;
 }
 
-void create_table(uint64_t *table)
+gdt_reg_desc_t * create_gdt_table()
 {
-	table[0] = create_descriptor(0, 0, 0);
-	table[1] = create_descriptor(0, 0xFFFFFFFF, (GDT_CODE_PL0));
-	table[2] = create_descriptor(0, 0xFFFFFFFF, (GDT_DATA_PL0));
-	table[3] = create_descriptor(0, 0xFFFFFFFF, (GDT_CODE_PL3));
-	table[4] = create_descriptor(0, 0xFFFFFFFF, (GDT_DATA_PL3));
+	memset(gdt_table, 0, sizeof(gdt_table));
+
+	gdt_table[0] = create_descriptor(0, 0, 0);
+	gdt_table[1] = create_descriptor(0, 0xFFFFFFFF, (GDT_CODE_PL0));
+	gdt_table[2] = create_descriptor(0, 0xFFFFFFFF, (GDT_DATA_PL0));
+	gdt_table[3] = create_descriptor(0, 0xFFFFFFFF, (GDT_CODE_PL3));
+	gdt_table[4] = create_descriptor(0, 0xFFFFFFFF, (GDT_DATA_PL3));
+
+	gdt_desc.base = &gdt_table;
+	gdt_desc.limit = sizeof(gdt_table) - 1;
+
+	//kprint(INFO, "PRINTING DESC at addr %x with size %d\n", &gdt_desc, sizeof(gdt_table));
+	return &gdt_desc;
 }
