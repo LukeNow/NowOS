@@ -1,265 +1,176 @@
 #include <kdef.h>
 #include <kprint.h>
-#include <task.h>
+#include <thread.h>
 #include <linked_list.h>
 #include <machine.h>
 #include <string.h>
-#include <timer.h>
 #include <scheduler.h>
 #include <pit.h>
 #include <kheap.h>
+#include <lock.h>
+#include <processor.h>
+#include <atomic.h>
 
-#define GET_FIRST_TASK(list) \
-	(task_control_block_t *)(((linked_list_t)(list))->start_ptr->data)
+SPINLOCK_INIT(sched_lock);
+LINKED_LIST_INIT(ready_list);
 
-#define QUEUE_NUM 3
-
-LINKED_LIST_INIT(ready_list_0);
-LINKED_LIST_INIT(ready_list_1);
-LINKED_LIST_INIT(ready_list_2);
-
-LINKED_LIST_INIT(blocked_list);
-
-task_control_block_t *timer_task_tcb;
-task_control_block_t *idle_task_tcb;
-
-task_control_block_t *current_task;
-task_control_block_t *next_task;
-
-int scheduler_lock_counter = 0;
-int scheduler_postponed_counter = 0;
-int scheduler_postponed_flag = 0;
-
-static linked_list_t *queue_num_to_list(int queue_num)
+static void idle_loop()
 {
-	switch (queue_num) {
-		case 0:
-			return &ready_list_0;
-		case 1:
-			return &ready_list_1;
-		case 2:
-			return &ready_list_2;
-		default:
-			return NULL;
-	}
+    for (;;) {
+
+        kprint(INFO, "IDLE LOOP ON PROC %d\n", processor_get_id());
+    
+    
+    
+    
+        scheduler_yield();
+    }
+
+
+
+    VERIFY_UNREACHED();
 }
 
-task_control_block_t *name_to_tcb(char *name)
-{
-	for (int i = 0; i < QUEUE_NUM; i++) {
-		linked_list_t *ready_list = queue_num_to_list(i);
-		linked_list_for_each(index, ready_list) {
-			task_control_block_t *task = index->data;
-			if (strcmp(name, task->name) == 0)
-				return task;
-		}
-	}
-		
-	linked_list_for_each(index, &blocked_list) {
-		task_control_block_t *task = index->data;
-		if (strcmp(name, task->name) == 0)
-			return task;
-	}
 
-	return NULL;
+static tib_t * pull_next_runnable_thread()
+{
+    return linked_list_get(0, &ready_list);
 }
 
-static void update_next_task()
-{	
-	/* Get the next available task from the highest priority, non-empty
-	 * queue. If the task that is found is the same as current task, 
-	 * cycle the linked list to make sure that we can schedule other tasks
-	 * that might have just been queued */
-	for (int i = 0; i < QUEUE_NUM; i++) {
-		linked_list_t * ready_list = queue_num_to_list(i);
-		if (ready_list->size != 0) {
-			next_task = linked_list_get(0, ready_list);
-			if (next_task == current_task && ready_list->size != 1) {
-				linked_list_cycle(ready_list);
-				next_task = linked_list_get(0, ready_list);
-				//kprint(INFO, "Next task is %s\n", next_task->name);
-				//print_ready_queue(0);
-			}
-			return;
-		}
-	}
-	/* If we didnt find a ready task, we schedule the idle task */
-	next_task = idle_task_tcb;
+void scheduler_leave()
+{
+    processor_t * proc = processor_get_info();
+    proc->in_scheduler = false;
+    spin_unlock(&sched_lock);
+    enable_int();
+
+    kprint(INFO, "Leaving scheduler %d with thread %d\n", (uint32_t)proc->id, ((tib_t *)(proc->current_thread))->tid);
+
+}
+void scheduler_leave_and_queue(tib_t * from_thread)
+{
+    processor_t * proc = processor_get_info();
+    proc->in_scheduler = false;
+    from_thread->is_active = false;
+    from_thread->state = THREAD_READY;
+    linked_list_enqueue(from_thread, &ready_list);
+    spin_unlock(&sched_lock);
+    enable_int();
+
+    kprint(INFO, "L N Q scheduler %d with thread %d\n", (uint32_t)proc->id, from_thread->tid);
 }
 
-task_control_block_t * get_current_task()
+void scheduler_yield()
 {
-	return current_task;
+    disable_int(); 
+    
+    processor_t * proc = processor_get_info();
+    ASSERT(proc);
+    
+    tib_t * from_thread = proc->current_thread;
+    ASSERT(from_thread->state = THREAD_RUNNING);
+    
+    proc->in_scheduler = true;
+    
+    spin_lock(&sched_lock);
+    
+    tib_t * to_thread = pull_next_runnable_thread();
+    if (to_thread == NULL) {
+        scheduler_leave();
+        return;
+    }
+
+    /* Save some things that might or might not have changed since
+       we last saved/created this threads state.
+       All other general registers dont matter, 
+       and esp, ebp, eip will be saved when we call thread_switch_sync */
+    from_thread->cpu_state.cr3 = get_cr3();
+	from_thread->cpu_state.cr2 = get_cr2();
+	from_thread->cpu_state.cr0 = get_cr0();
+	from_thread->cpu_state.eflags = get_eflags();
+
+    thread_switch_sync(from_thread, to_thread);
+}
+
+void scheduler_init()
+{
+    spin_lock(&sched_lock);
+    
+
+    tib_t * idle_thread = create_thread(idle_loop, "Idle loop");
+    ASSERT(idle_thread);
+    idle_thread->state = THREAD_RUNNING;
+
+    processor_t * proc = processor_get_info();
+    proc->current_thread = idle_thread;
+
+    
+
+
+}
+
+void thread_idle_loop()
+{
+
+}
+
+
+void soft_lock_scheduler()
+{
+
+}
+void soft_unlock_scheduler()
+{
+
+}
+void hard_lock_scheduler()
+{
+
+}
+void hard_unlock_scheduler()
+{
+
+}
+void sleep_for(time_t ns_to_wait)
+{
+
+}
+
+tib_t * get_current_task()
+{
+    return NULL;
+}
+
+void schedule()
+{
+
+}
+
+void schedule_task_ready(int queue_num, tib_t *task)
+{
+
+}
+void schedule_task_blocked(tib_t *task)
+{
+
+}
+void unschedule_task(tib_t *task){
+
+}
+void init_scheduler()
+{
+
+}
+tib_t *name_to_tcb(char *name)
+{
+    return NULL;
 }
 
 void print_ready_queue(int queue_num)
 {
-	linked_list_t *ready_list = 
-		queue_num_to_list(queue_num);
-	kprint(INFO, "Printing out queue num %d\n", queue_num);
-	linked_list_for_each(index, ready_list) {
-		task_control_block_t *task = index->data;
-		kprint(INFO, "Task: %s\n", task->name);
-	}
-}
 
+}
 void print_scheduler_state()
 {
-	kprint(INFO, "*** Printing scheduler state ***\n");
-	kprint(INFO, "scheduler lock counter %d\n", scheduler_lock_counter);
-	kprint(INFO, "scheduler postponed counter %d\n", scheduler_postponed_counter);
-	kprint(INFO, "scheduler postponed flag %d\n", scheduler_postponed_flag);
-
-	kprint(INFO, "interrupts: %s\n", (get_int() == INT_SET) ? "ACTIVE" : "DISABLED");
-	print_ready_queue(0);
-}
-
-
-void soft_lock_scheduler() 
-{
-	disable_int();
-	scheduler_lock_counter++;
-}
-
-
-void soft_unlock_scheduler()
-{
-	scheduler_lock_counter--;
-	ASSERT(scheduler_lock_counter >= 0);
-	if (scheduler_lock_counter == 0) {
-		enable_int();
-	}
-}
-
-void hard_lock_scheduler()
-{
-	soft_lock_scheduler();
-	scheduler_postponed_counter++;
-}
-
-void hard_unlock_scheduler()
-{
-	/* Decrement counters initially */
-	scheduler_postponed_counter--;
-	scheduler_lock_counter--;
-	
-	ASSERT(scheduler_postponed_counter >= 0);
-	ASSERT(scheduler_lock_counter >= 0);
-	
-	if (scheduler_lock_counter == 0 &&
-	    scheduler_postponed_flag != 0) {
-		scheduler_postponed_flag = 0;
-		
-		//TODO Do we switch tasks immediately?
-		/*
-		soft_lock_scheduler();
-		schedule();
-		soft_unlock_scheduler();
-		*/
-	}
-	/* If the counter is zero, we soft unlock the scheduler 
-	 * like we normally would */
-	else if (scheduler_lock_counter == 0) {
-		enable_int();
-	}
-}
-
-/* MUST be called with soft_scheduler_lock called */
-void schedule()
-{
-	/* If there is a hard scheduler lock being held
-	 * do not switch_task() */
-	if (scheduler_postponed_counter != 0) {
-		scheduler_postponed_flag = 1;
-		return;
-	}
-	
-	/* Update ready list to get next ready task */
-	update_next_task();
-	
-	update_time_used();
-	/* If the next task happens to be the same task as our
-	 * current one, there is no need to switch tasks */
-	if (next_task == current_task) {
-		/* Record time usage starting now */
-		current_task->last_time = timer_get_ns();
-		return;
-	}
-	switch_task();
-	/* record start of time usage period */
-	current_task->last_time = timer_get_ns();
-}
-
-/***
- * General task scheduling functions
- ***/
-void schedule_task_ready(int queue_num, task_control_block_t *task)
-{
-	int blocked_index = linked_list_search(task, &blocked_list);
-	if (blocked_index != -1)
-		linked_list_remove(blocked_index, &blocked_list);
-	
-	linked_list_t *ready_list = queue_num_to_list(queue_num);
-	ASSERT(ready_list);
-	
-	int ready_index = linked_list_search(task, ready_list);
-	/* If the task is not in the queue, then we enqueue it */
-	if (ready_index == -1){
-		linked_list_enqueue(task, ready_list);
-	}
-	
-}
-
-void schedule_task_blocked(task_control_block_t *task)
-{
-	int ready_index = -1;
-	linked_list_t *ready_list = 
-		queue_num_to_list(task->current_priority);
-	
-	if (ready_list != NULL) {
-		ready_index = linked_list_search(task, ready_list);
-	}
-	if (ready_index != -1)
-		linked_list_remove(ready_index, ready_list);
-	
-	linked_list_enqueue(task, &blocked_list);
-}
-
-void unschedule_task(task_control_block_t *task)
-{
-	int ready_index = -1;
-	linked_list_t *ready_list = 
-		queue_num_to_list(task->current_priority);
-
-	if (ready_list != NULL)
-		ready_index = linked_list_search(task, ready_list);
-	int blocked_index = linked_list_search(task, &blocked_list);
-	if (ready_index != -1)
-		linked_list_remove(ready_index, ready_list);
-	if (blocked_index != -1)
-		linked_list_remove(blocked_index, &blocked_list);
-}
-
-void init_scheduler(task_control_block_t *first_task)
-{
-	soft_lock_scheduler();
-	
-	/* Create and schedule idle task 
-	 * Priority is -1 meaning it is never actually in any priority queue. 
-	 * This means that we never ever schedule idle task and just jump to it
-	 * whenver we dont have anything to do */
-	idle_task_tcb = create_task(idle_task, NOT_SCHEDULED, "idle_task");
-	idle_task_tcb->current_priority = NOT_SCHEDULED;
-	idle_task_tcb->state = IDLE;
-	
-	/* Finally schedule the first task */
-	first_task->current_priority = 0;
-	first_task->state = READY;
-	schedule_task_ready(first_task->starting_priority, first_task);
-	
-	/* Initialize scheduler variables */
-	current_task = first_task;
-	next_task = NULL;
-
-	soft_unlock_scheduler();
+    
 }

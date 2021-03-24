@@ -54,6 +54,7 @@ struct gdt_reg_desc_t {
 } __attribute__ ((packed));
 typedef struct gdt_reg_desc_t gdt_reg_desc_t;
 
+gdt_reg_desc_t * get_gdt_desc();
 extern void flush_gdt(gdt_reg_desc_t * desc);
 extern void gdt_init(void);
 void create_table(uint64_t *table);

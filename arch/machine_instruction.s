@@ -3,6 +3,7 @@ global __enable_int
 global __disable_int
 global __nop
 global get_int
+global get_cr4
 global get_cr3
 global get_cr2
 global get_cr0
@@ -39,7 +40,9 @@ get_int:
 	and eax, 0x0200
 	shr eax, 9
 	ret
-
+get_cr4:
+	mov eax, cr4
+	ret
 get_cr3:
 	mov eax, cr3
 	ret

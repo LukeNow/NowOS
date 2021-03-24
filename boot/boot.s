@@ -8,6 +8,12 @@ FLAGS equ MBALIGN | MEMINFO
 MAGIC equ 0x1BADB002
 CHECKSUM equ -(MAGIC + FLAGS)
 
+%macro qemu_print 1
+	mov ax, %1
+	mov dx, 0x3F8 
+	out dx, al
+%endmacro
+
 ;Common label declarations
 global stack_bottom
 global stack_top
@@ -107,10 +113,142 @@ _start:
 	;Set up our IDT table
 	call idt_init
 	;Start clock
-	call init_pit
+	;call init_pit
 	sti
 	;Call main kernel code
 	call kmain
 	;We shouldnt be returning from kernel_main
 hang:	hlt
 	jmp hang
+
+
+
+AP_START_BASE equ 0x8000
+
+; Initializaion start for APs, in real mode
+; We are going to copy all of the data/code starting from
+; here all the way to the end so that the APs in real mode
+; can access the data. We can unmap these structures later.
+;
+; REMEMBER this code is getting copied at run time by the BSP
+; and then waking up the APs to start executing this code.
+
+global ap_start
+extern init_ap
+ap_start:
+bits 16
+	
+	cli
+	
+	mov ax, cs 
+	mov ds, ax
+	xor ax, ax
+	mov sp, ax
+
+	;lgdt [ap_initial_gdtr - ap_start + AP_START_BASE]
+	lgdt [ap_initial_gdtr - ap_start]
+	mov eax, cr0
+	or eax, 0x01
+	mov cr0, eax
+
+	jmp 0x08:(ap_start_32 - ap_start + AP_START_BASE)
+
+ap_start_32:
+bits 32
+	
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax 
+
+	xor eax, eax
+	inc eax
+	
+	; Add 1 to cpu ID and save the id so we can keep it
+	; We use this ID to get stacks that we assign to each processor
+	lock xadd [ap_cpu_id - ap_start + AP_START_BASE], eax
+	
+	mov esi, eax
+	mov ecx, ap_init_stacks - ap_start + AP_START_BASE 
+	
+	mov ebx, 4
+	mov eax, esi
+	mul ebx
+	; eax = 4 * cpu_id
+	add eax, ecx
+	; eax = 4 * cpu_id + stack_address
+	mov esp, [eax]
+	
+	; Load the BSPs cr3
+	mov eax, [ap_cpu_cr3 - ap_start + AP_START_BASE]
+	mov cr3, eax
+
+	; enable Paging
+	mov ebx, cr0
+	or ebx, 0x80000000
+	mov cr0, ebx
+
+	; Load the BSPS gdtr
+	mov eax, ap_cpu_gdtr - ap_start + AP_START_BASE
+	lgdt [eax]
+
+	; Load the BSPs idtr
+	mov eax, ap_cpu_idtr - ap_start + AP_START_BASE
+	lidt [eax]
+
+	; Load the BSPs cr0
+	mov eax, [ap_cpu_cr0 - ap_start + AP_START_BASE]
+	mov cr0, eax
+
+	; Load the BSPs cr4
+	mov eax, [ap_cpu_cr4 - ap_start + AP_START_BASE]
+	mov cr4, eax
+	
+	jmp 0x08:.reload_cs
+.reload_cs:
+
+	; Incremend the cpu id, 0 being the BSP now
+	inc esi
+	push esi
+
+	call init_ap
+
+ap_initial_gdtr:
+	dw ap_init_gdt_end - ap_init_gdt_start - 1
+	dd (ap_init_gdt_start - ap_start) + AP_START_BASE
+ap_init_gdt_start:
+	dq 0x0
+	; Intial code segments
+	dd 0x0000FFFF
+    dd 0x00cf9a00
+    ; initial data segments
+    dd 0x0000FFFF
+    dd 0x00cf9200
+ap_init_gdt_end:
+
+global ap_cpu_cr0
+ap_cpu_cr0:
+	dd 0
+global ap_cpu_cr3
+ap_cpu_cr3:
+	dd 0
+global ap_cpu_cr4
+ap_cpu_cr4:
+	dd 0
+global ap_cpu_idtr
+ap_cpu_idtr:
+	dw 0
+	dd 0
+global ap_cpu_gdtr
+ap_cpu_gdtr:
+	dw 0
+	dd 0
+global ap_cpu_id
+ap_cpu_id:
+	dd 0
+global ap_init_stacks
+; This label is the end of the ap boot section where we will
+; assign temporary stacks so that we can self initialize in C land
+ap_init_stacks:

@@ -5,6 +5,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#define MAX_THREAD_COUNT 128
+#define MAX_CPU_COUNT 8
+#define THREAD_STACK_SIZE 1024
+
 /* General return definitions */
 #define SUCCESS 0
 #define FAILURE 1
@@ -13,6 +17,9 @@
 #define PAGE_SIZE 4096
 #define KERN_MAX_VIRTUAL_ADDR 0xFFFFFFFF
 #define KERN_VIRTUAL_ADDR 0xC0000000
+
+/* MATH DEFINES */
+#define MAX_INT ~0x0
 
 /* Useful paging macros */
 #define PHYS_ADDR_TO_PAGE(x) ((x) & ~0x3ff)
@@ -36,7 +43,7 @@
  * */
 typedef long long time_t;
 typedef uint32_t register_t;
-
+typedef uint8_t bit_t;
 /* 
  * Scheduler definitons
  */

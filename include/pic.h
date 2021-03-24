@@ -28,6 +28,7 @@
 #define ICW4_SFNM	0x10		/* Special fully nested (not) */
 
 void pic_remap();
+void pic_disable();
 void pic_sendEOI(unsigned char irq);
 void pic_set_mask(unsigned char irq);
 void pic_clear_mask(unsigned char irq);

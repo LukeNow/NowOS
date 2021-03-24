@@ -58,3 +58,13 @@ size_t pit_get_ms()
 {
 	return ns_counter / 1000000;
 }
+
+void pit_wait_ms(size_t ms)
+{
+	size_t start_time = pit_get_ms();
+	size_t curr_time = 0;
+	do {
+		curr_time = pit_get_ms();
+
+	} while((curr_time - start_time) < ms);
+}

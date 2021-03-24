@@ -3,6 +3,12 @@
 #include <kheap.h>
 #include <linked_list.h>
 #include <kprint.h>
+#include <lock.h>
+#include <shared_pool.h>
+
+
+//TODO make this expandable, not static.
+#define NODE_POOL_SIZE 1024
 
 linked_list_t *linked_list_init()
 {
@@ -10,6 +16,8 @@ linked_list_t *linked_list_init()
 	list->start_ptr = NULL;
 	list->end_ptr = NULL;
 	list->size = 0;
+	shared_pool_init(list->node_pool, NODE_POOL_SIZE, sizeof(linked_list_node_t));
+	init_spinlock(&list->lock);
 	return list;
 }
 
@@ -18,11 +26,11 @@ void linked_list_destroy(linked_list_t * list)
 	linked_list_node_t * node = list->start_ptr;
 	while (node != NULL) {
 		linked_list_node_t * next_node = node->next_ptr;
-		kfree(node);
+		shared_pool_free_entry(list->node_pool, node);
 
 		node = next_node;
 	}
-	
+	shared_pool_destroy(list->node_pool);
 	kfree(list);
 }
 
@@ -115,7 +123,8 @@ int linked_list_add(void *data, unsigned int index, linked_list_t *list)
 	if (list == NULL) 
 		return -1;
 	
-	linked_list_node_t *node = kmalloc(sizeof(linked_list_node_t));
+	linked_list_node_t * node = shared_pool_get_next(list->node_pool);
+	ASSERT(node);
 	memset(node, 0, sizeof(linked_list_node_t));
 	
 	/* Set data */
@@ -185,7 +194,11 @@ int linked_list_remove(unsigned int index, linked_list_t *list)
 	if (prev_node == NULL && next_node == NULL) {
 		list->start_ptr = NULL;
 		list->end_ptr = NULL;
-		kfree(node);
+		if(!shared_pool_free_entry(list->node_pool, node)) {
+			WARN("Linked list could not free entry\n");
+			return -1;
+		}
+
 		list->size --;
 		return 0; //success
 	}
@@ -204,6 +217,10 @@ int linked_list_remove(unsigned int index, linked_list_t *list)
 		list->end_ptr = prev_node;	 
 	
 	list->size--;
-	kfree(node);
+	if (!shared_pool_free_entry(list->node_pool, node)) {
+		WARN("Linked list could not free entry\n");
+		return -1;
+	}
+
 	return 0;
 }

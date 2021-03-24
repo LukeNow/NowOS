@@ -4,6 +4,7 @@
 #include <sorted_array_list.h>
 #include <string.h>
 #include <byte_index_list.h>
+#include <lock.h>
 
 #define HEAP_EXPAND_SIZE KB(4)
 #define SECTOR_SIZE 512
@@ -14,15 +15,16 @@
 #define FREE 0
 #define HEADER_SIZE sizeof(node_header_t)
 
-BYTE_INDEX_LIST_INIT(page_list);
-SORTED_ARRAY_LIST_INIT(free_node_list);
-
 extern void heap_bottom();
 extern void heap_top();
 extern void early_heap_bottom();
 extern void early_heap_top();
 extern void page_heap_bottom();
 extern void page_heap_top();
+
+BYTE_INDEX_LIST_INIT(page_list);
+SORTED_ARRAY_LIST_INIT(free_node_list);
+SPINLOCK_INIT(lock);
 
 uint32_t heap_ptr = 0;
 uint32_t top_heap_ptr = 0;
@@ -36,6 +38,7 @@ uint32_t page_ptr = 0;
  *********************/
 void init_early_heap()
 {
+	
 	early_heap_ptr = (uint32_t) early_heap_bottom;
 	kprint(INFO, "[INIT EARLY KHEAP] Early heap ptr: %x\n", early_heap_ptr);
 }
@@ -360,7 +363,7 @@ void check_kheap_integrity()
 
 void *kmalloc(size_t size)
 {
-	
+	spin_lock(&lock);
 #ifdef DEBUG
 	/* Check the heap integrity on every malloc */
 	check_kheap_integrity();
@@ -387,6 +390,7 @@ void *kmalloc(size_t size)
 	/* Split this free node into a used and a free one */
 	heap_split_node(node, size);
 	
+	spin_unlock(&lock);
 	/* Return a ptr to the non-header section */
 	return (char *)((uint32_t)node + HEADER_SIZE);
 }
@@ -396,6 +400,7 @@ void kfree(void *ptr)
 	if (ptr == NULL)
 		return;
 	
+	spin_lock(&lock);
 	/* Grab the header section of this pointer */
 	node_header_t *node = (node_header_t *)
 			      ((uint32_t)ptr - HEADER_SIZE);
@@ -412,6 +417,8 @@ void kfree(void *ptr)
 	/* Merge potential free nodes next to this one 
 	 * to make one large free node */
 	heap_merge_nodes(node);
+
+	spin_unlock(&lock);
 }
 
 void init_kheap()
@@ -447,12 +454,17 @@ void init_kheap()
 
 void *kmalloc_page()
 {
+	spin_lock(&page_list.lock);
+
 	unsigned int index = byte_index_get_free_slot(&page_list);
 	if (index == -1){
+		spin_unlock(&page_list.lock);
 		kprint(WARN, "Kmalloc_page: couldnt find free page\n");
 		return NULL;
 	}
 	
+	spin_unlock(&page_list.lock);
+
 	return (void *)(page_ptr + (index * PAGE_SIZE));
 }
 
@@ -462,8 +474,12 @@ void kfree_page(void *ptr)
 		PANIC("kfree_page ptr not aligned");
 	}
 
+
 	uint32_t index = ((uint32_t)ptr - page_ptr) / PAGE_SIZE;
+	
+	spin_lock(&page_list.lock);
 	byte_index_release_tbl(index, &page_list);
+	spin_unlock(&page_list.lock);
 }
 	
 
@@ -483,11 +499,4 @@ void init_page_heap()
 	kprint(INFO, "[INIT PAGE HEAP] Page ptr: %x Page number: %d\n", 
 	       page_ptr, page_num);
 
-}
-
-void init_heap()
-{
-	init_early_heap();
-	init_kheap();
-	init_page_heap();
 }

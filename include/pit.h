@@ -30,5 +30,5 @@ void pit_reset_ticks();
 size_t pit_get_ticks();
 size_t pit_get_ns();
 size_t pit_get_ms();
-
+void pit_wait_ms(size_t ms);
 #endif

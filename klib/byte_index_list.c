@@ -2,12 +2,14 @@
 #include <stdint.h>
 #include <kprint.h>
 #include <byte_index_list.h>
+#include <lock.h>
 
 void init_byte_index_list(void *array, size_t size, byte_index_list_t *list)
 {
 	list->array = array;
 	list->size = size;
 	list->free_ptr = array;
+	init_spinlock(&list->lock);
 }
 
 static void update_free_ptr(byte_index_list_t *list)
@@ -68,6 +70,7 @@ uint32_t byte_index_check_tbl(unsigned int index, byte_index_list_t *list)
 	temp_entry = *(list->array + tbl_index);
 	ret = (temp_entry & (1 << byte_index));
 	ret = ret >> byte_index;
+	
 	return ret;
 }
 
@@ -105,6 +108,8 @@ unsigned int byte_index_get_free_slot(byte_index_list_t *list)
 	}
 	
 	ret = (tbl_index * 8) + byte_index;
+	
 	byte_index_set_tbl(ret, list);
+	
 	return ret;
 }

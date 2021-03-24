@@ -1,4 +1,3 @@
-// Used for creating GDT segment descriptors in 64-bit integer form.
 #include <kdef.h>
 #include <kprint.h>
 #include <gdt.h>
@@ -31,6 +30,11 @@ create_descriptor(uint32_t base, uint32_t limit, uint16_t flag)
 	return descriptor;
 }
 
+gdt_reg_desc_t * get_gdt_desc()
+{
+	return &gdt_desc;
+}
+
 gdt_reg_desc_t * create_gdt_table()
 {
 	memset(gdt_table, 0, sizeof(gdt_table));
@@ -41,9 +45,13 @@ gdt_reg_desc_t * create_gdt_table()
 	gdt_table[3] = create_descriptor(0, 0xFFFFFFFF, (GDT_CODE_PL3));
 	gdt_table[4] = create_descriptor(0, 0xFFFFFFFF, (GDT_DATA_PL3));
 
+	kprint(INFO, "CODE1 %x\n", gdt_table[1]);
+	kprint(INFO, "CODE2 %x\n", gdt_table[1] >> 32);
+	kprint(INFO, "DATA1 %x\n", gdt_table[2]);
+	kprint(INFO, "DATA2 %x\n", gdt_table[2] >> 32);
 	gdt_desc.base = &gdt_table;
 	gdt_desc.limit = sizeof(gdt_table) - 1;
 
-	//kprint(INFO, "PRINTING DESC at addr %x with size %d\n", &gdt_desc, sizeof(gdt_table));
+	kprint(INFO, "PRINTING DESC at addr %x with size %d\n", &gdt_desc, sizeof(gdt_table));
 	return &gdt_desc;
 }

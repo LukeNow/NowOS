@@ -3,14 +3,15 @@
 
 #include <stddef.h>
 #include <stdint.h>
-
+#include <lock.h>
 #define BYTE_INDEX_LIST_INIT(list) \
-	static byte_index_list_t (list) = { 0, 0, 0 }
+	static byte_index_list_t (list) = { 0, 0, 0, LOCK_FREE}
 
 typedef struct byte_index_list {
 	char *array;
 	size_t size; //in bytes
 	char *free_ptr;
+	spinlock_t lock;
 }byte_index_list_t;
 
 void init_byte_index_list(void *array, size_t size, byte_index_list_t *list);

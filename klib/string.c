@@ -60,3 +60,19 @@ int strcmp(const char *str1, const char *str2)
 	
 	return memcmp(str1, str2, cmp_len + 1);
 }
+
+int strncmp(const char *str1, const char *str2, size_t n)
+{
+	
+	register unsigned char u1, u2;
+
+	while (n-- > 0) {
+		u1 = (unsigned char) *str1++;
+		u2 = (unsigned char) *str2++;
+		if (u1 != u2)
+			return u1 - u2;
+		if (u1 == '\0')
+			return 0;
+	}
+	return 0;	
+}

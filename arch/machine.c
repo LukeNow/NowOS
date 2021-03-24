@@ -31,6 +31,12 @@ void _panic()
 	for (;;);
 
 }
+
+void pause()
+{
+	halt_system();
+	for (;;);
+}
 void register_dump()
 {
 	unsigned int eax, ebx, ecx, edx, esi, edi, 
@@ -55,6 +61,7 @@ void register_dump()
 	       eax, ebx, ecx, edx, eip);
 	kprint(INFO, "ESI: %x EDI: %x EBP: %x ESP: %x EFLAGS: %x\n",
 	       esi, edi, ebp, esp, eflags);
+	kprint(INFO, "interrupts: %s\n", (get_int() == INT_SET) ? "ACTIVE" : "DISABLED");
 }
 
 void interrupt_register_dump(int_state_t * state)

@@ -2,6 +2,7 @@
 #define _CIRC_BUF_ARRAY_H
 
 #include <stddef.h>
+#include <lock.h>
 
 typedef struct circ_buf_t {
 	unsigned int curr_size;
@@ -9,6 +10,7 @@ typedef struct circ_buf_t {
 	unsigned int size;
 	size_t type_size;
 	void **buf;
+	spinlock_t lock;
 }circ_buf_t;
 
 int push_circ_buf(void * entry_src, circ_buf_t * circ_buf);

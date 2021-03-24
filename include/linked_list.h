@@ -1,8 +1,11 @@
 #ifndef _LINKED_LIST_H
 #define _LINKED_LIST_H
 
+#include <lock.h>
+#include <shared_pool.h>
+
 #define LINKED_LIST_INIT(list) \
-	static linked_list_t (list) = { NULL, NULL, 0 }
+	static linked_list_t (list) = { NULL, NULL, NULL, 0, LOCK_FREE}
 
 #define linked_list_for_each(pos, list) \
 	for (linked_list_node_t *(pos) = (list)->start_ptr; pos != NULL; pos = pos->next_ptr)
@@ -16,7 +19,9 @@ typedef struct linked_list_node {
 typedef struct linked_list {
 	linked_list_node_t *start_ptr;
 	linked_list_node_t *end_ptr;
+	shared_pool_t * node_pool;
 	unsigned int size;
+	spinlock_t lock;
 }linked_list_t;
 
 /***

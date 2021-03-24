@@ -1,5 +1,6 @@
 #ifndef _KTEST_H
 #define _KTEST_H
+#include <kprint.h>
 
 #define KTEST_NUM 64
 #define KTEST_NAME_LEN 64
@@ -8,7 +9,7 @@
  * so that it will set it equal to 1 if a test fails 
  *
  * This then returns the value of the entire test to the ktest*/
-#define TEST(x) if (!(x)) ret_test = 1
+#define TEST(x) if (!(x)) do { ret_test = 1; WARN("TEST FAILED\n"); }while(0)
 
 typedef struct ktest {
 	int (*tests[KTEST_NUM])();

@@ -6,6 +6,7 @@
 #include <processor.h>
 #include <irq_handle.h>
 #include <pit.h>
+#include <apic.h>
 
 /* INT vec 0 */
 void divide_by_zero_handler(int_state_t * state)
@@ -106,7 +107,7 @@ void irq0_handler(int_state_t * state)
 {
 	//kprint(INFO, "IRQ 0 FIRED\n");
 	pit_interrupt_handler();
-	pic_sendEOI(0);
+	lapic_eoi();
 }
 
 void irq1_handler(int_state_t * state)
@@ -114,91 +115,110 @@ void irq1_handler(int_state_t * state)
 	
 	kprint(INFO, "IRQ 1 FIRED\n");
 	interrupt_register_dump(state);
-	pic_sendEOI(1);
+	lapic_eoi();
 }
 
 void irq2_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 2 FIRED\n");
-	pic_sendEOI(2);
+	lapic_eoi();;
 }
  
 void irq3_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 3 FIRED\n");
-	pic_sendEOI(3);
+	lapic_eoi();;
 }
  
 void irq4_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 4 FIRED\n");
-	pic_sendEOI(4);
+	lapic_eoi();;
 }
  
 void irq5_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 5 FIRED\n");
-	pic_sendEOI(5);
+	lapic_eoi();;
 }
  
 void irq6_handler(int_state_t * state)
 {
         kprint(INFO, "IRQ 6 FIRED\n");  
-	pic_sendEOI(6);
+	lapic_eoi();;
 }
  
 void irq7_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 7 FIRED\n");
-	pic_sendEOI(7);
+	lapic_eoi();;
 }
  
 void irq8_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 8 FIRED\n"); 
-	pic_sendEOI(8);        
+	lapic_eoi();        
 }
  
 void irq9_handler(int_state_t * state) 
 {
 	kprint(INFO, "IRQ 9 FIRED\n");
-	pic_sendEOI(9);
+	lapic_eoi();;
 }
  
 void irq10_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 10 FIRED\n");
-	pic_sendEOI(10);
+	lapic_eoi();;
 }
  
 void irq11_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 11 FIRED\n");
-	pic_sendEOI(11);
+	lapic_eoi();;
 }
  
 void irq12_handler(int_state_t * state)
 {
-        kprint(INFO, "IRQ 12 FIRED\n");  
-	pic_sendEOI(12);
+    kprint(INFO, "IRQ 12 FIRED\n");  
+	lapic_eoi();;
 }
  
 void irq13_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 13 FIRED\n");
-        pic_sendEOI(13);
+    lapic_eoi();;
 }
  
 void irq14_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 14 FIRED\n");
-	pic_sendEOI(14);
+	lapic_eoi();;
 }
  
 void irq15_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 15 FIRED\n");
-	pic_sendEOI(15);
+	lapic_eoi();;
+}
+
+
+static void ipi_handler(int_state_t * state)
+{
+	kprint(WARN, "IPI RECEIVED ON PROCESSOR %d\n", lapic_get_id());
+	lapic_eoi();
+}
+
+static void apic_err_handler(int_state_t * state)
+{
+	kprint(WARN, "APIC ERR RECEIVED ON PROCESSOR %d\n", lapic_get_id());
+	lapic_eoi();
+}
+
+static void spurious_handler(int_state_t * state)
+{
+	kprint(WARN, "SPURIOUS INT RECEIVED ON PROCESSOR %d\n", lapic_get_id());
+	lapic_eoi();
 }
 
 void interrupt_handler(int_state_t * state)
@@ -260,6 +280,12 @@ void interrupt_handler(int_state_t * state)
 			 break;
 		case 47: irq15_handler(state);
 			 break;
+		case APIC_IPI_IRQ: ipi_handler(state);
+			break;
+		case APIC_ERR_IRQ: apic_err_handler(state);
+			break;
+		case APIC_SPURIOUS_IRQ: spurious_handler(state);
+			break;
 		default: default_handler(state);
 	}
 }

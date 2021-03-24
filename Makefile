@@ -3,10 +3,11 @@ CFLAGS:=-g -ffreestanding -Wall -Wextra -lgcc -nostdlib -m32 -Wl,--build-id=none
 ASFLAGS:=
 DEBUGFLAGS:= -D DEBUG
 TESTFLAGS:= -D TEST
-
-CC:="$(ARCH)-gcc"
+CC:=$(ARCH)-gcc
 ASM:=nasm
 LIBS:=-nostdlib -lk -lgcc
+
+QEMUFLAGS:= -smp cpus=4
 
 KERNDIR:=kernel
 BOOTDIR:=boot
@@ -55,7 +56,7 @@ nowos.kernel: install-headers $(OBJS) boot/linker.ld
 	sh scripts/check-multiboot.sh $(KERNELDIR) $(KERNELNAME)
 
 qemu-run: all
-	qemu-system-i386 -kernel $(KERNELDIR)/$(KERNELNAME).kernel -serial file:serial.log
+	qemu-system-i386 -kernel $(KERNELDIR)/$(KERNELNAME).kernel -serial file:serial.log $(QEMUFLAGS)
 
 bochs-run: iso1
 	bochs -q 

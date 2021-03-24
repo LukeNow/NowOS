@@ -56,6 +56,7 @@ void init_circ_buf(unsigned int size, size_t type_size, circ_buf_t * buf)
 	buf->size = size;
 	buf->type_size = type_size;
 	buf->buf = kmalloc(size * type_size);
+	init_spinlock(&buf->lock);
 }
 
 void destroy_circ_buf(circ_buf_t * circ_buf)

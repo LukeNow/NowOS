@@ -4,8 +4,11 @@
 #include <ctype.h>
 #include <kprint.h>
 #include <irq_handle.h>
+#include <lock.h>
 
 int log_count = 0;
+
+SPINLOCK_INIT(lock);
 
 static char *convert(unsigned int num, int base) 
 {
@@ -31,7 +34,8 @@ void kprint(enum LOG_LEVEL level, char* format, ...)
 	int i;
 	char *s;
 	
-	
+	spin_lock(&lock);
+
 	va_list arg;
 	va_start(arg, format);
 	
@@ -91,4 +95,6 @@ void kprint(enum LOG_LEVEL level, char* format, ...)
 
 	}
 	va_end(arg);
+
+	spin_unlock(&lock);
 }
