@@ -20,13 +20,8 @@ static void idle_loop()
 
         kprint(INFO, "IDLE LOOP ON PROC %d\n", processor_get_id());
     
-    
-    
-    
         scheduler_yield();
     }
-
-
 
     VERIFY_UNREACHED();
 }
@@ -104,73 +99,5 @@ void scheduler_init()
     processor_t * proc = processor_get_info();
     proc->current_thread = idle_thread;
 
-    
-
-
-}
-
-void thread_idle_loop()
-{
-
-}
-
-
-void soft_lock_scheduler()
-{
-
-}
-void soft_unlock_scheduler()
-{
-
-}
-void hard_lock_scheduler()
-{
-
-}
-void hard_unlock_scheduler()
-{
-
-}
-void sleep_for(time_t ns_to_wait)
-{
-
-}
-
-tib_t * get_current_task()
-{
-    return NULL;
-}
-
-void schedule()
-{
-
-}
-
-void schedule_task_ready(int queue_num, tib_t *task)
-{
-
-}
-void schedule_task_blocked(tib_t *task)
-{
-
-}
-void unschedule_task(tib_t *task){
-
-}
-void init_scheduler()
-{
-
-}
-tib_t *name_to_tcb(char *name)
-{
-    return NULL;
-}
-
-void print_ready_queue(int queue_num)
-{
-
-}
-void print_scheduler_state()
-{
-    
+    _thread_enter(idle_thread);
 }
