@@ -1,14 +1,11 @@
 # NowOS
-A simple operating system written in C targeted towards x86-32 compatible machines.
+An operating system written in C targeted towards x86-32 compatible machines.
 
 This project mainly aims to learn about building an OS from scratch (everything except the bootloader, thank you GRUB) and in general learning about operating system design and implementation. I am interested in developing an operating system using a micro-kernel architecture, as modular design is much easier to implement and debugging becomes much more feasible (which we will need it to be). 
 
 The operating system at the moment features
-* multi-queue round robin single-core multi-tasking scheduler
-* memory managment capabilities (kfree, kalloc, page_kalloc)
-* Basic terminal (it only prints out debugging info)
-* Paging support (no drivers for disk so not very interesting in terms of swapping) 
-* Pit support (tasks can sleep, etc.)
+* Multi-core threading and scheduler
+* memory managment capabilities (kfree, kmalloc, page_kalloc)
 * Various useful libraries (strings (memcpy, memset, etc.), linked lists, array lists)
 
 What it doesent feature (YET!) 
@@ -40,4 +37,4 @@ to run it using qemu-system-i386 you can type
 This will boot up the kernel binary and print out and terminal info to a file called "serial.log" that you can inspect after running the os. 
 
 # Info
-If anyone happens to stumble upon this code and has any recommendations/tips or comments please feel free to email me at lnowakow@ucsd.edu, I would be glad to talk about it! I love talking about operating systems and would love to hear what you have to say about mine :)
+If anyone happens to stumble upon this code and has any recommendations/tips or comments please feel free to email me at lukekryger98@gmail.com
