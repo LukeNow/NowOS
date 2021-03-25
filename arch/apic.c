@@ -79,15 +79,71 @@ void lapic_bsp_init()
     // Configure Spurious Interrupt Vector Register
     lapic_out(LAPIC_SVR, LAPIC_ENABLE | APIC_SPURIOUS_IRQ);
 
-
     ASSERT(lapic_get_id() == 0);
     lapic_cpu_init(0);
-
 }
 
-void lapic_setuptimer(uint32_t ticks, lapic_timermode mode, bool mask )
-{
+#define LAPIC_TIME_DIVISOR 16
 
+void lapic_setuptimer(uint32_t ticks, lapic_timermode mode, bool enable)
+{
+    uint32_t flags = 0;
+    switch (mode) {
+        case PERIODIC:
+            flags |= LAPIC_LVT_TIMER_PERIODIC;
+            break;
+        case ONE_SHOT:
+            flags |= LAPIC_LVT_TIMER_ONESHOT;
+            break;
+        case TSCDEADLINE:
+            flags |= LAPIC_LVT_TIMER_TSCDEADLINE;
+            break;
+    }
+
+    if (!enable)
+        flags |= LAPIC_LVT_MASKED;
+    lapic_out(LAPIC_TIMER, LAPIC_LVT(APIC_TIMER_IRQ, 0) | flags);
+
+    uint32_t config = lapic_in(LAPIC_TDCR);
+    config &= ~0xf; // clear divisor
+
+    switch(LAPIC_TIME_DIVISOR) {
+        case 1:
+            config |= (1 << 3) | 3;
+            break;
+        case 2:
+            break;
+        case 4:
+            config |= 1;
+            break;
+        case 8:
+            config |= 2;
+            break;
+        case 16:
+            config |= 3;
+            break;
+        case 32:
+            config |= (1 << 3);
+            break;
+        case 64:
+            config |= (1 << 3) | 1;
+            break;
+        case 128:
+            config |= (1 << 3) | 2;
+            break;
+        default:
+            VERIFY_UNREACHED();
+    }
+    lapic_out(LAPIC_TDCR, config);
+
+    if (mode == PERIODIC) {
+        lapic_out(LAPIC_TICR, ticks / LAPIC_TIME_DIVISOR);
+    }
+}
+
+uint32_t lapic_get_timer_currcount()
+{
+    return lapic_in(LAPIC_TCCR);
 }
 
 void lapic_eoi()
@@ -142,7 +198,6 @@ void lapic_send_startup(uint8_t apic_id, uint32_t vector)
 }
 
 /* IOAPIC */
-
 
 apic_int_override * ioapic_overrides[MAX_IOAPIC_OVERRIDES];
 static uint8_t redirection_entry_count;

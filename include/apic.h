@@ -105,6 +105,9 @@ void lapic_send_ipi(uint8_t cpu);
 void lapic_send_init(uint8_t apic_id);
 void lapic_send_startup(uint8_t apic_id, uint32_t start_vector);
 
+uint32_t lapic_get_timer_currcount();
+void lapic_setuptimer(uint32_t ticks, lapic_timermode mode, bool enable);
+
 apic_int_override ** ioapic_get_redirection_overrides();
 void ioapic_mask_redirection_entry(uint8_t index);
 void ioapic_unmask_redirection_entry(uint8_t index);
