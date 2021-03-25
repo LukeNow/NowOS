@@ -5,7 +5,7 @@ This project mainly aims to learn about building an OS from scratch (everything 
 
 The operating system at the moment features
 * Multi-core threading and scheduler
-* memory managment capabilities (kfree, kalloc, page_kalloc)
+* memory managment capabilities (kfree, kmalloc, page_kalloc)
 * Various useful libraries (strings (memcpy, memset, etc.), linked lists, array lists)
 
 What it doesent feature (YET!) 
