@@ -82,6 +82,7 @@ void stack_segment_fault_handler(int_state_t * state)
 /* INT vec 13 */
 void gpf_handler(int_state_t * state)
 {
+	
 	kprint(ERROR, "GPF handler called \n");
 	halt_system();
 }
@@ -106,8 +107,9 @@ void default_handler(int_state_t * state)
 void irq0_handler(int_state_t * state)
 {
 	//kprint(INFO, "IRQ 0 FIRED\n");
-	pit_interrupt_handler();
+	//pit_interrupt_handler();
 	lapic_eoi();
+	//kprint(INFO, "EXITED IRQ 0\n");
 }
 
 void irq1_handler(int_state_t * state)
@@ -163,43 +165,43 @@ void irq8_handler(int_state_t * state)
 void irq9_handler(int_state_t * state) 
 {
 	kprint(INFO, "IRQ 9 FIRED\n");
-	lapic_eoi();;
+	lapic_eoi();
 }
  
 void irq10_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 10 FIRED\n");
-	lapic_eoi();;
+	lapic_eoi();
 }
  
 void irq11_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 11 FIRED\n");
-	lapic_eoi();;
+	lapic_eoi();
 }
  
 void irq12_handler(int_state_t * state)
 {
     kprint(INFO, "IRQ 12 FIRED\n");  
-	lapic_eoi();;
+	lapic_eoi();
 }
  
 void irq13_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 13 FIRED\n");
-    lapic_eoi();;
+    lapic_eoi();
 }
  
 void irq14_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 14 FIRED\n");
-	lapic_eoi();;
+	lapic_eoi();
 }
  
 void irq15_handler(int_state_t * state)
 {
 	kprint(INFO, "IRQ 15 FIRED\n");
-	lapic_eoi();;
+	lapic_eoi();
 }
 
 

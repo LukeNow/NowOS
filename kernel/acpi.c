@@ -170,7 +170,6 @@ void init_acpi()
 	kprint(INFO, "ACPI version: %d\n", (int)version);
 	
 	mem_alloc_region(rsdp->rsdt_addr, PAGE_SIZE, MEM_IDENTITYREGION | MEM_ALREADYEXISTS);
-	kprint(INFO, "ALLOCED\n");
 	check_rsdp(rsdp);
 	acpi_header * rsdt = (acpi_header *) rsdp->rsdt_addr;
 	if (!acpi_header_checksum(rsdt)) {

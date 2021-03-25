@@ -38,7 +38,7 @@ uint32_t page_ptr = 0;
  *********************/
 void init_early_heap()
 {
-	
+
 	early_heap_ptr = (uint32_t) early_heap_bottom;
 	kprint(INFO, "[INIT EARLY KHEAP] Early heap ptr: %x\n", early_heap_ptr);
 }

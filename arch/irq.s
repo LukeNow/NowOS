@@ -13,6 +13,11 @@ interrupt_handler_%1:
 	jmp common_interrupt_handler
 %endmacro
 
+%macro qemu_print 1
+	mov ax, %1
+	mov dx, 0x3F8 
+	out dx, al
+%endmacro
 
 extern interrupt_handler
 common_interrupt_handler:
@@ -57,7 +62,7 @@ common_interrupt_handler:
 	pop eax
 	pop eax
 	pop eax ;Pop cr0, cr2, cr3
-	pop esp
+	pop eax
 	pop ebp
 	pop edi
 	pop esi

@@ -110,6 +110,8 @@ void * mem_alloc_region(uint32_t phys_addr, size_t size, flags_t flags)
 	}
 
 	//kprint(INFO, "OUT ALLOC \n");
+
+	kprint(INFO, "CR3 Value %x\n", get_cr3());
 	flush_tlb();
 
 //	kprint(INFO, "FLUSHED\n");

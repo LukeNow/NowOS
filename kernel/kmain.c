@@ -21,6 +21,7 @@
 #include <acpi.h>
 #include <smp.h>
 #include <apic.h>
+#include <atomic.h>
 /* Use the label addresses as the addresses for the start and end points of 
  * important areas of memory */
 extern void heap_top();
@@ -52,6 +53,15 @@ static void reserve_memorymap_pages(multiboot_info_t* mbt)
 		entry = (multiboot_memory_map_t*) ((unsigned int) entry + entry->size + sizeof(entry->size));
 	}
 }
+
+
+void ap_kmain()
+{	
+	scheduler_init();
+
+	VERIFY_UNREACHED();
+}
+
 
 void kmain(multiboot_info_t* mbt, unsigned int magic)
 {
@@ -87,7 +97,10 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	
 	ioapic_unmask_all();
 	enable_int();
-
+   	
+	   
+	processor_set_info();
+	scheduler_init();
 	//lapic_send_ipi(1);
 	//pause();
 	//for (;;);

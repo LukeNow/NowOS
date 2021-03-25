@@ -8,6 +8,7 @@
 #include <scheduler.h>
 #include <shared_pool.h>
 #include <atomic.h>
+#include <processor.h>
 
 #define PREPPED_STACK_PARAM_NUM 4
 
@@ -21,6 +22,9 @@ void init_threading()
 
 tib_t * create_thread(void (*enter)(), const char * name)
 {
+	
+	processor_t * proc = processor_get_info();
+	
 	tib_t * thread = shared_pool_get_next(&thread_pool);
 	if (thread == NULL)
 		PANIC("Could not allocate thread from shared pool\n");
@@ -43,12 +47,15 @@ tib_t * create_thread(void (*enter)(), const char * name)
 	thread->enter = enter;
 	memcpy(thread->name, name, TASK_NAME_LEN);
 
+	kprint(INFO, "Thread %s: tid %d created on proc %d\n", name, thread->tid, proc->id);
+	
 	return thread;
 }
 
 void thread_enter(tib_t * tib)
 {
 
+	kprint(INFO, "Thread tid:%d entered\n", tib->tid);
 	tib->state = THREAD_RUNNING;
 	scheduler_leave();
 	tib->enter();

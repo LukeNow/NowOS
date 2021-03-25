@@ -14,7 +14,7 @@
 
 SPINLOCK_INIT(lock);
 
-page_dir_t* kernel_dir; //physical_addr
+page_dir_t * kernel_dir; //physical_addr
 
 static void set_page_dir_entry(page_dir_entry_t *entry, uint32_t phys_addr,
 			 int read_write, int privledge, int write_through,
@@ -86,6 +86,7 @@ void map_kern_page_flags(uint32_t virtual_addr, uint32_t phys_addr,
 	page_dir_t * dir = kernel_dir;
 
 	if (dir->page_dir[pdindex] == 0) {
+		kprint(INFO, "new page table is being set\n");
 		/* Map new page table */
 		unsigned long temp_phys_addr = 0;
 		temp_phys_addr = early_kmalloc_pages(1);
@@ -179,7 +180,7 @@ void init_kern_paging()
 	phys_addr_count = 0;
 	/* Map the from 1MB - 4MB -> 3GB + 1MB - 3GB + 4MB */
 	int count = 0;
-	while (phys_addr_count < MB(4)) {
+	while (phys_addr_count < MB(6)) {
 		map_kern_page(virt_addr_count, phys_addr_count);
 		virt_addr_count += PAGE_SIZE;
 		phys_addr_count += PAGE_SIZE;
