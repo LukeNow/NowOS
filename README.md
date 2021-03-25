@@ -37,4 +37,4 @@ to run it using qemu-system-i386 you can type
 This will boot up the kernel binary and print out and terminal info to a file called "serial.log" that you can inspect after running the os. 
 
 # Info
-If anyone happens to stumble upon this code and has any recommendations/tips or comments please feel free to email me at lnowakow@ucsd.edu, I would be glad to talk about it! I love talking about operating systems and would love to hear what you have to say about mine :)
+If anyone happens to stumble upon this code and has any recommendations/tips or comments please feel free to email me at lukekryger98@gmail.com
