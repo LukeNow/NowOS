@@ -14,6 +14,12 @@ processor_t * processor_get_info()
 {
     uint16_t id = processor_get_id();
     ASSERT(id < MAX_CPU_COUNT);
-
     return &processor_tbl[id];
+}
+
+void processor_set_info()
+{
+    processor_t * proc = processor_get_info();
+    proc->id = processor_get_id();
+    kprint(INFO, "proc id set on proc %d\n", proc->id);
 }

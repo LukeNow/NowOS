@@ -112,10 +112,6 @@ thread_switch_sync:
 	mov eax, [ebx + cpu_edx]
 	push eax
 
-	;push [ebx + cpu_eax]
-	;push [ebx + cpu_ebx]
-	;push [ebx + cpu_ecx]
-
 	mov esi, [ebx + cpu_esi]
 	mov edi, [ebx + cpu_edi]
 	mov ebp, [ebx + cpu_ebp]
@@ -125,10 +121,6 @@ thread_switch_sync:
 	
 	mov eax, [ebx + cpu_cr2]
 	mov cr2, eax
-
-
-	;mov cr0, [ebx + cpu_cr0]
-	;mov cr2, [ebx + cpu_cr2]
 
 	mov eax, cr3
 	mov ebx, [ebx + cpu_cr3]
@@ -174,7 +166,6 @@ thread_switch_async:
 	mov esi, [ebx + cpu_eip]
 	mov [edx + thread_prep_eip], esi
 
-
 	mov esi, [ebx + cpu_eax]
 	mov [edx + thread_prep_eax], esi
 	mov esi, [ebx + cpu_ebx]
@@ -183,10 +174,6 @@ thread_switch_async:
 	mov [edx + thread_prep_ecx], esi
 	mov esi, [ebx + cpu_edx]
 	mov [edx + thread_prep_edx], esi
-
-
-
-
 
 	; The last three values will be popped by iret
 	;mov [edx + thread_prep_eax], [ebx + cpu_eax]

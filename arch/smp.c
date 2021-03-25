@@ -11,7 +11,6 @@
 #include <pit.h>
 #include <atomic.h>
 #include <machine.h>
-
 #define AP_START_BASE 0x8000
 
 extern uintptr_t * io_apic_addr;
@@ -29,6 +28,7 @@ extern void ap_cpu_idtr();
 extern void ap_cpu_gdtr();
 extern void ap_cpu_id();
 
+extern void ap_kmain();
 void init_ap(uint32_t processor_id)
 {
     kprint(INFO, "PROCESSOR INITIALIZED %d\n", processor_id);
@@ -37,6 +37,9 @@ void init_ap(uint32_t processor_id)
 
     kprint(INFO, "Processor with old id %d is now %d\n", processor_id, lapic_get_id());
     enable_int();
+
+
+    ap_kmain();
     pause();
 
     PANIC("PROCESSOR STOPPED");

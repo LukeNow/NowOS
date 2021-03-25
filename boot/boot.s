@@ -97,6 +97,7 @@ stack_top:
 section .text
 align 16
 
+extern pic_disable
 _start:
 	;Turn off interrupts just in case
 	cli
@@ -113,7 +114,9 @@ _start:
 	;Set up our IDT table
 	call idt_init
 	;Start clock
-	;call init_pit
+	
+	call init_pit
+	call pic_disable
 	sti
 	;Call main kernel code
 	call kmain

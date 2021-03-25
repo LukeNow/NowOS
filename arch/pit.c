@@ -36,7 +36,6 @@ void init_pit()
 	outb(0x43, PIT_COMMAND_MODE3 | PIT_COMMAND_FULL | PIT_COMMAND_COUNTER_0);
 	outb(0x40, divisor & 0xFF);
 	outb(0x40, (divisor >> 8) & 0xFF);
-	
 }
 
 void pit_reset_ticks()

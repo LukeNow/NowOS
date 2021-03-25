@@ -7,7 +7,7 @@ CC:=$(ARCH)-gcc
 ASM:=nasm
 LIBS:=-nostdlib -lk -lgcc
 
-QEMUFLAGS:= -smp cpus=4
+QEMUFLAGS:= -smp cpus=4 -D qemu_log.txt
 
 KERNDIR:=kernel
 BOOTDIR:=boot
@@ -79,6 +79,7 @@ iso2: all
 clean:	
 	rm -f bx_enh_dbg.ini
 	rm -f nowos.iso
+	rm -f qemu_log.txt
 	rm -f $(KERNELDIR)/$(KERNELNAME).kernel
 	rm -f $(OBJS) 
 	rm -rf $(SYS_DIR)

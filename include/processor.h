@@ -12,5 +12,5 @@ typedef struct processor_t {
 
 uint16_t processor_get_id();
 processor_t * processor_get_info();
-
+void processor_set_info();
 #endif
