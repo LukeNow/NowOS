@@ -19,7 +19,7 @@ typedef struct linked_list_node {
 typedef struct linked_list {
 	linked_list_node_t *start_ptr;
 	linked_list_node_t *end_ptr;
-	shared_pool_t * node_pool;
+	shared_pool_t node_pool;
 	unsigned int size;
 	spinlock_t lock;
 }linked_list_t;
@@ -109,4 +109,7 @@ void linked_list_destroy(linked_list_t * list);
  * Returns an instance of a list by dynamically allocating
  */
 linked_list_t *linked_list_init();
+
+void linked_list_stat_init(linked_list_t * list);
+
 #endif
