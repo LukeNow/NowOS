@@ -223,6 +223,14 @@ static void spurious_handler(int_state_t * state)
 	lapic_eoi();
 }
 
+static void lapic_timer_handler(int_state_t * state)
+{
+	processor_t * proc = processor_get_info();
+	lapic_eoi();
+	if (proc && proc->timer.handler)
+		proc->timer.handler(state);
+}
+
 void interrupt_handler(int_state_t * state)
 {
 	switch (state->int_num) {
@@ -287,6 +295,8 @@ void interrupt_handler(int_state_t * state)
 		case APIC_ERR_IRQ: apic_err_handler(state);
 			break;
 		case APIC_SPURIOUS_IRQ: spurious_handler(state);
+			break;
+		case APIC_TIMER_IRQ: lapic_timer_handler(state);
 			break;
 		default: default_handler(state);
 	}

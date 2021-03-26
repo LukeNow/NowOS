@@ -95,9 +95,15 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 
 	ioapic_init();
 	
+	//lapic_setup_timer(32, PERIODIC, true);
+
+	//kprint(INFO, "WE MADE IT\n");
 	ioapic_unmask_all();
-	enable_int();
-   	
+	//enable_int();
+	
+	//
+	//for (;;)
+	//kprint(INFO, "INT MADE IT\n");
 	   
 	processor_set_info();
 	scheduler_init();

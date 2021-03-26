@@ -57,7 +57,10 @@ void thread_enter(tib_t * tib)
 
 	kprint(INFO, "Thread tid:%d entered\n", tib->tid);
 	tib->state = THREAD_RUNNING;
+	
+	timer_lapic_start();
 	scheduler_leave();
+
 	tib->enter();
 
 	VERIFY_UNREACHED();

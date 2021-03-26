@@ -168,10 +168,13 @@ thread_switch_async:
 
 	mov esi, [ebx + cpu_eax]
 	mov [edx + thread_prep_eax], esi
+
 	mov esi, [ebx + cpu_ebx]
 	mov [edx + thread_prep_ebx], esi
+
 	mov esi, [ebx + cpu_ecx]
 	mov [edx + thread_prep_ecx], esi
+
 	mov esi, [ebx + cpu_edx]
 	mov [edx + thread_prep_edx], esi
 

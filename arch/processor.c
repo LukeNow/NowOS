@@ -21,5 +21,5 @@ void processor_set_info()
 {
     processor_t * proc = processor_get_info();
     proc->id = processor_get_id();
-    kprint(INFO, "proc id set on proc %d\n", proc->id);
+    //kprint(INFO, "proc id set on proc %d\n", proc->id);
 }
