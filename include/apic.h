@@ -83,7 +83,6 @@
 #define IOAPIC_ARB                       0x02
 #define IOAPIC_REDIR                     0x10
 
-
 /* IRQ DEFINES */
 #define APIC_TIMER_IRQ 0xfc
 #define APIC_IPI_IRQ 0xfd
@@ -92,6 +91,8 @@
 #define IRQ_BASE 32
 
 #define MAX_IOAPIC_OVERRIDES 24 // most IOAPIC have max 24 redirection entries
+
+#define LAPIC_TIME_DIVISOR 16
 
 typedef enum lapic_timermode {ONE_SHOT, PERIODIC, TSCDEADLINE } lapic_timermode;
 
@@ -105,8 +106,9 @@ void lapic_send_ipi(uint8_t cpu);
 void lapic_send_init(uint8_t apic_id);
 void lapic_send_startup(uint8_t apic_id, uint32_t start_vector);
 
+void lapic_timer_enable(bool enable);
 uint32_t lapic_get_timer_currcount();
-void lapic_setuptimer(uint32_t ticks, lapic_timermode mode, bool enable);
+void lapic_setup_timer(uint32_t ticks, lapic_timermode mode, bool enable);
 
 apic_int_override ** ioapic_get_redirection_overrides();
 void ioapic_mask_redirection_entry(uint8_t index);

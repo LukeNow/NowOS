@@ -83,9 +83,16 @@ void lapic_bsp_init()
     lapic_cpu_init(0);
 }
 
-#define LAPIC_TIME_DIVISOR 16
+void lapic_timer_enable(bool enable)
+{
+    // TODO write a more clean way of unmasking this
+    if (enable)
+        lapic_out(LAPIC_TIMER, LAPIC_LVT(APIC_TIMER_IRQ, 0) | LAPIC_LVT_TIMER_PERIODIC);
+    else 
+        lapic_out(LAPIC_TIMER, LAPIC_LVT(APIC_TIMER_IRQ, 0) | LAPIC_LVT_MASKED | LAPIC_LVT_TIMER_PERIODIC);
+}
 
-void lapic_setuptimer(uint32_t ticks, lapic_timermode mode, bool enable)
+void lapic_setup_timer(uint32_t ticks, lapic_timermode mode, bool enable)
 {
     uint32_t flags = 0;
     switch (mode) {
