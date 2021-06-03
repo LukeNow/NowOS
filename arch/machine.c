@@ -66,7 +66,8 @@ void register_dump()
 
 void interrupt_register_dump(int_state_t * state)
 {
-	kprint(WARN, "*** Register dump for interrupt %d ****\n", state->int_num);
+	int proc = processor_get_id();
+	kprint(WARN, "*** Register dump for interrupt %d on proc %d****\n", state->int_num, proc);
 	kprint(INFO, "EAX: %x EBX: %x ECX: %x EDX: %x\n", state->eax, state->ebx,
 	       state->ecx, state->edx);
 	kprint(INFO, "ESI: %x EDI: %x EBP: %x ESP: %x\n", state->esi, state->edi, 

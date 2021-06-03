@@ -13,19 +13,21 @@ void divide_by_zero_handler(int_state_t * state)
 {
 	
 	kprint(ERROR, "Divide by zero interrupt called\n");
-	//interrupt_register_dump(state, 0);
+	interrupt_register_dump(state);
 	halt_system();
 }
 
 /* INT vec 2 */
 void nmi_handler(int_state_t * state)
 {
+	interrupt_register_dump(state);
 	kprint(WARN, "NMI interrupt called\n");
 }
 
 /* INT vec 4 */
 void overflow_handler(int_state_t * state)
 {
+	interrupt_register_dump(state);
 	kprint(ERROR, "Overflow interrupt called\n");
 	halt_system();
 }
@@ -33,6 +35,7 @@ void overflow_handler(int_state_t * state)
 /* INT vec 5 */
 void bound_range_exceeded_handler(int_state_t * state)
 {
+	interrupt_register_dump(state);
 	kprint(ERROR, "Bound range exceeded interrupt called\n");
 	halt_system();
 }
@@ -40,6 +43,7 @@ void bound_range_exceeded_handler(int_state_t * state)
 /* INT vec 6 */
 void invalid_opcode_handler(int_state_t * state)
 {
+	interrupt_register_dump(state);
 	kprint(ERROR, "Invalid op code interrupt called\n");
 	//interrupt_register_dump(state, 6);
 	halt_system();
@@ -48,12 +52,14 @@ void invalid_opcode_handler(int_state_t * state)
 /* INT vec 7 */
 void device_not_available_handler(int_state_t * state)
 {
+	interrupt_register_dump(state);
 	kprint(WARN, "Device not available interrupt called\n");
 }
 
 /* INT vec 8 */
 void double_fault_handler(int_state_t * state)
 {
+	interrupt_register_dump(state);
 	kprint(ERROR, "Double fault interrupt called\n");
 	halt_system();
 }
@@ -61,6 +67,7 @@ void double_fault_handler(int_state_t * state)
 /* INT vec 10 */
 void invalid_tss_handler(int_state_t * state)
 {
+	interrupt_register_dump(state);
 	kprint(ERROR, "Invalid TSS handler called\n");
 	halt_system();
 }
@@ -68,6 +75,7 @@ void invalid_tss_handler(int_state_t * state)
 /* INT vec 11 */
 void segment_not_present_handler(int_state_t * state)
 {
+	interrupt_register_dump(state);
 	kprint(ERROR, "Segment not present handler called\n");
 	halt_system();
 }
@@ -75,6 +83,7 @@ void segment_not_present_handler(int_state_t * state)
 /* INT vec 12 */
 void stack_segment_fault_handler(int_state_t * state)
 {
+	interrupt_register_dump(state);
 	kprint(ERROR, "Stack segment fault handler called\n");
 	halt_system();
 }
@@ -82,6 +91,7 @@ void stack_segment_fault_handler(int_state_t * state)
 /* INT vec 13 */
 void gpf_handler(int_state_t * state)
 {
+	interrupt_register_dump(state);
 	
 	kprint(ERROR, "GPF handler called \n");
 	halt_system();

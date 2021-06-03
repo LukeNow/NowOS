@@ -1,7 +1,3 @@
-;extern current_task
-;extern next_task
-extern destroy_task
-extern bootstrap_task
 
 ; These are the offsets into the cpu struct that is gaurenteed to be at the
 ; top of the tib_t struct. So any offsets from the tib_t pointer will be
@@ -52,22 +48,6 @@ extern bootstrap_task
 %define thread_prep_ecx -24
 %define thread_prep_edx -28
 
-
-; void prep_stack_frame(tib_t * tib, void (*enter)(), 
-;		        uint32_t stack_addr) 
-global prep_stack_frame
-prep_stack_frame:
-
-	mov eax, [esp + 4] ;tib
-	mov ebx, [esp + 8] ;enter address
-	mov ecx, [esp + 12] ;stack addr
-	
-	mov [ecx - 0], dword 0xDEADBEEF ;eip, zero because we dont return here
-	
-
-	ret
-
-
 extern thread_enter
 ;void _thread_enter(tib_t * thread)
 global _thread_enter
@@ -81,10 +61,15 @@ extern scheduler_leave_and_queue
 ;void thread_switch_sync(tib_t * from_thread, tib_t * to_thread)
 global thread_switch_sync
 thread_switch_sync:
+	cli
+
 	mov eax, [esp + 4] ;from_thread
 	mov ebx, [esp + 8] ;to_thread
 
-	mov [eax + cpu_esp], esp
+	mov ecx, esp
+	add ecx, 4 ; subtrac the eip that we wont be popping
+
+	mov [eax + cpu_esp], ecx
 	mov [eax + cpu_ebp], ebp
 	mov ecx, esp
 	mov edx, [esp]
@@ -95,6 +80,9 @@ thread_switch_sync:
 	push eax
 	call scheduler_leave_and_queue
 	add esp, 4
+	
+	mov eax, [esp + 4] ;from_thread
+	mov ebx, [esp + 8] ;to_thread
 
 	; Change stacks
 	mov esp, [ebx + cpu_esp]
@@ -134,19 +122,22 @@ thread_switch_sync:
 	pop ecx
 	pop ebx
 	pop eax
+
+	sti
 	; Pops the eip of to_thread that we placed
 	ret
 
 
 ; In this function we are manipulating values past the SP of to_thread, 
-; We can only do this because we use interrupt gates, where only one interrupt
-; Is executing at a time (no nested interrupts), so if we put values past the 
+; we can only do this because we use interrupt gates, where only one interrupt
+; ss executing at a time (no nested interrupts), so if we put values past the 
 ; SP they wont be changing
 ; Also note, that we are switching from an interrupt context, and we are essentially
 ; moving the interrupts "frame" to the thread we are switching to
 
 ;void thread_switch_async(tib_t * from_thread, tib_t * to_thread, 
 ;						  int_state_t * int_state)
+extern scheduler_async_leave
 global thread_switch_async
 thread_switch_async:
 	
@@ -155,12 +146,20 @@ thread_switch_async:
 	mov ecx, [esp + 12] ; int_state
 	mov edx, [ebx + cpu_esp] ;to_thread's sp
 
-	mov esi, [ecx + int_eflags]
+	mov esi, [ecx + int_eflags] ; We might need to load the eflags not from
+								; the int structure because of user space stuff
 	mov [edx + thread_prep_eflags], esi
 
-	mov esi, [ecx + int_cs]
+	mov esi, [ecx + int_cs]		; ^ same here
 	mov [edx + thread_prep_cs], esi
 
+
+	call scheduler_async_leave
+	
+	mov eax, [esp + 4] ;from_thread
+	mov ebx, [esp + 8] ;to_thread
+	mov ecx, [esp + 12] ; int_state
+	mov edx, [ebx + cpu_esp] ;to_thread's sp
 	; This is to_threads eip that we will be switching to
 	; when we execute an iret
 	mov esi, [ebx + cpu_eip]
@@ -178,23 +177,15 @@ thread_switch_async:
 	mov esi, [ebx + cpu_edx]
 	mov [edx + thread_prep_edx], esi
 
-	; The last three values will be popped by iret
-	;mov [edx + thread_prep_eax], [ebx + cpu_eax]
-	;mov [edx + thread_prep_ebx], [ebx + cpu_ebx]
-	;mov [edx + thread_prep_ecx], [ebx + cpu_ecx]
-	;mov [edx + thread_prep_edx], [ebx + cpu_edx]
-
 	mov esi, [ebx + cpu_esi]
 	mov edi, [ebx + cpu_edi]
 	mov ebp, [ebx + cpu_ebp]
-	;mov eflags, [ebx + cpu_eflags]
+	;mov eflags, [ebx + cpu_eflags] ;Gets popped by iret
 
 	mov esi, [ebx + cpu_cr0]
 	mov cr0, esi
-	;mov cr0, [ebx + cpu_cr0]
 	mov esi, [ebx + cpu_cr2]
 	mov cr2, esi
-	;mov cr2, [ebx + cpu_cr2]
 
 	mov eax, cr3
 	mov ebx, [ebx + cpu_cr3]
@@ -205,6 +196,7 @@ thread_switch_async:
 .samecr3:
 	; Move the stack pointer of from_thread to where we placed
 	; the values
+
 	add edx, thread_prep_edx
 	mov esp, edx
 
@@ -214,27 +206,3 @@ thread_switch_async:
 	pop eax
 
 	iret
-
-	;mov eax, [current_task]
-	;mov ecx, esp
-	;mov [eax + 20], ecx
-	;mov ecx, ebp
-	;mov [eax + 24], ecx
-	;;Get next task and start loading it
-	;mov ecx, [next_task] ;get next task
-	;mov [current_task], ecx ;move next task into current task
-	;mov esp, [ecx + 20] ;load next esp
-	;mov ebp, [ecx + 24]
-	;mov eax, [ecx + 8]  ;load cr3
-	;mov ecx, cr3 ;previous tasks virtual address space (page dir)
-	
-	;cmp eax, ecx
-	;je .sameVAS ;same virtual address space
-	
-	;mov cr3, eax
-;.sameVAS:
-
-	;ret ;Because we changed the SP, we will pop the return addr
-	    ;of the function we are switching to
-	    ;This means that this function is not an asyncrounous
-	    ;task switch, something we will need to implement later

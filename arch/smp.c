@@ -35,7 +35,7 @@ void init_ap(uint32_t processor_id)
 
     lapic_cpu_init(processor_id);
 
-    kprint(INFO, "Processor with old id %d is now %d\n", processor_id, lapic_get_id());
+    //kprint(INFO, "Processor with old id %d is now %d\n", processor_id, lapic_get_id());
     enable_int();
 
 
@@ -83,7 +83,7 @@ void init_smp()
     memcpy(raw_ap_cpu_gdtr, get_gdt_desc(), sizeof(gdt_reg_desc_t));
     memcpy(raw_ap_cpu_idtr, get_idt_desc(), sizeof(idt_reg_desc_t));
 
-    kprint(INFO, "Initializing %d cpus\n", apic_cpu_count);
+    //kprint(INFO, "Initializing %d cpus\n", apic_cpu_count);
 
     uint8_t bsp_id = lapic_get_id();
     /* MAKE SURE NOT TO CALL THE ID OF THE BSP */
@@ -97,14 +97,19 @@ void init_smp()
 
         //kprint(INFO, "SENDING INIT TO CPU %d\n", acpi_id);
         lapic_send_init(acpi_id);
+
+        //for (int i = 0; i < 100000; i++)
+         //   nop();
         //kprint(INFO, "SENDING STARTUP TO CPU %d\n", acpi_id);
         lapic_send_startup(acpi_id, 0x08);
+
+        for (int i = 0; i < 1000; i++) ;
         //kprint(INFO, "INIT DONE on CPU %d\n", acpi_id);
         
         while (atomic_load_16(raw_ap_cpu_id, mem_order_consume) != active_cpus)
             ;
 
-        kprint(INFO, "BSP: AP %d initialized\n", *raw_ap_cpu_id, active_cpus);
+        //kprint(INFO, "BSP: AP %d initialized\n", *raw_ap_cpu_id, active_cpus);
         active_cpus++;
     }
 }

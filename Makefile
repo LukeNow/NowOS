@@ -7,7 +7,7 @@ CC:=$(ARCH)-gcc
 ASM:=nasm
 LIBS:=-nostdlib -lk -lgcc
 
-QEMUFLAGS:= -smp cpus=2 -D qemu_log.txt
+QEMUFLAGS:= -smp cpus=4 -D qemu_log.txt -monitor stdio -d int -no-reboot
 
 KERNDIR:=kernel
 BOOTDIR:=boot

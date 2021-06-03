@@ -104,17 +104,12 @@ void * mem_alloc_region(uint32_t phys_addr, size_t size, flags_t flags)
 		map_kern_page_flags(virt_addr, phys_addr, map_flags);
 		mem_set_tbl(phys_addr);
 
-		//kprint(INFO, "IN ALLOC %d\n", i);
 		virt_addr += PAGE_SIZE;
 		phys_addr += PAGE_SIZE;
 	}
 
-	//kprint(INFO, "OUT ALLOC \n");
-
-	kprint(INFO, "CR3 Value %x\n", get_cr3());
 	flush_tlb();
 
-//	kprint(INFO, "FLUSHED\n");
 	spin_unlock(&phys_mem_tbl.lock);
 
 	return ret_addr;

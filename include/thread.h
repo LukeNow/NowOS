@@ -33,7 +33,7 @@ void prep_stack_frame(tib_t * tib, void (*enter)(),
 
 void thread_switch_async(tib_t * from_thread, tib_t * to_thread, int_state_t * int_state);
 void thread_switch_sync(tib_t * from_thread, tib_t * to_thread);
-tib_t * create_thread(void (*enter)(), const char * name);
+tib_t * thread_create_thread(void (*enter)(), uint32_t stack_addr, const char * name);
 void _thread_enter(tib_t * tib);
 void thread_enter(tib_t * tib);
 void init_threading();

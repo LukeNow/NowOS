@@ -12,6 +12,8 @@ typedef struct processor_t {
 	timer_t timer;
 } processor_t;
 
+
+processor_t * processor_get_info_id(uint16_t cpu_id);
 uint16_t processor_get_id();
 processor_t * processor_get_info();
 void processor_set_info();

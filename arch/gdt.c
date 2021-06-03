@@ -49,6 +49,11 @@ gdt_reg_desc_t * create_gdt_table()
 	kprint(INFO, "CODE2 %x\n", gdt_table[1] >> 32);
 	kprint(INFO, "DATA1 %x\n", gdt_table[2]);
 	kprint(INFO, "DATA2 %x\n", gdt_table[2] >> 32);
+	kprint(INFO, "CODE1-3 %x\n", gdt_table[3]);
+	kprint(INFO, "CODE2-3 %x\n", gdt_table[3] >> 32);
+	kprint(INFO, "DATA1-3 %x\n", gdt_table[4]);
+	kprint(INFO, "DATA2-3 %x\n", gdt_table[4] >> 32);
+
 	gdt_desc.base = &gdt_table;
 	gdt_desc.limit = sizeof(gdt_table) - 1;
 

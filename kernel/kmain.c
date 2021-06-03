@@ -43,8 +43,6 @@ static void reserve_memorymap_pages(multiboot_info_t* mbt)
 			while (mem_addr_lower < mem_addr_upper) {
 				
 				mem_alloc_region(mem_addr_lower, PAGE_SIZE, MEM_IDENTITYREGION);
-				//mem_set_tbl(mem_addr_lower);
-				//map_kern_page(mem_addr_lower, mem_addr_lower);
 
 				mem_addr_lower += PAGE_SIZE;
 			}
@@ -54,14 +52,12 @@ static void reserve_memorymap_pages(multiboot_info_t* mbt)
 	}
 }
 
-
 void ap_kmain()
 {	
 	scheduler_init();
 
 	VERIFY_UNREACHED();
 }
-
 
 void kmain(multiboot_info_t* mbt, unsigned int magic)
 {
@@ -83,38 +79,20 @@ void kmain(multiboot_info_t* mbt, unsigned int magic)
 	init_kern_paging();
 	
 	//reserve_memorymap_pages(mbt);
-	/* TODO init_acpi() must come before init_local_apic() */
 	init_acpi();
-
 	lapic_bsp_init();
-	
 	init_kheap(); //Regular kheap
 	init_page_heap();
-	init_threading();
 	init_smp();
-
+	
 	ioapic_init();
-	
-	//lapic_setup_timer(32, PERIODIC, true);
-
-	//kprint(INFO, "WE MADE IT\n");
 	ioapic_unmask_all();
-	//enable_int();
-	
-	//
-	//for (;;)
-	//kprint(INFO, "INT MADE IT\n");
 	   
+	//run_ktest_suite();
+	kprint(INFO, "ALL INIT\n");
 	processor_set_info();
 	scheduler_init();
-	//lapic_send_ipi(1);
-	//pause();
-	//for (;;);
-	//lapic_broadcast_ipi();
-	//register_dump();
 
-	run_ktest_suite();
-	
 	PANIC("KMAIN STOP"); 
 	
 	/* Hang, we dont return from this function */

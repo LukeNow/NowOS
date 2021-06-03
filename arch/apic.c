@@ -67,7 +67,8 @@ void lapic_bsp_init()
     pic_disable();
     map_kern_page_flags(get_apic_localaddr(), get_apic_localaddr(),
                         PAGE_READWRITE | PAGE_CACHEDISABLE);
-    
+    flush_tlb();
+
     // Clear task priority to enable all interrupts
     lapic_out(LAPIC_TPR, 0);
 
@@ -341,7 +342,11 @@ void ioapic_init()
 {
     map_kern_page_flags(get_apic_ioaddr(), get_apic_ioaddr(),
                         PAGE_READWRITE | PAGE_CACHEDISABLE);
-    
+    kprint(INFO, "FLUSING init ioapic BSP\n");
+    flush_tlb();
+
+    kprint(INFO, "FLUSHED!!!!\n");
+
     redirection_entry_count = ((ioapic_in(0x01) >> 16) & 0xff) + 1;
     uint32_t gsi_base = get_gsibase();
 

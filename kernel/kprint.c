@@ -28,13 +28,44 @@ static char *convert(unsigned int num, int base)
 	return ptr;
 }
 
-void kprint(enum LOG_LEVEL level, char* format, ...)
+
+void klog(LOG_LEVEL level, char* format, ...)
 {
 	char *charp;
 	int i;
 	char *s;
 	
-	spin_lock(&lock);
+	va_list arg;
+	va_start(arg, format);
+	
+	int arg_num = 0;
+
+	for(charp = format; *charp != '\0'; charp++) {
+		switch(*charp) {
+			case 'c': i = va_arg(arg, int);
+					
+					break;
+
+			case 'd': i = va_arg(arg,int);
+					break;
+
+			case 's': s = va_arg(arg, char *);
+					break;
+
+			case 'x': i = va_arg(arg, unsigned int);
+					break;
+		}
+	}
+	va_end(arg);
+}
+
+void kprint(LOG_LEVEL level, char* format, ...)
+{
+	char *charp;
+	int i;
+	char *s;
+	
+	//spin_lock(&lock);
 
 	va_list arg;
 	va_start(arg, format);
@@ -96,5 +127,5 @@ void kprint(enum LOG_LEVEL level, char* format, ...)
 	}
 	va_end(arg);
 
-	spin_unlock(&lock);
+	//spin_unlock(&lock);
 }
